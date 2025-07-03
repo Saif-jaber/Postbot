@@ -1,53 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Postbot</title>
-  <meta name="description" content="">
-  <link rel="stylesheet" href="CSS/index.css">
+  <meta name="description" content="" />
+  <link rel="stylesheet" href="CSS/index.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <img src="images/logo.svg" alt="Postbot logo">
-    <nav>
-        <ul>
-            <li><a href="#hero">Home</a></li>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#how-it-works">How It Works</a></li>
-            <li><a href="#cta">GitHub</a></li>
-            <li><a href="mailto:youremail@example.com">Contact</a></li>
-         </ul>
+
+  <!-- Animated background dots -->
+  <div class="background">
+    <!-- 34 spans (match nth‑child selectors) -->
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <!-- Glassy nav bar | logo left • links centered • buttons right -->
+  <header class="navbar">
+
+    <!-- logo -->
+    <img src="images/logo.svg" alt="Postbot logo" class="logo" />
+
+    <!-- mobile hamburger -->
+    <input id="nav-toggle" type="checkbox" class="nav-toggle" />
+    <label for="nav-toggle" class="hamburger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </label>
+
+    <!-- links -->
+    <nav class="nav">
+      <ul>
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#cta">GitHub</a></li>
+        <li><a href="mailto:saif.jaber.abed@gmail.com">Contact</a></li>
+      </ul>
     </nav>
+
+    <!-- account buttons -->
     <div id="Account-buttons-container">
-         <button type="button" style="background-color: rgba(0, 0, 0, 0); color: white; border: 0px;">Login</button>
-         <button type="button">Signup</button>
+      <button type="button" class="ghost">Login</button>
+      <button type="button">Signup</button>
     </div>
+
   </header>
 
   <main>
-
     <section id="hero">
-      <!-- Main heading and introduction -->
+      <h1>Better captions. Smarter posts. Less second-guessing</h1>
+      <h2>Built for creators, Postbot reviews your drafts and helps you sharpen your content with fast, honest feedback</h2>
+      <button type="button">Get started</button>
     </section>
-
-    <section id="features">
-      <!-- List your features here -->
-    </section>
-
-    <section id="how-it-works">
-      <!-- Explain how Postbot works -->
-    </section>
-
-    <section id="cta">
-      <!-- Call to action (e.g., link to GitHub or contact) -->
-    </section>
-
+    <section id="features"><!-- List your features here --></section>
+    <section id="how-it-works"><!-- Explain how Postbot works --></section>
+    <section id="cta"><!-- Call to action --></section>
   </main>
 
-  <footer>
-    <!-- Footer links: GitHub, email, etc. -->
-  </footer>
+  <footer><!-- Footer links --></footer>
 
 </body>
 </html>

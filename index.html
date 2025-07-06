@@ -21,7 +21,6 @@
 
   <!-- Glassy nav bar | logo left • links centered • buttons right -->
   <header class="navbar">
-
     <!-- logo -->
     <img src="images/logo.svg" alt="Postbot logo" class="logo" />
 
@@ -37,15 +36,14 @@
         <li><a href="#hero">Home</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#how-it-works">How It Works</a></li>
-        <li><a href="#cta">GitHub</a></li>
         <li><a href="mailto:saif.jaber.abed@gmail.com">Contact</a></li>
       </ul>
     </nav>
 
     <!-- account buttons -->
     <div id="Account-buttons-container">
-      <button type="button" class="ghost">Login</button>
-      <button type="button">Signup</button>
+      <button type="button" class="ghost" onclick="showLoginPopup()">Login</button>
+      <button type="button" onclick="showSignupPopup()">Signup</button>
     </div>
 
   </header>
@@ -54,11 +52,120 @@
     <section id="hero">
       <h1>Better captions. Smarter posts. Less second-guessing</h1>
       <h2>Built for creators, Postbot reviews your drafts and helps you sharpen your content with fast, honest feedback</h2>
-      <button type="button">Get started</button>
+      <button type="button" onclick="showSignupPopup()">Get started</button>
     </section>
-    <section id="features"><!-- List your features here --></section>
-    <section id="how-it-works"><!-- Explain how Postbot works --></section>
-    <section id="cta"><!-- Call to action --></section>
+
+    <!-- List your features here -->
+    <section id="features"> 
+      <div>
+        <h1>AI-Powered Sentiment Analysis</h1>
+        <p>nderstand the emotions behind your posts — positive, neutral, or negative.</p>
+      </div>
+      <div>
+        <h1>Relevance Scoring</h1>
+        <p>See how well your content matches your audience’s interests and trending topics.</p>
+      </div>
+      <div>
+        <h1>Engagement Prediction</h1>
+        <p>Get insights on the likelihood of likes, comments, and shares before posting.</p>
+      </div>
+      <div>
+        <h1>Personalized Improvement Tips</h1>
+        <p>Receive smart suggestions tailored to sharpen your captions and boost impact.</p>
+      </div>
+      <div>
+        <h1>Simple & Fast</h1>
+        <p>Just paste your draft and get instant, actionable feedback — no hassle, no wait.</p>
+      </div>
+      <div>
+        <h1>Cross-Platform Support</h1>
+        <p>Access Postbot anywhere — on desktop, tablet, or mobile devices with a seamless experience.</p>
+      </div>
+    </section>
+
+    <!-- Explain how Postbot works -->
+    <section id="how-it-works">
+      <h1>How It Works</h1>
+      <p>Make Your Posts Work Harder</p>
+      <div>
+        <h1>Paste Your Draft</h1>
+        <p>Enter your social media post text into Postbot’s input box.</p>
+      </div>
+      <div>
+        <h1>Let AI Analyze</h1>
+        <p>Our intelligent algorithms assess sentiment, relevance, and engagement potential.</p>
+      </div>
+      <div>
+        <h1>Get Instant Results</h1>
+        <p>See your post’s scores and insights clearly displayed.</p>
+      </div>
+      <div>
+        <h1>Improve Your Content</h1>
+        <p>Use Postbot’s personalized tips to refine your message.</p>
+      </div>
+      <div>
+        <h1>Post with Confidence</h1>
+        <p>Share content that connects and performs.</p>
+      </div>
+    </section>
+
+    <!-- Call to action -->
+    <section id="cta">
+      <h1>Ready to Make Your Posts Shine?</h1>
+      <p>
+        Join thousands of creators who trust Postbot to boost their social media impact.
+        Get started now — sharpen your captions, predict engagement, and post with confidence.
+      </p>
+      <button onclick="showSignupPopup()">Try Postbot Free</button>
+    </section>
+
+
+    <!-- sign-up popup form-->
+    <dialog id="sign-up">
+      <form id="signup-form" method="POST" autocomplete="off" action="/signup"> 
+        <button type="button" value="cancel" onclick="closeSignupPopup()">X</button>
+        <h1>Create Your Free Postbot Account</h1>
+        <p>Join creators improving their content with AI-powered insights</p>
+        <!-- username-->
+        <label for="username">full Name</label>
+        <input type="text" name="username" id="username" required>
+         <!-- user email-->
+        <label for="email">Email Address</label>
+        <input type="email" name="userEmail" id="email" required>
+        <!-- user Password-->
+        <label for="userPassword">Password</label>
+        <input type="password" name="Password" id="userPassword" required>
+        <!-- user Password-->
+        <label for="Confirm Password">Confirm Password</label>
+        <input type="password" name="ConfirmPassword" id="Confirm Password" required>
+        <p>already have an account  >  <button type="button" onclick="goToLogin()">Login</button></p>
+        <!-- Action buttons-->
+        <button type="button" value="Confirm">create account</button>
+      </form>
+    </dialog>
+
+
+    <!-- Login popup form-->
+    <dialog id="Login">
+      <form id="Login-form" method="POST" autocomplete="off" action="/Login"> 
+        <button type="button" value="cancel" onclick="closeLoginPopup()">X</button>
+        <h1>Welcome Back</h1>
+        <p>Log in to continue using Postbot and improve your social media content with AI-powered feedback</p>
+ 
+        <!-- user email-->
+        <label for="email">Email</label>
+        <input type="email" name="userEmail" id="email" required>
+        <!-- user Password-->
+        <label for="userPassword">Password</label>
+        <input type="password" name="Password" id="userPassword" required>
+    
+        <p>already have an account  >  <button type="button" onclick="goToSignup()">Signup</button></p>
+        <!-- Action buttons-->
+        <button type="button" value="Confirm">Login</button>
+      </form>
+    </dialog>
+
+    <script src="JS/index.js"></script>
   </main>
 
   <footer><!-- Footer links --></footer>

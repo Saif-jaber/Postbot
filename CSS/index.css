@@ -977,3 +977,252 @@ dialog#Login button[value="cancel"]:hover {
   #hero h1{margin-bottom:0.75rem;}
   #hero h2{margin-bottom:1.75rem;}
 }
+
+/* ─────────────────────────────
+   1) MOBILE NAV & LAYOUT  ≤ 768 px
+   ───────────────────────────── */
+@media (max-width: 768px) {
+  /* navbar spacing + hamburger visible */
+  .navbar { gap: 1rem; }
+  .hamburger { display: flex; }
+
+  /* slide‑in panel: 70 % width, 1 rem gaps */
+  .nav {
+    position: fixed;
+    inset: 1rem 0 1rem auto;     /* top | right | bottom | left */
+    width: 70vw;
+    max-width: 320px;
+    max-height: calc(100vh - 2rem);
+    padding-top: 4.5rem;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(12px);
+    border-radius: 16px 0 0 16px;
+    box-shadow: -4px 0 18px rgba(0, 0, 0, 0.45);
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.5, 0.15, 0.3, 1);
+  }
+  .nav ul {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding-left: 2rem;
+  }
+  .nav-toggle:checked + .hamburger + .nav { transform: translateX(0); }
+
+  /* hamburger morph */
+  .nav-toggle:checked + .hamburger span:nth-child(1){transform:translateY(10px) rotate(45deg)}
+  .nav-toggle:checked + .hamburger span:nth-child(2){opacity:0}
+  .nav-toggle:checked + .hamburger span:nth-child(3){transform:translateY(-10px) rotate(-45deg)}
+
+  /* account buttons stack inside panel */
+  #Account-buttons-container {
+    position: fixed;
+    right: 2rem;
+    bottom: 3rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-left: 0;
+  }
+
+  /* hero vertical padding smaller */
+  #hero { padding: 14vh 1rem 10vh; }
+  #hero h1 { margin-bottom: 0.75rem; }
+  #hero h2 { margin-bottom: 1.75rem; }
+}
+
+/* ─────────────────────────────
+   2) TABLET / SMALL LAPTOP  ≤ 600 px
+   ───────────────────────────── */
+@media (max-width: 600px) {
+  /* features grid stacks to 1‑column */
+  #features {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+    gap: 1.8rem;
+  }
+  #features div { padding: 1.25rem 1rem; }
+
+  /* how‑it‑works card padding tighter */
+  #how-it-works > div { padding: 1.25rem 1.5rem; }
+
+  /* CTA padding */
+  #cta { padding: 3rem 1rem; }
+
+  /* dialogs slightly tighter */
+  dialog#sign-up,
+  dialog#Login { padding: 1.75rem 1.5rem 2.1rem; }
+}
+
+/* ─────────────────────────────
+   3) PHONE  ≤ 480 px
+   ───────────────────────────── */
+@media (max-width: 480px) {
+  /* hero text smaller */
+  #hero h1 { font-size: 2.1rem; }
+  #hero h2 { font-size: 1rem; }
+
+  /* further gap tweak for features */
+  #features { gap: 1.6rem; }
+
+  /* how‑it‑works cards */
+  #how-it-works > div { padding: 1rem 1rem; margin-bottom: 1.5rem; }
+
+  /* CTA text/button sizes */
+  #cta h1 { font-size: 1.9rem; }
+  #cta p  { font-size: 1rem; }
+  #cta button { padding: 0.75rem 2rem; font-size: 1rem; }
+
+  /* dialog inputs/buttons smaller */
+  #signup-form input,
+  #Login-form  input { font-size: 0.9rem; padding: 0.65rem; }
+  #signup-form button[value="Confirm"],
+  #Login-form  button[value="Confirm"] {
+    font-size: 1rem; padding: 0.75rem 1.25rem;
+  }
+}
+
+/* ─────────────────────────────
+   4) EXTRA‑SMALL DEVICES  ≤ 360 px
+   ───────────────────────────── */
+@media (max-width: 360px) {
+  .navbar { padding: 0.5rem 1rem; }
+  #hero h1 { font-size: 2rem; }
+  #hero h2 { font-size: 0.95rem; }
+
+  /* dialogs stretch to near full width */
+  dialog#sign-up,
+  dialog#Login { width: 95vw; }
+}
+
+/* ─────────────────────────────
+   MOBILE IMPROVEMENTS  ≤ 768 px
+   ───────────────────────────── */
+@media (max-width: 768px) {
+  /* 1.  Pin hamburger (and its morph) to top‑right above everything */
+  .hamburger,
+  .nav-toggle {     
+    position: fixed;              /* always on screen */
+    top: 1rem;
+    right: 1rem;
+    z-index: 120;                 /* higher than .nav (99) */
+  }
+
+  /* ensure the label still morphs to “X” when checked */
+  .nav-toggle:checked + .hamburger span:nth-child(1){
+    transform: translateY(10px) rotate(45deg);
+  }
+  .nav-toggle:checked + .hamburger span:nth-child(2){opacity:0}
+  .nav-toggle:checked + .hamburger span:nth-child(3){
+    transform: translateY(-10px) rotate(-45deg);
+  }
+
+  /* 2.  Slide‑in panel with room on top/bottom & fixed account buttons */
+  .nav{
+    inset: 1rem 0 1rem auto;      /* leave 1rem top/bottom gap */
+    width: 70vw;
+    max-width: 320px;
+    border-radius: 16px 0 0 16px;
+    box-shadow: -4px 0 18px rgba(0,0,0,.45);
+  }
+  #Account-buttons-container{
+    position: absolute;           /* inside the panel */
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* ─────────────────────────────
+   UNIVERSAL PHONE WHITESPACE  ≤ 480 px
+   ───────────────────────────── */
+@media (max-width: 480px) {
+  /* add horizontal padding to every main section */
+  section,
+  header,
+  footer{
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* but drop the extra padding on grids that already have it */
+  #features,
+  #how-it-works{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* ── Login / Signup buttons: side‑by‑side at top on mobile ── */
+@media (max-width: 768px) {
+  #Account-buttons-container{
+    position: fixed;              /* always visible */
+    top: 1rem;
+    right: 4.5rem;                /* leaves room for the hamburger on the far right */
+    flex-direction: row;          /* side‑by‑side */
+    gap: 0.5rem;
+    z-index: 110;                 /* below hamburger (120) but above rest */
+  }
+
+  /* make each button a bit smaller */
+  #Account-buttons-container button{
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    border-radius: 16px;
+  }
+}
+
+/* ─────────────────────────────
+   FINAL MOBILE POLISH  ≤ 768 px
+   ───────────────────────────── */
+@media (max-width: 768px) {
+
+  /* 1.  Login / Signup buttons next to logo & hamburger */
+  #Account-buttons-container{
+    position: fixed;
+    top: 0.65rem;               /* aligns with logo/hamburger row */
+    right: 4.25rem;             /* leaves ~1rem gap for hamburger */
+    flex-direction: row;
+    gap: 0.6rem;
+    z-index: 110;
+  }
+  #Account-buttons-container button{
+    padding: 6px 16px;          /* a bit larger than previous tweak */
+    font-size: 0.83rem;         /* easier to tap */
+    border-radius: 18px;
+  }
+
+  /* 2.  Dialogs fully centred & fluid width */
+  dialog#sign-up,
+  dialog#Login{
+    width: 90vw;                /* never wider than viewport */
+    max-width: 420px;           /* but respect desktop cap */
+    padding: 1.8rem 1.4rem 2.1rem;
+  }
+  /* make form inputs obey available width */
+  #signup-form input,
+  #Login-form  input{
+    max-width: 100%;
+  }
+}
+
+/* ─────────────────────────────
+   EXTRA‑SMALL DEVICES  ≤ 360 px
+   (Keep centred, slightly tighter padding)
+   ───────────────────────────── */
+@media (max-width: 360px){
+  dialog#sign-up,
+  dialog#Login{
+    width: 95vw;
+    padding: 1.6rem 1rem 1.9rem;
+  }
+}
+
+/* ─────────────────────────────
+   Global overflow safeguard
+   ───────────────────────────── */
+html, body{
+  overflow-x: hidden;           /* ensure no accidental horizontal scroll */
+}
+

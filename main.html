@@ -11,9 +11,12 @@
 <body>
     <aside>
         <nav>
-            <img src="images/logo.svg" alt="logo of postbot">
-            <!-- button for collapsing the side bar-->
-            <button type="button"></button>
+            <div class="sidebar-header">
+              <img src="images/logo.svg" alt="logo of postbot" class="logo"/>
+              <button type="button" class="collapse-btn" id="collapse-btn">
+                <img src="images/sidebar close gray.png" alt="Toggle sidebar" id="collapse-icon" />
+              </button>
+            </div>
             <ul>
                <li>
                  <div>
@@ -47,5 +50,6 @@
         </nav>
     </aside>
     
+    <script src="JS/mainPage.js"></script>
 </body>
 </html>

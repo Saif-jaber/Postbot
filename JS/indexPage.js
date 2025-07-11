@@ -4,21 +4,26 @@ const loginModal = document.querySelector("#Login")
 const signupForm = document.querySelector("#signup-form");
 
 // the functions of the signup forms popups opening and closing
-function showSignupPopup(){
-    signUpModal.showModal();
+function showSignupPopup() {
+  signUpModal.showModal();
+  document.body.classList.add("body-lock");
 }
 
-function closeSignupPopup(){
-    signUpModal.close();
+function closeSignupPopup() {
+  signUpModal.close();
+  document.body.classList.remove("body-lock");
 }
 
-function showLoginPopup(){
-    loginModal.showModal();
+function showLoginPopup() {
+  loginModal.showModal();
+  document.body.classList.add("body-lock");
 }
 
-function closeLoginPopup(){
-    loginModal.close();
+function closeLoginPopup() {
+  loginModal.close();
+  document.body.classList.remove("body-lock");
 }
+
 
 // functions for the links for forms going over other
 function goToLogin(){

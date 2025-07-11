@@ -939,6 +939,9 @@ dialog#Login button[value="cancel"]:hover {
   box-shadow: 0 4px 12px rgba(0, 194, 219, 0.5);
 }
 
+.body-lock {
+  overflow: hidden;
+}
 
 
 /* ── small‑screen tweaks ── */

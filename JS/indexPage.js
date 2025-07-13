@@ -46,7 +46,12 @@ signupForm.addEventListener('submit', function(event){
       alert('Passwords do not match!');
     }
 
-    if(password == ""){
+    else if(password.length < 8){
+      event.preventDefault();  // stop form submission
+      alert('the password should be atleast 8 characters long');
+    }
+
+    else if(password == ""){
       event.preventDefault();  // stop form submission
       alert('Please fill the Passwords field, it should not be empty!');
     }

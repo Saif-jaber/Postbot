@@ -1,32 +1,25 @@
-const sequelize = require('./database');
-const User = require('models/User');
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-async function main() {
-  try {
-    await sequelize.authenticate();
-    console.log('Connected to database!');
+dotenv.config();
 
-    // Sync the model with DB (creates table if not exists)
-    await sequelize.sync();
+const app = express();
+const PORT = process.env.PORT || 8000;
+const MONGO_URL = process.env.MONGO_URL;
 
-    // Create a new user
-    const newUser = await User.create({
-      name: 'Saif',
-      email: 'saif@example.com',
-      password_hash: 'hashed_password_here',
-    });
+app.use(express.json());
 
-    console.log('User created:', newUser.toJSON());
-
-    // Fetch all users
-    const users = await User.findAll();
-    console.log('All users:', users.map(u => u.toJSON()));
-
-  } catch (error) {
-    console.error('Error:', error);
-  } finally {
-    await sequelize.close();
-  }
-}
-
-main();
+mongoose.connect(MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => {
+  console.log("✅ Connected to MongoDB Atlas");
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+})
+.catch(err => {
+  console.error("❌ MongoDB connection error:", err);
+});

@@ -8,7 +8,7 @@
 html {
   font-family: 'Inter', sans-serif;
   background-color: #000;
-  color: #fff;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -189,6 +189,7 @@ aside.collapsed .profile-section {
   justify-content: center;
   padding: 20px 0;
   height: 60px;
+  margin-top: 23.5rem;
 }
 
 aside.collapsed .profile-section h1 {
@@ -211,24 +212,244 @@ aside.collapsed .profile-section h1 {
   display: none !important;
 }
 
-/* Responsive Sidebar (optional) */
+/* ========== MAIN CONTENT ========== */
+/* ========== MAIN CONTENT ========== */
+main {
+  flex-grow: 1;            /* fill remaining horizontal space */
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+/* Front section with greetings */
+#front-section {
+  text-align: center;
+  margin-bottom: 80px;
+  user-select: none;
+}
+
+#header-text {
+  font-size: 4rem;
+  font-weight: 700;
+  background: linear-gradient(
+    90deg,
+    #00e5ff 10%,   /* bright cyan */
+    #0099ff 40%,   /* vivid blue */
+    #ffffff 50%,   /* white stripe */
+    #0099ff 60%,   /* vivid blue */
+    #00e5ff 90%    /* bright cyan */
+  );
+  background-size: 300% 100%;
+  background-position: 0% 0;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+  animation: flowBling 8s linear infinite;
+  margin-bottom: 12px;
+  user-select: none;
+}
+
+@keyframes flowBling {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+#under-text {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #ccc;
+  user-select: none;
+}
+
+/* Text input container */
+#text-input-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;  /* stack textarea and buttons vertically */
+  background-color: #111;
+  padding: 14px 12px;
+  border-radius: 14px;
+  gap: 12px;
+}
+
+/* Textarea styling */
+#user-textInput {
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #eee;
+  font-size: 1.15rem;
+  font-weight: 500;
+  caret-color: #00ffea;
+  padding: 10px 12px;
+  resize: none;
+  overflow: hidden;
+  min-height: 38px;
+  line-height: 1.4;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Autofill styles to keep textarea consistent */
+#user-textInput:-webkit-autofill {
+  box-shadow: 0 0 0px 1000px #111 inset !important;
+  -webkit-text-fill-color: #eee !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+#user-textInput:-moz-autofill {
+  box-shadow: 0 0 0px 1000px #111 inset !important;
+  -moz-text-fill-color: #eee !important;
+}
+
+#user-textInput {
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Buttons container */
+#buttons-container {
+  display: flex;
+  justify-content: space-between; /* attach left, send right */
+  align-items: center;
+  gap: 12px;
+}
+
+/* Attach label styling */
+#attach-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #bbb;
+  font-weight: 500;
+  user-select: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+  margin-left: 6px; /* 👈 slight nudge to the right */
+}
+
+
+#attach-label:hover {
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+#attach-label img {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0.7) saturate(0.3);
+  transition: filter 0.2s ease;
+}
+
+#attach-label:hover img {
+  filter: brightness(0.85) saturate(0.7);
+}
+
+/* Send button styling */
+#send-button {
+  background-color: #00c2db;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+#send-button:hover {
+  background-color: #00a4bf;
+}
+
+#send-button img {
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  user-select: none;
+}
+
+#attachment-preview-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 12px auto;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.attachment-widget {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  color: #eee;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  max-width: 220px;
+  height: 36px;                  /* 👈 fixed height */
+  overflow: hidden;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Filename with ellipsis */
+.attachment-widget span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  max-width: 150px;              /* 👈 max width before cutoff */
+}
+
+
+.attachment-widget .remove-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-left: auto;
+  transition: color 0.2s;
+}
+
+.attachment-widget .remove-btn:hover {
+  color: #fff;
+}
+
+
+/* Responsive adjustments */
 @media (max-width: 600px) {
-  aside {
-    position: fixed;
-    z-index: 1000;
-    height: 100vh;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.7);
+  main {
+    padding: 20px 16px;
+    height: auto;
   }
-
-  aside.open {
-    transform: translateX(0);
+  
+  #header-text {
+    font-size: 2.8rem;
   }
-
-  body.no-scroll {
-    overflow: hidden;
+  
+  #under-text {
+    font-size: 1.4rem;
+  }
+  
+  #text-input-container {
+    padding: 12px 10px;
+    gap: 10px;
+    max-width: 100%;
   }
 }

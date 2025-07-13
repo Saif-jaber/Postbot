@@ -50,5 +50,10 @@ signupForm.addEventListener('submit', function(event){
       event.preventDefault();  // stop form submission
       alert('Please fill the Passwords field, it should not be empty!');
     }
+
+    else{ // place holder text for future creating account and logging in to main page
+      // account creation functions missing note !
+      window.location.href='main.html';
+    }
 });
 

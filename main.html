@@ -3,12 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Postbot</title>
-  <meta name="description" content="" />
+  
+  <title>Postbot — Smarter Social Content</title>
+  <meta name="description" content="Postbot helps creators craft better captions and smarter posts with AI-powered feedback and suggestions." />
+  <meta name="keywords" content="Postbot, social media assistant, AI captions, content creation, post review, caption generator" />
+  <meta name="author" content="Postbot Team" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph Meta Tags for social media preview -->
+  <meta property="og:title" content="Postbot — Smarter Social Content" />
+  <meta property="og:description" content="Postbot helps creators craft better captions and smarter posts with AI-powered feedback and suggestions." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourwebsite.com/" />
+  <meta property="og:image" content="https://yourwebsite.com/images/og-image.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Postbot — Smarter Social Content" />
+  <meta name="twitter:description" content="Postbot helps creators craft better captions and smarter posts with AI-powered feedback and suggestions." />
+  <meta name="twitter:image" content="https://yourwebsite.com/images/og-image.png" />
+  <meta name="twitter:site" content="@YourTwitterHandle" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+
+  <!-- Font & CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="CSS/main.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
+  <header>
     <aside>
         <nav>
             <div class="sidebar-header">
@@ -19,21 +44,21 @@
             </div>
             <ul>
                <li>
-                 <div>
-                   <img src="images/new chat gray.png" alt="new chat icon" />
-                   <h1>New Chat</h1>
+                 <div id="newchat-div">
+                   <img src="images/new chat gray.png" alt="new chat icon" id="newChat-img"/>
+                   <h1 id="newChat-txt">New Chat</h1>
                  </div>
                </li>
                <li>
-                 <div>
-                   <img src="images/search gray.png" alt="search chats icon" />
-                   <h1>Search Chats</h1>
+                 <div id="searchchat-div">
+                   <img src="images/search gray.png" alt="search chats icon" id="searchChat-img"/>
+                   <h1 id="searchChat-txt">Search Chats</h1>
                  </div>
                </li>
                <li>
-                 <div>
-                   <img src="images/history gray.png" alt="history icon button" />
-                   <h1>History</h1>
+                 <div id="history-div">
+                   <img src="images/history gray.png" alt="history icon button" id="history-img"/>
+                   <h1 id="history-txt">History</h1>
                  </div>
              
                  <!-- Scrollable chat history container nested inside the History li -->
@@ -49,6 +74,37 @@
              </div>
         </nav>
     </aside>
+  </header>
+
+  <main>
+    <div id="front-section">
+      <h1 id="header-text">Hello User</h1>
+      <h1 id="under-text">How can I help you today?</h1>
+    </div>
+
+    <div id="attachment-preview-container"></div>
+  
+    <div id="text-input-container">
+      <textarea id="user-textInput" placeholder="Ask me anything..." rows="1"></textarea>
+    
+      <div id="buttons-container">
+        <label for="attach-button" id="attach-label">
+          <img src="images/attachment white.png" alt="attachment icon" />
+          <span>Attach</span>
+        </label>
+        <input type="file" id="attach-button" hidden />
+    
+        <button id="send-button">
+          <img src="images/send white.png" alt="send icon" />
+        </button>
+      </div>
+    </div>
+  </main>
+
+
+    
+
+
     
     <script src="JS/mainPage.js"></script>
 </body>

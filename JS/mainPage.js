@@ -41,6 +41,12 @@ newChatDiv.addEventListener('click', ()=>{
   historyIcon.src = 'images/history gray.png';
   historyText.style.color = '#ffffff';
 
+  setTimeout(() => {
+    newChatIcon.src = 'images/new chat gray.png';
+    newChatText.style.color = '#ffffff';
+  }, 300); // 0.3 second delay
+
+
   clearInputAndAttachments();
 });
 
@@ -121,3 +127,15 @@ function clearInputAndAttachments() {
   const fileInput = document.getElementById("attach-button");
   fileInput.value = "";
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const userName = localStorage.getItem("userName") || "User";
+
+  // Change the welcome header text
+  const headerText = document.getElementById("header-text");
+  if (headerText) headerText.textContent = `Hello ${userName}`;
+
+  // Change the profile section name
+  const profileName = document.querySelector(".profile-section h1");
+  if (profileName) profileName.textContent = userName;
+});

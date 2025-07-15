@@ -148,7 +148,7 @@
 
     <!-- sign-up popup form-->
     <dialog id="sign-up">
-      <form id="signup-form" method="POST" autocomplete="off" action="/signup"> 
+      <form id="signup-form" autocomplete="off"> 
         <button type="button" value="cancel" onclick="closeSignupPopup()">X</button>
         <h1>Create Your Free Postbot Account</h1>
         <p>Join creators improving their content with AI-powered insights</p>
@@ -173,21 +173,20 @@
 
     <!-- Login popup form-->
     <dialog id="Login">
-      <form id="Login-form" method="POST" autocomplete="off" action="/Login"> 
+      <form id="Login-form" method="POST" autocomplete="off">
         <button type="button" value="cancel" onclick="closeLoginPopup()">X</button>
         <h1>Welcome Back</h1>
         <p>Log in to continue using Postbot and improve your social media content with AI-powered feedback</p>
- 
-        <!-- user email-->
+      
         <label for="LoginEmail">Email</label>
-        <input type="email" name="userEmail" id="LoginEmail" required>
-        <!-- user Password-->
+        <input type="email" name="email" id="LoginEmail" required>
+      
         <label for="LoginPassword">Password</label>
-        <input type="password" name="Password" id="LoginPassword" required>
-    
-        <p>already have an account  >  <button type="button" onclick="goToSignup()">Signup</button></p>
-        <!-- Action buttons-->
-        <button type="button" value="Confirm">Login</button>
+        <input type="password" name="password" id="LoginPassword" required>
+      
+        <p>Don’t have an account? <button type="button" onclick="goToSignup()">Signup</button></p>
+      
+        <button type="submit" value="Confirm">Login</button>
       </form>
     </dialog>
 

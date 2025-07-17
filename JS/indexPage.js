@@ -119,3 +119,43 @@ loginForm.addEventListener('submit', async (event) => {
     console.error(error);
   }
 });
+
+window.onload = () => {
+  google.accounts.id.initialize({
+    client_id: "YOUR_CLIENT_ID_HERE",
+    callback: handleGoogleResponse
+  });
+
+  // Render a hidden Google button (real one)
+  google.accounts.id.renderButton(
+    document.getElementById("hiddenGoogleButton"),
+    { theme: "outline", size: "large" }
+  );
+
+  // When user clicks your custom button, trigger Google's hidden button
+  document.getElementById("googleLogin-btn").addEventListener("click", () => {
+    document.querySelector("#hiddenGoogleButton div").click();
+  });
+};
+
+function handleGoogleResponse(response) {
+  fetch("http://localhost:8000/api/users/google-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ credential: response.credential })
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.userName) {
+        localStorage.setItem("userName", data.userName);
+        alert("✅ Google login successful!");
+        window.location.href = "/";
+      } else {
+        alert("Google login failed: " + (data.error || "Unknown error"));
+      }
+    })
+    .catch((err) => {
+      alert("❌ Network/server error.");
+      console.error(err);
+    });
+}

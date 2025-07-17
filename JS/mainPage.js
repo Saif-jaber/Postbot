@@ -139,3 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const profileName = document.querySelector(".profile-section h1");
   if (profileName) profileName.textContent = userName;
 });
+
+function GoToProfilePage(){
+  window.location.href = "profilePage.html";
+}

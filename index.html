@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Postbot — Smarter Captions. Better Posts.</title>
+  <title>Postbot — Smarter Social Content</title>
 
   <!-- SEO Meta Tags -->
   <meta name="description" content="Postbot helps creators craft better captions and smarter posts using AI-powered insights like sentiment analysis, engagement prediction, and relevance scoring." />
@@ -32,6 +32,9 @@
   <!-- Fonts and CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="CSS/index.css" />
+
+  <!-- Google Sign-In script -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
@@ -185,8 +188,13 @@
         <input type="password" name="password" id="LoginPassword" required>
       
         <p>Don’t have an account? <button type="button" onclick="goToSignup()">Signup</button></p>
-      
+
         <button type="submit" value="Confirm">Login</button>
+
+        <button type="button" id="googleLogin-btn">
+          <img src="images/google.png" alt="Google icon" />
+          <span>Continue with Google</span>
+        </button>
       </form>
     </dialog>
 

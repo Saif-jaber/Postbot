@@ -943,6 +943,40 @@ dialog#Login button[value="cancel"]:hover {
   overflow: hidden;
 }
 
+#googleLogin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #7f7f7f;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+#googleLogin-btn:hover {
+  background-color: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+#googleLogin-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+#googleLogin-btn span {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+}
+
 
 /* ── small‑screen tweaks ── */
 @media(max-width: 380px){

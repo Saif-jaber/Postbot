@@ -5,6 +5,8 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
+import geminiRoutes from "./routes/geminiRoutes.js";
+
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -14,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/users", userRoutes);
+app.use("/api/gemini", geminiRoutes); // 👈 Add this below userRoutes
 
 mongoose.connect(MONGO_URL, {
   useNewUrlParser: true,

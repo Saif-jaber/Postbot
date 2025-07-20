@@ -34,14 +34,23 @@
 
 <body>
   <header>
-    <aside>
+    <!-- Mobile top bar -->
+    <div id="mobile-top-bar">
+      <div id="mobile-sidebar-toggle" role="button" tabindex="0" aria-label="Toggle Sidebar" aria-expanded="false">☰</div>
+      <img src="images/logo.svg" alt="Postbot Logo" class="mobile-logo" />
+      <!-- Empty div to balance flex -->
+      <div style="width: 28px;"></div>
+    </div>
+    <aside class="mobile-hidden">
         <nav>
-            <div class="sidebar-header">
-              <img src="images/logo.svg" alt="logo of postbot" class="logo"/>
-              <button type="button" class="collapse-btn" id="collapse-btn">
-                <img src="images/sidebar close gray.png" alt="Toggle sidebar" id="collapse-icon" />
-              </button>
-            </div>
+           <div class="sidebar-header">
+             <img src="images/logo.svg" alt="logo of postbot" class="logo" />
+           
+             <button type="button" class="collapse-btn" id="collapse-btn">
+               <img src="images/sidebar close gray.png" alt="Toggle sidebar" id="collapse-icon" />
+             </button>
+           </div>
+
             <ul>
                <li>
                  <div id="newchat-div">
@@ -79,32 +88,33 @@
     </aside>
   </header>
 
-  <main>
+  <main id="main-section">
     <div id="front-section">
       <h1 id="header-text">Hello User</h1>
       <h1 id="under-text">How can I help you today?</h1>
     </div>
-
+  
+    <div id="chat-container"></div>
+  
     <div id="attachment-preview-container"></div>
   
     <div id="text-input-container">
       <textarea id="user-textInput" placeholder="Ask me anything..." rows="1"></textarea>
-    
+  
       <div id="buttons-container">
         <label for="attach-button" id="attach-label">
           <img src="images/attachment white.png" alt="attachment icon" />
           <span>Attach</span>
         </label>
         <input type="file" id="attach-button" hidden />
-    
+  
         <button id="send-button">
           <img src="images/send white.png" alt="send icon" />
         </button>
       </div>
-      
     </div>
-
   </main>
+  
     <script src="JS/mainPage.js"></script>
 </body>
 </html>

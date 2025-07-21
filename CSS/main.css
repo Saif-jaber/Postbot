@@ -856,7 +856,7 @@ main.sidebar-collapsed {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-fill-color: transparent;
+    -webkit-text-fill-color: transparent;
     animation: flowBling 8s linear infinite;
     margin-bottom: 12px;
   }

@@ -5,6 +5,19 @@
   box-sizing: border-box;
 }
 
+/* Disable caret and text selection globally */
+* {
+  caret-color: transparent;
+  user-select: none;
+}
+
+/* Enable caret and selection for inputs and textareas */
+input,
+textarea {
+  caret-color: auto;
+  user-select: text;
+}
+
 html, body {
   height: 100%;
   width: 100%;

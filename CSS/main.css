@@ -3,6 +3,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  caret-color: transparent;
+  user-select: none;
+}
+
+/* Allow caret and selection in input and textarea */
+input,
+textarea {
+  caret-color: auto;
+  user-select: text;
 }
 
 html {

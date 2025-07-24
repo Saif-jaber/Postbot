@@ -20,7 +20,25 @@ const historyText = document.getElementById('history-txt');
 const mobileToggleBtn = document.getElementById('mobile-sidebar-toggle');
 const body = document.body;
 
+const sendButton = document.getElementById("send-button");
+const sendIcon = sendButton.querySelector("img");
+
 let abortController = null;
+let isBotTyping = false;       // Flag to track if bot is typing
+const messageQueue = [];       // Queue to hold user messages waiting to send
+
+// Function to toggle send/stop button icon and tooltip
+function toggleSendStopButton(isTyping) {
+  if (isTyping) {
+    sendIcon.src = 'images/stop-icon.png';   // <-- Add your stop icon image to images folder
+    sendIcon.alt = 'Stop';
+    sendButton.title = 'Stop generating response';
+  } else {
+    sendIcon.src = 'images/send white.png';  // original send icon
+    sendIcon.alt = 'Send';
+    sendButton.title = 'Send message';
+  }
+}
 
 // Collapse sidebar on desktop
 collapseBtn.addEventListener('click', () => {
@@ -30,16 +48,14 @@ collapseBtn.addEventListener('click', () => {
     ? 'images/sidebar open gray.png'
     : 'images/sidebar close gray.png';
 
-  // Adjust main content layout based on sidebar state
   document.querySelector('main').classList.toggle('sidebar-collapsed', isCollapsed);
 });
-
 
 // Mobile sidebar toggle
 if (mobileToggleBtn) {
   mobileToggleBtn.setAttribute('aria-expanded', 'false');
   mobileToggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // Prevent body click handler from immediately closing sidebar
+    e.stopPropagation();
     const isOpen = sidebar.classList.toggle('open');
     body.classList.toggle('sidebar-open', isOpen);
     mobileToggleBtn.setAttribute('aria-expanded', isOpen.toString());
@@ -167,14 +183,87 @@ function resetLayout() {
   }
 }
 
-// Message sending with abort controller to cancel previous responses
-async function sendMessage() {
-  const userInput = textarea.value.trim();
+// Helper to create and append buttons container to bot message
+function addButtonsToBotMessage(botTextDiv) {
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.className = "message-buttons";
+
+  // Copy button
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "chat-button";
+  copyBtn.innerText = "📋 Copy";
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(botTextDiv.textContent)
+      .then(() => {
+        copyBtn.innerText = "✅ Copied";
+        setTimeout(() => (copyBtn.innerText = "📋 Copy"), 1500);
+      })
+      .catch(() => {
+        copyBtn.innerText = "❌ Failed";
+        setTimeout(() => (copyBtn.innerText = "📋 Copy"), 1500);
+      });
+  };
+
+  // Read aloud button
+  const speakBtn = document.createElement("button");
+  speakBtn.className = "chat-button";
+  speakBtn.innerText = "🔊 Read";
+  speakBtn.onclick = () => {
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+    const utterance = new SpeechSynthesisUtterance(botTextDiv.textContent);
+    speechSynthesis.speak(utterance);
+  };
+
+  buttonsContainer.appendChild(copyBtn);
+  buttonsContainer.appendChild(speakBtn);
+
+  botTextDiv.parentElement.appendChild(buttonsContainer);
+}
+
+// Process next message in queue if any
+async function processNextMessage() {
+  if (isBotTyping) return;  // Don't start if bot is typing already
+  if (messageQueue.length === 0) return;
+
+  const nextMsg = messageQueue.shift();
+  await sendMessage(nextMsg);
+}
+
+// Modified sendMessage accepts userInput as parameter (so it can be queued)
+async function sendMessage(userInput) {
   if (!userInput) return;
 
-  // Abort previous request if any
-  if (abortController) abortController.abort();
+  // Abort ongoing bot reply if any, remove temp UI elements except partial message stays
+  if (abortController) {
+    abortController.abort();
+
+    const chatContainer = document.getElementById("chat-container");
+    const existingThinking = chatContainer.querySelector(".thinking-message");
+    if (existingThinking) existingThinking.remove();
+
+    // Remove old buttons if any to avoid duplicates
+    const oldButtons = chatContainer.querySelectorAll(".message-buttons");
+    oldButtons.forEach(btns => btns.remove());
+
+    // Remove 'temp' class from any partial bot message to keep it permanent
+    const partialBotMsg = chatContainer.querySelector(".message.bot-message.temp");
+    if (partialBotMsg) partialBotMsg.classList.remove("temp");
+
+    // Add buttons immediately after stopping typing
+    if (partialBotMsg) {
+      const botTextDiv = partialBotMsg.querySelector(".message-text");
+      if (botTextDiv && !partialBotMsg.querySelector(".message-buttons")) {
+        addButtonsToBotMessage(botTextDiv);
+      }
+    }
+  }
   abortController = new AbortController();
+
+  isBotTyping = true;
+  toggleSendStopButton(true); // show stop button
+  textarea.disabled = true;   // disable textarea while bot typing
 
   const mainSection = document.getElementById("main-section");
   const chatContainer = document.getElementById("chat-container");
@@ -183,7 +272,6 @@ async function sendMessage() {
     mainSection.classList.add("input-sent");
   }
 
-  // Add the 'chat-started' class to the main section after the first message
   const mainElement = document.querySelector('main');
   if (!mainElement.classList.contains('chat-started')) {
     mainElement.classList.add('chat-started');
@@ -191,23 +279,32 @@ async function sendMessage() {
 
   document.getElementById("front-section").style.display = "none";
 
-  // Clear the textarea after the message is sent
-  textarea.value = "";
-  textarea.style.height = "auto";
-
-  // Append the user message to the chat container
+  // Append new user message
   const userMsg = document.createElement("div");
   userMsg.className = "message user-message";
-  userMsg.textContent = userInput;
+  const userText = document.createElement("div");
+  userText.className = "message-text selectable"; // add selectable here
+  userText.textContent = userInput;
+  userMsg.appendChild(userText);
   chatContainer.appendChild(userMsg);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  // Thinking message
+  // Add thinking message for new bot reply
   const thinkingMsg = document.createElement("div");
   thinkingMsg.className = "message thinking-message";
   thinkingMsg.innerHTML = `Thinking<span class="thinking-dots"><span></span><span></span><span></span></span>`;
   chatContainer.appendChild(thinkingMsg);
   chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  // Create temp bot message container and bubble
+  const tempBotMsg = document.createElement("div");
+  tempBotMsg.className = "message bot-message temp";
+  chatContainer.appendChild(tempBotMsg);
+
+  const botText = document.createElement("div");
+  botText.className = "message-text selectable";
+
+  tempBotMsg.appendChild(botText);
 
   try {
     const response = await fetch("http://localhost:8000/api/gemini/ask", {
@@ -220,28 +317,35 @@ async function sendMessage() {
     const data = await response.json();
     const geminiResponse = data.response || "No response.";
 
-    // Remove the "thinking" message once the response arrives
     thinkingMsg.remove();
 
-    // Add the bot response to the chat container
-    const botMsg = document.createElement("div");
-    botMsg.className = "message bot-message";
-    chatContainer.appendChild(botMsg);
+    // Typing effect that respects abort
+    await typeText(botText, geminiResponse, abortController.signal);
 
-    // Type the bot's response with a typing effect
-    await typeText(botMsg, geminiResponse, abortController.signal);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    // If not aborted, finalize message and add buttons
+    if (!abortController.signal.aborted) {
+      tempBotMsg.classList.remove("temp");
+      addButtonsToBotMessage(botText);
+    }
+
   } catch (err) {
     thinkingMsg.remove();
-    if (err.name === 'AbortError') return;
+    if (err.name === "AbortError") {
+      // Fetch aborted, no error message needed
+      return;
+    }
     console.error("API error:", err);
     const errorMsg = document.createElement("div");
     errorMsg.className = "message bot-message";
     errorMsg.textContent = "Error. Please try again.";
     chatContainer.appendChild(errorMsg);
+  } finally {
+    isBotTyping = false;
+    toggleSendStopButton(false);  // back to send button
+    textarea.disabled = false;     // enable textarea after bot finished
+    processNextMessage();  // Trigger next message in queue after bot reply done
   }
 }
-
 
 async function typeText(element, text, signal, delay = 30) {
   element.textContent = "";
@@ -252,16 +356,42 @@ async function typeText(element, text, signal, delay = 30) {
   }
 }
 
-// Enter key to send message
+// Modified event handlers to queue messages instead of directly calling sendMessage
+
 textarea.addEventListener("keydown", (e) => {
+  if (isBotTyping) {
+    // If bot is typing, ignore Enter key for new message
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+    }
+    return;
+  }
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
-    sendMessage();
+    const userInput = textarea.value.trim();
+    if (userInput) {
+      messageQueue.push(userInput);
+      processNextMessage();
+      textarea.value = "";
+      textarea.style.height = "auto";
+    }
   }
 });
 
-// Send button click
-document.getElementById("send-button").addEventListener("click", sendMessage);
+sendButton.addEventListener("click", () => {
+  if (isBotTyping) {
+    // Stop the bot reply on stop button click
+    if (abortController) abortController.abort();
+  } else {
+    const userInput = textarea.value.trim();
+    if (userInput) {
+      messageQueue.push(userInput);
+      processNextMessage();
+      textarea.value = "";
+      textarea.style.height = "auto";
+    }
+  }
+});
 
 // Profile navigation
 function GoToProfilePage() {

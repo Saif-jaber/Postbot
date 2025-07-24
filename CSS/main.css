@@ -1,4 +1,4 @@
-/* ========== RESET & GLOBALS ========== */
+/* ===== RESET DEFAULT ===== */
 * {
   margin: 0;
   padding: 0;
@@ -7,12 +7,43 @@
   user-select: none;
 }
 
-/* Allow caret and selection in input and textarea */
+/* ✅ Allow selection + caret for input and textarea */
 input,
 textarea {
   caret-color: auto;
-  user-select: text;
+  user-select: text !important;
 }
+
+/* ✅ Allow selection in chat messages */
+.selectable {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  caret-color: auto;
+}
+
+/* === Bot reply tools (buttons below bot messages) === */
+.bot-tools {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.bot-tools button {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: none;
+  background: #444;
+  color: #fff;
+  border-radius: 4px;
+}
+
+.bot-tools button:hover {
+  background: #666;
+}
+
+
 
 html {
   font-family: 'Inter', sans-serif;
@@ -662,7 +693,70 @@ main.sidebar-collapsed {
   pointer-events: none;
 }
 
-/* Show sidebar and hide mobile top bar on desktop */
+.message {
+  display: flex;
+  flex-direction: column;
+  max-width: 90%;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border-radius: 14px;
+  line-height: 1.4;
+  background-color: #222;
+  color: #fff;
+  word-break: break-word;
+  width: fit-content;
+}
+
+.user-message {
+  align-self: flex-start;
+  background-color: #005eff;
+}
+
+.bot-message {
+  align-self: flex-end;
+  background-color: #2a2a2a;
+}
+
+.message-text {
+  width: 100%;
+}
+
+.message-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.chat-button {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3a3a3a;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-button:hover {
+  background-color: #555;
+}
+
+#chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  overflow-y: auto;
+  max-height: 100%;
+  width: 900px;
+  margin: 0 auto;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+
+
 /* Show sidebar and hide mobile top bar on desktop */
 @media (min-width: 769px) {
   #mobile-top-bar {

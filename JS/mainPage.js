@@ -188,32 +188,78 @@ function addButtonsToBotMessage(botTextDiv) {
   const buttonsContainer = document.createElement("div");
   buttonsContainer.className = "message-buttons";
 
-  // Copy button
+  // Copy button (unchanged)
   const copyBtn = document.createElement("button");
-  copyBtn.className = "chat-button";
-  copyBtn.innerText = "📋 Copy";
+  copyBtn.className = "copy";
+  copyBtn.setAttribute("aria-label", "Copy to clipboard");
+
+  const tooltipSpan = document.createElement("span");
+  tooltipSpan.className = "tooltip";
+  tooltipSpan.textContent = "Copy";
+
+  const iconSpan = document.createElement("span");
+  iconSpan.className = "icon-span";
+  iconSpan.innerHTML = `
+    <svg xml:space="preserve" viewBox="0 0 6.35 6.35" height="20" width="20" class="clipboard" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <path d="M2.43.265c-.3 0-.548.236-.573.53h-.328a.74.74 0 0 0-.735.734v3.822a.74.74 0 0 0 .735.734H4.82a.74.74 0 0 0 .735-.734V1.529a.74.74 0 0 0-.735-.735h-.328a.58.58 0 0 0-.573-.53zm0 .529h1.49c.032 0 .049.017.049.049v.431c0 .032-.017.049-.049.049H2.43c-.032 0-.05-.017-.05-.049V.843c0-.032.018-.05.05-.05zm-.901.53h.328c.026.292.274.528.573.528h1.49a.58.58 0 0 0 .573-.529h.328a.2.2 0 0 1 .206.206v3.822a.2.2 0 0 1-.206.205H1.53a.2.2 0 0 1-.206-.205V1.529a.2.2 0 0 1 .206-.206z"/>
+      </g>
+    </svg>`;
+
+  copyBtn.appendChild(tooltipSpan);
+  copyBtn.appendChild(iconSpan);
+
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(botTextDiv.textContent)
       .then(() => {
-        copyBtn.innerText = "✅ Copied";
-        setTimeout(() => (copyBtn.innerText = "📋 Copy"), 1500);
+        const originalIcon = iconSpan.innerHTML;
+        iconSpan.innerHTML = `
+          <svg viewBox="0 0 24 24" height="20" width="20" fill="currentColor" class="checkmark-icon">
+            <path d="M20.285 6.709l-11.11 11.11-5.47-5.47 1.414-1.414 4.056 4.056 9.697-9.697z"/>
+          </svg>
+        `;
+        copyBtn.style.color = "#4ade80";
+        tooltipSpan.style.display = "none";
+        copyBtn.blur();
+        copyBtn.dispatchEvent(new Event("mouseout"));
+        setTimeout(() => {
+          iconSpan.innerHTML = originalIcon;
+          copyBtn.style.color = "";
+          tooltipSpan.style.display = "";
+        }, 1500);
       })
       .catch(() => {
-        copyBtn.innerText = "❌ Failed";
-        setTimeout(() => (copyBtn.innerText = "📋 Copy"), 1500);
+        copyBtn.style.color = "red";
+        setTimeout(() => copyBtn.style.color = "", 1500);
       });
   };
 
-  // Read aloud button
+  // Read aloud button — with hollow speaker SVG + fit width + padding + blur on click
   const speakBtn = document.createElement("button");
-  speakBtn.className = "chat-button";
-  speakBtn.innerText = "🔊 Read";
+  speakBtn.className = "read-button";
+  speakBtn.setAttribute("aria-label", "Read aloud");
+
+  speakBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="speaker-icon" viewBox="0 0 24 24">
+      <path d="M11 5L6 9H3v6h3l5 4V5z"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      <path d="M19.07 4.93a9 9 0 0 1 0 14.14"/>
+    </svg>
+    <span style="margin-left: 6px;">Read</span>
+  `;
+
+  speakBtn.style.width = "auto";
+  speakBtn.style.padding = "0 12px";
+
   speakBtn.onclick = () => {
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
     }
     const utterance = new SpeechSynthesisUtterance(botTextDiv.textContent);
+    utterance.lang = "en-US";
     speechSynthesis.speak(utterance);
+
+    speakBtn.blur();
   };
 
   buttonsContainer.appendChild(copyBtn);
@@ -221,6 +267,8 @@ function addButtonsToBotMessage(botTextDiv) {
 
   botTextDiv.parentElement.appendChild(buttonsContainer);
 }
+
+
 
 // Process next message in queue if any
 async function processNextMessage() {

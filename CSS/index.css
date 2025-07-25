@@ -3,7 +3,17 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  caret-color: transparent;
+  user-select: none;
 }
+
+/* ✅ Allow selection + caret for input and textarea */
+input,
+textarea {
+  caret-color: auto;
+  user-select: text !important;
+}
+
 html {
   scroll-behavior: smooth;
   font-family: 'Inter', sans-serif;
@@ -977,6 +987,264 @@ dialog#Login button[value="cancel"]:hover {
   color: #fff;
 }
 
+.footer {
+  background-color: #111;
+  color: #fff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  border-top: 1px solid #4f4f4f;
+  padding-left: 60px;
+  padding-right: 60px;
+  /* Removed top and bottom padding */
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: nowrap;                /* keep all items in one row */
+  justify-content: space-between;  /* equal space between items */
+  gap: 80px;                       /* gap between items */
+  padding: 40px 0px 20px;        /* top, left/right, bottom padding */
+  box-sizing: border-box;
+}
+
+.footer-section {
+  flex: 0 1 180px;    /* base width 180px, no grow, can shrink */
+  min-width: 180px;
+  max-width: 280px;   /* limit max width to prevent stretching */
+}
+
+.footer-section h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 10px;
+}
+
+.footer-section ul li a {
+  color: #cfcfcf;
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.2s ease;
+}
+
+.footer-section ul li a:hover {
+  color: #ffffff;
+}
+
+.footer-section.about p {
+  color: #cfcfcf;
+  font-size: 15px;
+  max-width: 320px;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.logo-img {
+  height: 3rem;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.github-btn {
+  display: block;
+  margin-bottom: 15px;
+  width: fit-content;
+}
+
+.github-btn img {
+  height: 32px;
+  border: 1px solid #00b3ff;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #00b3ff;
+}
+
+.footer-bottom {
+  padding: 18px 0px;       /* small vertical padding */
+  line-height: 1.1;       /* tight line height */
+  font-size: 14px;
+  border-top: 1px solid #1e1e1e;
+  color: #aaa;
+  text-align: center;
+  width: 100%;
+  height: auto;
+  background-color: #000;
+}
+
+.brutalist-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  width: 150px; /* reduced width */
+  height: 50px; /* reduced height */
+  background-color: #000;
+  color: #fff;
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  border: 3px solid #c9c9c9;
+  outline: 3px solid #000;
+  box-shadow: 6px 6px 0 #939393c7;
+  transition: all 0.1s ease-out;
+  padding: 0 12px; /* slightly smaller padding */
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.brutalist-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+  z-index: 1;
+  opacity: 0;
+}
+
+@keyframes slide {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.brutalist-button:hover::before {
+  opacity: 1;
+  animation: slide 2s infinite;
+}
+
+.brutalist-button:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 10px 10px 0 #000;
+  background-color: #000;
+  color: #fff;
+}
+
+.brutalist-button:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0 #00a4ef;
+  background-color: #fff;
+  color: #000;
+  border-color: #000;
+}
+
+.github-logo {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease-out;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brutalist-button:hover .github-logo {
+  transform: rotate(-10deg) scale(1.1);
+}
+
+.brutalist-button:active .github-logo {
+  transform: rotate(10deg) scale(0.9);
+}
+
+.button-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  transition: transform 0.2s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+.brutalist-button:hover .button-text {
+  transform: skew(-5deg);
+}
+
+.brutalist-button:active .button-text {
+  transform: skew(5deg);
+}
+
+.button-text span:first-child {
+  font-size: 10px; /* reduced font */
+  text-transform: uppercase;
+}
+
+.button-text span:last-child {
+  font-size: 14px; /* reduced font */
+  text-transform: uppercase;
+}
+
+.brutalist-button,
+.email-button {
+  margin-top: 12px;       /* added margin top */
+  width: 130px;           /* smaller width */
+  height: 40px;           /* smaller height */
+  padding: 0 10px;        /* adjusted padding */
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Adjust icon containers size */
+.github-logo,
+.email-logo {
+  width: 16px;            /* smaller icon width */
+  height: 16px;           /* smaller icon height */
+  margin-right: 6px;      /* smaller margin */
+}
+
+/* Adjust svg icon sizes */
+.github-logo svg,
+.email-logo svg {
+  width: 20px;            /* slightly smaller than before */
+  height: 20px;
+}
+
+/* Adjust text sizes */
+.button-text span:first-child {
+  font-size: 8px;         /* smaller font */
+  text-transform: uppercase;
+}
+
+.button-text span:last-child {
+  font-size: 12px;        /* smaller font */
+  text-transform: uppercase;
+}
+
+
+
 
 /* ── small‑screen tweaks ── */
 @media(max-width: 380px){
@@ -1263,3 +1531,113 @@ html, body{
   overflow-x: hidden;           /* ensure no accidental horizontal scroll */
 }
 
+
+/* ─────────────────────────────
+   FOOTER RESPONSIVENESS
+   ───────────────────────────── */
+
+/* Tablets and medium screens */
+@media (max-width: 900px) {
+  .footer {
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+  }
+
+  .footer-content {
+    flex-wrap: wrap !important;           /* allow items to wrap */
+    gap: 40px !important;
+    justify-content: center !important;   /* center footer sections */
+  }
+
+  .footer-section {
+    flex: 1 1 250px !important;           /* allow growth, base width 250px */
+    max-width: none !important;           /* remove max width */
+    min-width: 200px !important;
+  }
+
+  .footer-section.about p {
+    max-width: 100% !important;
+  }
+
+  .footer-section h3 {
+    font-size: 16px !important;
+  }
+
+  .footer-section ul li a {
+    font-size: 14px !important;
+  }
+
+  .github-btn img {
+    height: 28px !important;
+  }
+
+  .brutalist-button,
+  .email-button {
+    width: 120px !important;
+    height: 40px !important;
+  }
+
+  .button-text span:first-child {
+    font-size: 7px !important;
+  }
+
+  .button-text span:last-child {
+    font-size: 11px !important;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+  .footer {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  .footer-content {
+    flex-direction: column !important;   /* stack footer sections vertically */
+    gap: 30px !important;
+    padding-top: 30px !important;
+    padding-bottom: 20px !important;
+  }
+
+  .footer-section {
+    flex: 1 1 100% !important;
+    min-width: auto !important;
+    max-width: 100% !important;
+  }
+
+  .footer-section h3 {
+    font-size: 15px !important;
+  }
+
+  .footer-section ul li a {
+    font-size: 13px !important;
+  }
+
+  .footer-section.about p {
+    font-size: 14px !important;
+    max-width: 100% !important;
+  }
+
+  .logo-img {
+    height: 2.5rem !important;
+  }
+
+  .github-btn img {
+    height: 24px !important;
+  }
+
+  .brutalist-button,
+  .email-button {
+    width: 110px !important;
+    height: 36px !important;
+  }
+
+  .button-text span:first-child {
+    font-size: 6px !important;
+  }
+
+  .button-text span:last-child {
+    font-size: 10px !important;
+  }
+}

@@ -755,6 +755,232 @@ main.sidebar-collapsed {
   box-sizing: border-box;
 }
 
+/* From Uiverse.io by Galahhad */ 
+/* tooltip settings 👇 */
+
+.copy {
+  /* button */
+  --button-bg: #353434;
+  --button-hover-bg: #464646;
+  --button-text-color: #CCCCCC;
+  --button-hover-text-color: #8bb9fe;
+  --button-border-radius: 10px;
+  --button-diameter: 36px;
+  --button-outline-width: 1px;
+  --button-outline-color: rgb(141, 141, 141);
+  /* tooltip */
+  --tooltip-bg: #f4f3f3;
+  --toolptip-border-radius: 4px;
+  --tooltip-font-family: Menlo, Roboto Mono, monospace;
+  /* 👆 this field should not be empty */
+  --tooltip-font-size: 12px;
+  /* 👆 this field should not be empty */
+  --tootip-text-color: rgb(50, 50, 50);
+  --tooltip-padding-x: 7px;
+  --tooltip-padding-y: 7px;
+  --tooltip-offset: 0px;
+  /* --tooltip-transition-duration: 0.3s; */
+  /* 👆 if you need a transition, 
+  just remove the comment,
+  but I didn't like the transition :| */
+}
+
+.copy {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--button-diameter);
+  height: var(--button-diameter);
+  border-radius: var(--button-border-radius);
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+}
+
+.tooltip {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: var(--tooltip-font-size) var(--tooltip-font-family);
+  color: var(--tootip-text-color);
+  background: var(--tooltip-bg);
+  padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+  border-radius: var(--toolptip-border-radius);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.tooltip::before {
+  content: attr(data-text-initial);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: calc(var(--tooltip-padding-y) / 2 * -1);
+  width: var(--tooltip-padding-y);
+  height: var(--tooltip-padding-y);
+  background: inherit;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  z-index: -999;
+  pointer-events: none;
+}
+
+.copy svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: currentColor;
+}
+
+.checkmark {
+  display: none;
+}
+
+/* Show tooltip on hover/focus */
+.copy:hover .tooltip,
+.copy:focus .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -30px; /* <-- adjust this number to move tooltip closer or farther */
+}
+
+/* When the button is in 'copied' state */
+.copy.copied .tooltip::before {
+  content: attr(data-text-end);
+}
+
+.copy.copied .clipboard {
+  display: none;
+}
+
+.copy.copied .checkmark {
+  display: block;
+}
+
+.copy.copied .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: calc((100% + var(--tooltip-offset)) * -1);
+}
+
+.copy:hover,
+.copy:focus {
+  background-color: var(--button-hover-bg);
+}
+
+.copy:active {
+  outline: var(--button-outline-width) solid var(--button-outline-color);
+}
+
+.copy:hover svg {
+  color: var(--button-hover-text-color);
+}
+
+.tooltip {
+  pointer-events: none; /* prevents tooltip itself from capturing mouse events */
+}
+
+.read-button {
+  /* same as .copy button */
+  --button-bg: #353434;
+  --button-hover-bg: #464646;
+  --button-text-color: #CCCCCC;
+  --button-hover-text-color: #8bb9fe;
+  --button-border-radius: 10px;
+  --button-diameter: 36px;
+  --button-outline-width: 1px;
+  --button-outline-color: rgb(141, 141, 141);
+
+  position: relative;
+  box-sizing: border-box;
+  width: var(--button-diameter);
+  height: var(--button-diameter);
+  border-radius: var(--button-border-radius);
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: none;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; /* space between icon and text */
+  padding: 0 8px; /* to nicely fit icon + text */
+  font-family: inherit;
+  font-size: 14px;
+  user-select: none;
+}
+
+/* Icon inside read-button */
+.read-button svg {
+  color: currentColor;
+  width: 20px;
+  height: 20px;
+}
+
+/* Hover/focus states */
+.read-button:hover,
+.read-button:focus {
+  background-color: var(--button-hover-bg);
+  color: var(--button-hover-text-color);
+  outline: none;
+}
+
+/* Optional: outline on active */
+.read-button:active {
+  outline: var(--button-outline-width) solid var(--button-outline-color);
+}
+
+/* Tooltip style copied from .copy */
+.read-button .tooltip {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: 12px Menlo, Roboto Mono, monospace;
+  color: rgb(50, 50, 50);
+  background: #f4f3f3;
+  padding: 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.read-button .tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -3.5px;
+  width: 7px;
+  height: 7px;
+  background: inherit;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Show tooltip on hover/focus */
+.read-button:hover .tooltip,
+.read-button:focus .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -30px;
+}
+
+
+
 
 
 /* Show sidebar and hide mobile top bar on desktop */

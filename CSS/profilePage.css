@@ -5,6 +5,7 @@
   box-sizing: border-box;
 }
 
+
 /* Disable caret and text selection globally */
 * {
   caret-color: transparent;

@@ -1086,7 +1086,7 @@ dialog#Login button[value="cancel"]:hover {
   text-align: center;
   width: 100%;
   height: auto;
-  background-color: #000;
+  background-color: #080808;
 }
 
 .brutalist-button {

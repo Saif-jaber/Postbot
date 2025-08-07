@@ -26,6 +26,7 @@ const sendIcon = sendButton.querySelector("img");
 let abortController = null;
 let isBotTyping = false;       // Flag to track if bot is typing
 const messageQueue = [];       // Queue to hold user messages waiting to send
+let conversationHistory = [];  // Store conversation history
 
 // Function to toggle send/stop button icon and tooltip
 function toggleSendStopButton(isTyping) {
@@ -143,7 +144,7 @@ fileInput.addEventListener("change", (event) => {
   widget.appendChild(fileName);
 
   const removeBtn = document.createElement("button");
-  removeBtn.classList.add("remove-btn");
+  removeBtn.className = "remove-btn";
   removeBtn.textContent = "✕";
   removeBtn.addEventListener("click", () => {
     widget.remove();
@@ -167,6 +168,7 @@ function clearChat() {
   const chatContainer = document.getElementById("chat-container");
   chatContainer.innerHTML = "";
   chatContainer.scrollTop = 0;
+  conversationHistory = []; // Clear history when starting a new chat
 }
 
 function resetLayout() {
@@ -187,8 +189,13 @@ function resetLayout() {
 function addButtonsToBotMessage(botTextDiv) {
   const buttonsContainer = document.createElement("div");
   buttonsContainer.className = "message-buttons";
+  buttonsContainer.style.marginTop = "0"; // Add this line
+  
+  // Remove any existing buttons first to avoid duplicates
+  const existingButtons = botTextDiv.parentElement.querySelector(".message-buttons");
+  if (existingButtons) existingButtons.remove();
 
-  // Copy button (unchanged)
+  // Copy button
   const copyBtn = document.createElement("button");
   copyBtn.className = "copy";
   copyBtn.setAttribute("aria-label", "Copy to clipboard");
@@ -234,7 +241,7 @@ function addButtonsToBotMessage(botTextDiv) {
       });
   };
 
-  // Read aloud button — with hollow speaker SVG + fit width + padding + blur on click
+  // Read aloud button
   const speakBtn = document.createElement("button");
   speakBtn.className = "read-button";
   speakBtn.setAttribute("aria-label", "Read aloud");
@@ -265,10 +272,9 @@ function addButtonsToBotMessage(botTextDiv) {
   buttonsContainer.appendChild(copyBtn);
   buttonsContainer.appendChild(speakBtn);
 
+  // Append buttons right after the message text
   botTextDiv.parentElement.appendChild(buttonsContainer);
 }
-
-
 
 // Process next message in queue if any
 async function processNextMessage() {
@@ -291,9 +297,12 @@ async function sendMessage(userInput) {
     const existingThinking = chatContainer.querySelector(".thinking-message");
     if (existingThinking) existingThinking.remove();
 
-    // Remove old buttons if any to avoid duplicates
-    const oldButtons = chatContainer.querySelectorAll(".message-buttons");
-    oldButtons.forEach(btns => btns.remove());
+    // Only remove buttons inside the last temp bot message (not all previous replies)
+    const oldTempMsg = chatContainer.querySelector(".bot-message.temp");
+    if (oldTempMsg) {
+      const oldButtons = oldTempMsg.querySelectorAll(".message-buttons");
+      oldButtons.forEach(btns => btns.remove());
+    }
 
     // Remove 'temp' class from any partial bot message to keep it permanent
     const partialBotMsg = chatContainer.querySelector(".message.bot-message.temp");
@@ -337,6 +346,15 @@ async function sendMessage(userInput) {
   chatContainer.appendChild(userMsg);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
+  // Add user message to history
+  conversationHistory.push({ role: "user", content: userInput });
+
+  // Limit history to last 10 messages to avoid token limits
+  const maxHistoryLength = 10;
+  if (conversationHistory.length > maxHistoryLength) {
+    conversationHistory = conversationHistory.slice(-maxHistoryLength);
+  }
+
   // Add thinking message for new bot reply
   const thinkingMsg = document.createElement("div");
   thinkingMsg.className = "message thinking-message";
@@ -351,14 +369,17 @@ async function sendMessage(userInput) {
 
   const botText = document.createElement("div");
   botText.className = "message-text selectable";
-
   tempBotMsg.appendChild(botText);
 
   try {
+    // Format the prompt with conversation history
+    const promptWithHistory = conversationHistory
+      .map(msg => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
+      .join("\n\n") + `\n\nUser: ${userInput}`;
     const response = await fetch("http://localhost:8000/api/gemini/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: userInput }),
+      body: JSON.stringify({ prompt: promptWithHistory }),
       signal: abortController.signal,
     });
 
@@ -370,11 +391,8 @@ async function sendMessage(userInput) {
     // Typing effect that respects abort
     await typeText(botText, geminiResponse, abortController.signal);
 
-    // If not aborted, finalize message and add buttons
-    if (!abortController.signal.aborted) {
-      tempBotMsg.classList.remove("temp");
-      addButtonsToBotMessage(botText);
-    }
+    // Add bot response to history
+    conversationHistory.push({ role: "bot", content: geminiResponse });
 
   } catch (err) {
     thinkingMsg.remove();
@@ -395,17 +413,56 @@ async function sendMessage(userInput) {
   }
 }
 
-async function typeText(element, text, signal, delay = 30) {
-  element.textContent = "";
+async function typeText(element, text, signal, delay = 10) {
+  element.innerHTML = ""; // Clear existing content
+
+  const md = window.markdownit({
+    html: false, // Disable raw HTML for safety
+    breaks: true, // Convert newlines to <br> for better text flow
+    linkify: true, // Autoconvert URLs to links
+    typographer: true, // Enable smart quotes and other typographic enhancements
+    highlight: function (str, lang) {
+      // Optional: Add syntax highlighting for code blocks
+      if (lang && window.hljs) {
+        try {
+          return `<pre class="code-block"><code class="language-${lang}">${hljs.highlight(str, { language: lang }).value}</code></pre>`;
+        } catch (__) {}
+      }
+      return `<pre class="code-block"><code>${md.utils.escapeHtml(str)}</code></pre>`;
+    },
+  });
+
+  let accumulated = "";
   for (let i = 0; i < text.length; i++) {
-    if (signal.aborted) return;
-    element.textContent += text.charAt(i);
-    await new Promise(r => setTimeout(r, delay));
+    if (signal.aborted) {
+      const parent = element.closest(".bot-message");
+      if (parent && parent.classList.contains("temp")) {
+        parent.classList.remove("temp");
+        if (!parent.querySelector(".message-buttons")) {
+          addButtonsToBotMessage(element);
+        }
+      }
+      return;
+    }
+
+    accumulated += text.charAt(i);
+    const dirtyHTML = md.render(accumulated);
+    const cleanHTML = DOMPurify.sanitize(dirtyHTML);
+    element.innerHTML = `<div class="markdown-content" style="margin-bottom:0;padding-bottom:0;">${cleanHTML}</div>`;
+    element.parentElement.scrollIntoView({ behavior: "smooth", block: "end" });
+    await new Promise((r) => setTimeout(r, delay));
+  }
+
+  const parent = element.closest(".bot-message");
+  if (parent && parent.classList.contains("temp")) {
+    parent.classList.remove("temp");
+    if (!parent.querySelector(".message-buttons")) {
+      addButtonsToBotMessage(element);
+    }
   }
 }
 
 // Modified event handlers to queue messages instead of directly calling sendMessage
-
 textarea.addEventListener("keydown", (e) => {
   if (isBotTyping) {
     // If bot is typing, ignore Enter key for new message
@@ -446,10 +503,16 @@ function GoToProfilePage() {
   window.location.href = "profilePage.html";
 }
 
-// On load: set username greeting
+// On load: set username greeting and ensure text selection
 document.addEventListener("DOMContentLoaded", () => {
   const userName = localStorage.getItem("userName") || "User";
   document.getElementById("header-text").textContent = `Hello ${userName}`;
   const profileName = document.querySelector(".profile-section h1");
   if (profileName) profileName.textContent = userName;
+  // Ensure text selection is not blocked for bot messages
+  document.addEventListener('selectstart', (e) => {
+    if (e.target.closest('.markdown-content') || e.target.closest('.message-text')) {
+      e.stopPropagation();
+    }
+  });
 });

@@ -7,44 +7,172 @@
   user-select: none;
 }
 
-/* ✅ Allow selection + caret for input and textarea */
+/* Allow selection for input, textarea, and messages */
 input,
-textarea {
-  caret-color: auto;
-  user-select: text !important;
-}
-
-/* ✅ Allow selection in chat messages */
-.selectable {
+textarea,
+.message,
+.user-message,
+.bot-message,
+.message-text,
+.markdown-content,
+.markdown-content * {
   user-select: text !important;
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
   caret-color: auto;
 }
 
-/* === Bot reply tools (buttons below bot messages) === */
-.bot-tools {
-  display: flex;
-  gap: 8px;
-  margin-top: 6px;
+/* Ensure buttons remain non-selectable */
+.message-buttons,
+.message-buttons button {
+  user-select: none;
 }
 
-.bot-tools button {
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  border: none;
-  background: #444;
+/* Markdown content styling */
+.markdown-content {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  box-sizing: border-box;
+  padding: 0 8px;
+  line-height: 1.6;
+  touch-action: auto; /* Improve mobile selection */
+}
+
+/* Headers */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin: 0.5em 0 0.3em 0;
+  font-weight: 600;
   color: #fff;
+}
+
+.markdown-content h1 { font-size: 1.5rem; }
+.markdown-content h2 { font-size: 1.3rem; }
+.markdown-content h3 { font-size: 1.2rem; }
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 { font-size: 1.1rem; }
+
+/* Lists */
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+  list-style-position: outside;
+}
+
+.markdown-content li {
+  margin-bottom: 0.4em;
+}
+
+/* Links */
+.markdown-content a {
+  color: #00c2db;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.markdown-content a:hover {
+  color: #0099ff;
+  text-decoration: underline;
+}
+
+/* Code blocks */
+.markdown-content pre {
+  background-color: #1a1a1a;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+  border: 1px solid #444;
+}
+
+.markdown-content code {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+  color: #eee;
+}
+
+/* Inline code */
+.markdown-content code:not(pre code) {
+  background-color: #1a1a1a;
+  padding: 2px 6px;
   border-radius: 4px;
 }
 
-.bot-tools button:hover {
-  background: #666;
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 3px solid #00c2db;
+  padding-left: 12px;
+  margin: 0.5em 0;
+  color: #ccc;
+  font-style: italic;
 }
 
+/* Tables */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5em 0;
+}
 
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid #444;
+  padding: 8px;
+  text-align: left;
+}
 
+.markdown-content th {
+  background-color: #2a2a2a;
+  font-weight: 600;
+}
+
+.markdown-content tr:nth-child(even) {
+  background-color: #222;
+}
+
+/* Message buttons */
+.message-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.message-buttons button {
+  padding: 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  background: #353434;
+  color: #ccc;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.message-buttons button:hover {
+  background: #464646;
+}
+
+.message-buttons .read-button {
+  width: auto;
+  padding: 0 12px;
+}
+
+/* Existing styles (unchanged) */
 html {
   font-family: 'Inter', sans-serif;
   background-color: #000;
@@ -59,7 +187,7 @@ body {
   overflow: hidden;
 }
 
-/* ========== SIDEBAR ========== */
+/* Sidebar */
 aside {
   position: fixed;
   top: 0;
@@ -77,14 +205,12 @@ aside {
   z-index: 2000;
 }
 
-/* Collapsed sidebar (desktop) */
 aside.collapsed {
   width: 60px;
   padding-left: 0;
   padding-right: 0;
 }
 
-/* Profile section visibility on collapsed */
 aside.collapsed .profile-section {
   display: flex;
   justify-content: center;
@@ -97,8 +223,8 @@ aside.collapsed .profile-section {
 }
 
 aside.collapsed .profile-section img {
-  width: 32px; /* Adjust as needed */
-  height: 32px; /* Adjust as needed */
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
 }
 
@@ -117,7 +243,7 @@ aside.collapsed .chat-history-scroll {
   display: none;
 }
 
-/* ========== COLLAPSE BUTTON ========== */
+/* Collapse button */
 .collapse-btn {
   background-color: transparent;
   border: none;
@@ -156,11 +282,11 @@ aside.collapsed .chat-history-scroll {
 aside.collapsed .collapse-btn {
   position: absolute;
   right: 14px;
-  top: 60%; /* Center vertically */
-  transform: translateY(-50%) translateY(10px); /* Move the button down */
+  top: 60%;
+  transform: translateY(-50%) translateY(10px);
 }
 
-/* ========== SIDEBAR HEADER ========== */
+/* Sidebar header */
 .sidebar-header {
   position: relative;
   display: flex;
@@ -168,23 +294,21 @@ aside.collapsed .collapse-btn {
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid #333;
-  height: auto; /* Default height based on content */
+  height: auto;
 }
 
-/* Adjust sidebar header when sidebar is collapsed */
 aside.collapsed .sidebar-header {
-  height: 50px; /* Reduce height when collapsed */
-  padding: 8px 20px; /* Optionally reduce padding */
-  border-bottom: none; /* Remove border when collapsed */
+  height: 50px;
+  padding: 8px 20px;
+  border-bottom: none;
 }
-
 
 .sidebar-header .logo {
   height: 40px;
   transition: opacity 0.3s ease;
 }
 
-/* ========== NAVIGATION LIST ========== */
+/* Navigation list */
 nav ul {
   list-style: none;
   padding: 20px 0;
@@ -224,7 +348,7 @@ nav ul li h1 {
   white-space: nowrap;
 }
 
-/* ========== CHAT HISTORY SCROLL ========== */
+/* Chat history scroll */
 .chat-history-scroll {
   max-height: 200px;
   overflow-y: auto;
@@ -241,7 +365,7 @@ nav ul li h1 {
   border-radius: 5px;
 }
 
-/* ========== PROFILE SECTION ========== */
+/* Profile section */
 .profile-section {
   display: flex;
   flex-direction: column;
@@ -296,42 +420,39 @@ nav ul li h1 {
   color: rgb(220, 220, 220);
 }
 
-/* ========== MAIN CONTENT ========== */
+/* Main content */
 main {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Vertically center the content */
-  align-items: center; /* Horizontally center the content */
-  height: 100vh; /* Full height of the viewport */
-  width: calc(100% - 260px); /* Adjust width based on sidebar */
-  margin-left: 260px; /* Sidebar space */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: calc(100% - 260px);
+  margin-left: 260px;
   padding: 32px 24px;
   box-sizing: border-box;
   background-color: transparent;
 }
 
 main.sidebar-collapsed {
-  margin-left: 60px; /* When sidebar is collapsed */
-  width: calc(100% - 60px); /* Adjust width to the remaining space when collapsed */
+  margin-left: 60px;
+  width: calc(100% - 60px);
 }
 
-
-/* ========== FRONT SECTION ========== */
+/* Front section */
 #front-section {
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Vertically center the content within the front section */
-  align-items: center; /* Horizontally center the content */
-  height: fit-content; /* Allow the height to grow based on the content */
-  width: 100%; /* Full width of the main content */
-  max-width: 900px; /* Limit the max width */
-  margin-top: 0; /* Remove any margin-top */
-  margin-bottom: 24px; /* Space below the front section */
+  justify-content: center;
+  align-items: center;
+  height: fit-content;
+  width: 100%;
+  max-width: 900px;
+  margin-top: 0;
+  margin-bottom: 24px;
 }
-
-
 
 #header-text {
   font-size: 4rem;
@@ -351,27 +472,22 @@ main.sidebar-collapsed {
   background-clip: text;
   text-fill-color: transparent;
   animation: flowBling 8s linear infinite;
-  margin-bottom: 12px; /* Space below the header text */
+  margin-bottom: 12px;
 }
 
-
 @keyframes flowBling {
-  0% {
-    background-position: 0% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+  0% { background-position: 0% 0; }
+  100% { background-position: -200% 0; }
 }
 
 #under-text {
   font-size: 2rem;
   font-weight: 600;
   color: #ccc;
-  margin-bottom: 24px; /* Space below the under text */
+  margin-bottom: 24px;
 }
 
-/* ========== TEXT INPUT ========== */
+/* Text input */
 #text-input-container {
   width: 100%;
   max-width: 900px;
@@ -382,9 +498,8 @@ main.sidebar-collapsed {
   padding: 14px 12px;
   border-radius: 14px;
   gap: 12px;
-  margin-top: 20px; /* This ensures it doesn't sit directly at the bottom of the screen initially */
+  margin-top: 20px;
 }
-
 
 #user-textInput {
   flex-grow: 1;
@@ -427,7 +542,7 @@ main.sidebar-collapsed {
   gap: 12px;
 }
 
-/* Attach label styling */
+/* Attach label */
 #attach-label {
   display: flex;
   align-items: center;
@@ -457,7 +572,7 @@ main.sidebar-collapsed {
   filter: brightness(0.85) saturate(0.7);
 }
 
-/* Send button styling */
+/* Send button */
 #send-button {
   background-color: #00c2db;
   border: none;
@@ -480,7 +595,7 @@ main.sidebar-collapsed {
   user-select: none;
 }
 
-/* ========== ATTACHMENT PREVIEW ========== */
+/* Attachment preview */
 #attachment-preview-container {
   width: 100%;
   max-width: 900px;
@@ -530,21 +645,20 @@ main.sidebar-collapsed {
   color: #fff;
 }
 
-/* ========== CHAT CONTAINER ========== */
+/* Chat container */
 #chat-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding-bottom: 12px;
   overflow-y: auto;
-  max-height: 100%;
+  max-height: calc(100vh - 200px);
   width: 900px;
   margin: 0 auto;
   background: transparent;
   box-sizing: border-box;
 }
 
-/* Responsive chat container */
 @media (max-width: 900px) {
   #chat-container {
     width: 100%;
@@ -554,7 +668,7 @@ main.sidebar-collapsed {
   }
 }
 
-/* Chat bubble base */
+/* Message styles */
 .message {
   display: inline-block;
   max-width: 70%;
@@ -570,7 +684,6 @@ main.sidebar-collapsed {
   transition: background-color 0.3s ease;
 }
 
-/* User bubble aligned left */
 .user-message {
   background: linear-gradient(135deg, #00a7bd, #0099ff);
   color: white;
@@ -581,9 +694,8 @@ main.sidebar-collapsed {
   margin: 10px 0;
 }
 
-/* Bot bubble aligned right */
 .bot-message {
-  background-color: #2c2c2c;
+  background-color: #2a2a2a;
   color: #eee;
   align-self: flex-end;
   border-bottom-right-radius: 5px;
@@ -592,7 +704,6 @@ main.sidebar-collapsed {
   margin: 10px 0;
 }
 
-/* Thinking bubble aligned right */
 .thinking-message {
   background-color: #444;
   color: #ccc;
@@ -607,7 +718,6 @@ main.sidebar-collapsed {
   text-align: left;
 }
 
-/* Animated dots for thinking */
 .thinking-dots span {
   display: inline-block;
   width: 7px;
@@ -630,7 +740,7 @@ main.sidebar-collapsed {
   40% { opacity: 1; }
 }
 
-/* Scrollbar for chat */
+/* Scrollbar */
 #chat-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -649,7 +759,7 @@ main.sidebar-collapsed {
   background: #666;
 }
 
-/* ========== MOBILE TOP BAR ========== */
+/* Mobile top bar */
 #mobile-top-bar {
   display: none;
   position: fixed;
@@ -666,7 +776,6 @@ main.sidebar-collapsed {
   z-index: 1500;
 }
 
-/* Hamburger button inside top bar */
 #mobile-sidebar-toggle {
   position: absolute;
   left: 12px;
@@ -686,80 +795,14 @@ main.sidebar-collapsed {
   color: #0099ff;
 }
 
-/* Mobile logo centered in top bar */
 .mobile-logo {
   height: 28px;
   user-select: none;
   pointer-events: none;
 }
 
-.message {
-  display: flex;
-  flex-direction: column;
-  max-width: 90%;
-  padding: 10px 14px;
-  margin: 8px 0;
-  border-radius: 14px;
-  line-height: 1.4;
-  background-color: #222;
-  color: #fff;
-  word-break: break-word;
-  width: fit-content;
-}
-
-.user-message {
-  align-self: flex-start;
-  background-color: #005eff;
-}
-
-.bot-message {
-  align-self: flex-end;
-  background-color: #2a2a2a;
-}
-
-.message-text {
-  width: 100%;
-}
-
-.message-buttons {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.chat-button {
-  padding: 6px 12px;
-  font-size: 13px;
-  border: none;
-  border-radius: 8px;
-  background-color: #3a3a3a;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.chat-button:hover {
-  background-color: #555;
-}
-
-#chat-container {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 12px;
-  overflow-y: auto;
-  max-height: 100%;
-  width: 900px;
-  margin: 0 auto;
-  background: transparent;
-  box-sizing: border-box;
-}
-
-/* From Uiverse.io by Galahhad */ 
-/* tooltip settings 👇 */
-
+/* Copy button */
 .copy {
-  /* button */
   --button-bg: #353434;
   --button-hover-bg: #464646;
   --button-text-color: #CCCCCC;
@@ -768,21 +811,14 @@ main.sidebar-collapsed {
   --button-diameter: 36px;
   --button-outline-width: 1px;
   --button-outline-color: rgb(141, 141, 141);
-  /* tooltip */
   --tooltip-bg: #f4f3f3;
   --toolptip-border-radius: 4px;
   --tooltip-font-family: Menlo, Roboto Mono, monospace;
-  /* 👆 this field should not be empty */
   --tooltip-font-size: 12px;
-  /* 👆 this field should not be empty */
   --tootip-text-color: rgb(50, 50, 50);
   --tooltip-padding-x: 7px;
   --tooltip-padding-y: 7px;
   --tooltip-offset: 0px;
-  /* --tooltip-transition-duration: 0.3s; */
-  /* 👆 if you need a transition, 
-  just remove the comment,
-  but I didn't like the transition :| */
 }
 
 .copy {
@@ -795,7 +831,6 @@ main.sidebar-collapsed {
   color: var(--button-text-color);
   border: none;
   cursor: pointer;
-  position: relative;
   outline: none;
 }
 
@@ -845,15 +880,13 @@ main.sidebar-collapsed {
   display: none;
 }
 
-/* Show tooltip on hover/focus */
 .copy:hover .tooltip,
 .copy:focus .tooltip {
   opacity: 1;
   visibility: visible;
-  top: -30px; /* <-- adjust this number to move tooltip closer or farther */
+  top: -30px;
 }
 
-/* When the button is in 'copied' state */
 .copy.copied .tooltip::before {
   content: attr(data-text-end);
 }
@@ -886,11 +919,11 @@ main.sidebar-collapsed {
 }
 
 .tooltip {
-  pointer-events: none; /* prevents tooltip itself from capturing mouse events */
+  pointer-events: none;
 }
 
+/* Read button */
 .read-button {
-  /* same as .copy button */
   --button-bg: #353434;
   --button-hover-bg: #464646;
   --button-text-color: #CCCCCC;
@@ -899,7 +932,6 @@ main.sidebar-collapsed {
   --button-diameter: 36px;
   --button-outline-width: 1px;
   --button-outline-color: rgb(141, 141, 141);
-
   position: relative;
   box-sizing: border-box;
   width: var(--button-diameter);
@@ -913,34 +945,35 @@ main.sidebar-collapsed {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px; /* space between icon and text */
-  padding: 0 8px; /* to nicely fit icon + text */
+  gap: 6px;
+  padding: 0 8px;
   font-family: inherit;
   font-size: 14px;
   user-select: none;
 }
 
-/* Icon inside read-button */
 .read-button svg {
   color: currentColor;
   width: 20px;
   height: 20px;
 }
 
-/* Hover/focus states */
-.read-button:hover,
-.read-button:focus {
+.read-button:hover {
   background-color: var(--button-hover-bg);
   color: var(--button-hover-text-color);
   outline: none;
 }
 
-/* Optional: outline on active */
+.read-button:focus:not(:active) {
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  outline: none;
+}
+
 .read-button:active {
   outline: var(--button-outline-width) solid var(--button-outline-color);
 }
 
-/* Tooltip style copied from .copy */
 .read-button .tooltip {
   position: absolute;
   opacity: 0;
@@ -971,7 +1004,6 @@ main.sidebar-collapsed {
   pointer-events: none;
 }
 
-/* Show tooltip on hover/focus */
 .read-button:hover .tooltip,
 .read-button:focus .tooltip {
   opacity: 1;
@@ -979,20 +1011,13 @@ main.sidebar-collapsed {
   top: -30px;
 }
 
-
-
-
-
-/* Show sidebar and hide mobile top bar on desktop */
+/* Media queries */
 @media (min-width: 769px) {
-  #mobile-top-bar {
-    display: none !important;
-  }
-
+  #mobile-top-bar { display: none !important; }
   aside {
     top: 0;
     left: 0;
-    width: 260px; /* Default width for the sidebar */
+    width: 260px;
     height: 100vh;
     border-right: 1px solid #333;
     overflow-y: auto;
@@ -1001,33 +1026,23 @@ main.sidebar-collapsed {
     flex-direction: column;
     position: fixed;
   }
-
-  /* Collapsed state for sidebar */
-  aside.collapsed {
-    width: 60px; /* Width when collapsed */
-  }
-
-  /* Main content area */
+  aside.collapsed { width: 60px; }
   main {
-    width: calc(100% - 260px); /* Default: Take the remaining space after the sidebar */
-    margin-left: 260px; /* Sidebar width */
+    width: calc(100% - 260px);
+    margin-left: 260px;
     flex-grow: 1;
     padding: 32px 24px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center content horizontally */
-    justify-content: center; /* Center vertically when no chat */
-    transition: margin-left 0.3s ease, width 0.3s ease; /* Smooth transition for width change */
-    height: 100vh; /* Full viewport height */
+    align-items: center;
+    justify-content: center;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    height: 100vh;
   }
-
-  /* When sidebar is collapsed, adjust the width of the main content */
   main.sidebar-collapsed {
-    width: calc(100% - 60px); /* Adjust main width to take remaining space when sidebar is collapsed */
-    margin-left: 60px; /* Shift content to the left when sidebar is collapsed */
+    width: calc(100% - 60px);
+    margin-left: 60px;
   }
-
-  /* Center the front section and text box within main */
   #front-section {
     text-align: center;
     user-select: none;
@@ -1036,11 +1051,10 @@ main.sidebar-collapsed {
     justify-content: center;
     align-items: center;
     height: auto;
-    width: 100%; /* Full width of the main content */
-    max-width: 900px; /* Limit the max width */
-    margin-top: 0; /* Ensure no top margin */
+    width: 100%;
+    max-width: 900px;
+    margin-top: 0;
   }
-
   #header-text {
     font-size: 4rem;
     font-weight: 700;
@@ -1054,7 +1068,6 @@ main.sidebar-collapsed {
     animation: flowBling 8s linear infinite;
     margin-bottom: 12px;
   }
-
   #under-text {
     font-size: 2rem;
     font-weight: 600;
@@ -1062,8 +1075,6 @@ main.sidebar-collapsed {
     user-select: none;
     margin-bottom: 12px;
   }
-
-  /* Position the text input container directly under the front section */
   #text-input-container {
     width: 100%;
     max-width: 900px;
@@ -1074,108 +1085,83 @@ main.sidebar-collapsed {
     padding: 14px 12px;
     border-radius: 14px;
     gap: 12px;
-    margin-top: 20px; /* Directly under the front section */
+    margin-top: 20px;
   }
-
-  /* After the first message is sent, push input box to the bottom */
   main.input-sent {
-    justify-content: flex-end; /* Push the text input to the bottom */
+    justify-content: flex-end;
   }
 }
 
-
-/* Show mobile top bar and toggle button only on small screens */
 @media (max-width: 768px) {
-  #mobile-top-bar {
-    display: flex;
-  }
-
+  #mobile-top-bar { display: flex; }
   main {
     margin-left: 0 !important;
     padding-top: 56px;
     display: flex;
     flex-direction: column;
-    height: 100vh; /* Full height of the viewport */
-    justify-content: flex-start; /* Align content at the top */
+    height: 100vh;
+    justify-content: flex-start;
     position: relative;
   }
-
-  /* After first message sent: fix input box at bottom */
   main.input-sent {
-    justify-content: flex-start; /* Keep content aligned at the top even after a message */
+    justify-content: flex-start;
     padding: 32px 24px;
   }
-
-  /* Chat container behavior when chat starts */
   main.chat-started #chat-container {
-    margin-top: 20px; /* Bring the chat container down slightly */
+    margin-top: 20px;
   }
-
   #chat-container {
     flex-grow: 1;
     overflow-y: auto;
     padding-left: 12px;
     padding-right: 12px;
-    width: 100%; /* Ensure it takes full width */
-    max-width: 900px; /* Optional max-width */
-    margin-bottom: 20px; /* Ensure space below the chat */
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 20px;
     transition: margin-top 0.3s ease;
   }
-
-  /* Position the text input container directly under the front section */
   #text-input-container {
-    width: 100%; /* Full width of the screen */
+    width: 100%;
     max-width: 900px;
-    margin: 0 auto; /* Center horizontally */
+    margin: 0 auto;
     padding: 12px;
-    background-color: #111; /* Ensure the background is dark */
+    background-color: #111;
     border-radius: 14px;
     box-sizing: border-box;
-    position: relative; /* Ensure it's positioned normally in the flow */
-    margin-top: 20px; /* Space between front section and input */
+    position: relative;
+    margin-top: 20px;
   }
-
   aside {
     top: 48px;
-    left: -260px; /* Sidebar hidden off-screen by default */
+    left: -260px;
     width: 260px;
     height: calc(100vh - 48px);
     transition: left 0.3s ease;
     overflow-y: auto;
     border-right: 1px solid #333;
   }
-
   aside.mobile-visible,
   aside.open {
-    left: 0; /* Show sidebar when visible */
+    left: 0;
   }
-
-  /* Hide sidebar header (logo, collapse button, and border line) on mobile */
-  .sidebar-header {
-    display: none;
-  }
-
-  /* Adjust margin-top and position for profile section on mobile */
+  .sidebar-header { display: none; }
   aside.collapsed .profile-section {
-    margin-top: auto; /* Pushes it to the bottom */
-    position: relative; /* Ensures it's within the layout flow */
-    padding-bottom: 20px; /* Space for mobile bottom */
+    margin-top: auto;
+    position: relative;
+    padding-bottom: 20px;
   }
-
-  /* Center the front section vertically */
   #front-section {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Vertically center */
-    align-items: center; /* Horizontally center */
+    justify-content: center;
+    align-items: center;
     width: 100%;
     max-width: 900px;
-    height: 60vh; /* Allow it to take 60% of the height */
+    height: 60vh;
     text-align: center;
-    margin-top: 20vh; /* Offset to ensure it's in the middle */
+    margin-top: 20vh;
     user-select: none;
   }
-
   #header-text {
     font-size: 1.5rem;
     font-weight: 700;
@@ -1189,7 +1175,6 @@ main.sidebar-collapsed {
     animation: flowBling 8s linear infinite;
     margin-bottom: 12px;
   }
-
   #under-text {
     font-size: 1rem;
     font-weight: 600;
@@ -1197,10 +1182,7 @@ main.sidebar-collapsed {
     margin-bottom: 12px;
     user-select: none;
   }
-
-  /* Ensure the text input container is directly under the front section */
   #text-input-container {
-    margin-top: 20px; /* Space between front section and input */
+    margin-top: 20px;
   }
 }
-

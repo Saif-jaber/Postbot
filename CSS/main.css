@@ -163,13 +163,65 @@ textarea,
   transition: background-color 0.2s ease;
 }
 
-.message-buttons button:hover {
-  background: #464646;
-}
-
 .message-buttons .read-button {
   width: auto;
   padding: 0 12px;
+}
+
+/* Tone selector bar */
+#tone-selector-bar {
+  position: fixed;
+  top: 0;
+  left: 260px; /* Align with main content when sidebar is open */
+  width: 100%; /* Full width of main section */
+  background-color: #1a1a1a; /* Darker to match chat area */
+  padding: 10px 12px;
+  border-radius: 0; /* Remove border radius for full-width */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+  border-bottom: 1px solid #2a2a2a; /* Darker border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+main.sidebar-collapsed #tone-selector-bar {
+  left: 60px;
+  width: 100%;
+}
+
+.tone-selector-label {
+  font-size: 1rem;
+  color: #eee; /* Lighter text for contrast */
+  font-weight: 500;
+}
+
+#tone-selector {
+  background-color: #222; /* Match chat container */
+  color: #eee; /* Lighter text for readability */
+  border: 1px solid #333; /* Darker border */
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#tone-selector:hover {
+  background-color: #333;
+  border-color: #555;
+}
+
+#tone-selector:focus {
+  border-color: #00a7bd; /* Match chat area's gradient */
+  box-shadow: 0 0 4px rgba(0, 167, 189, 0.6);
+}
+
+#tone-selector option {
+  background-color: #222;
+  color: #eee;
 }
 
 /* Existing styles (unchanged) */
@@ -430,7 +482,7 @@ main {
   height: 100vh;
   width: calc(100% - 260px);
   margin-left: 260px;
-  padding: 32px 24px;
+  padding: 72px 24px 32px 24px; /* Increased top padding for tone selector bar */
   box-sizing: border-box;
   background-color: transparent;
 }
@@ -502,7 +554,6 @@ main.sidebar-collapsed {
 }
 
 #user-textInput {
-  flex-grow: 1;
   background-color: transparent;
   border: none;
   outline: none;
@@ -652,7 +703,7 @@ main.sidebar-collapsed {
   gap: 8px;
   padding-bottom: 12px;
   overflow-y: auto;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 260px); /* Adjusted for tone selector bar */
   width: 900px;
   margin: 0 auto;
   background: transparent;
@@ -1011,6 +1062,352 @@ main.sidebar-collapsed {
   top: -30px;
 }
 
+/* Platform selector */
+.platform-selector-label {
+  font-size: 1rem;
+  color: #eee;
+  font-weight: 500;
+  margin-left: 20px;
+}
+
+.platform-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.platform-icon {
+  position: relative;
+  margin: 0;
+}
+
+.platform-icon .tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+.platform-icon:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -40px;
+}
+
+.platform-btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: #ccc;
+  background-color: #222;
+  border: 1px solid #333;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.platform-btn:hover {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.platform-btn svg {
+  position: relative;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+}
+
+.platform-btn.active {
+  color: white;
+}
+
+.platform-btn .filled {
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.platform-btn.active .filled {
+  height: 100%;
+}
+
+.platform-btn[data-social="instagram"] .filled,
+.platform-btn[data-social="instagram"] ~ .tooltip {
+  background-color: #e1306c;
+}
+
+.platform-btn[data-social="xtwitter"] .filled,
+.platform-btn[data-social="xtwitter"] ~ .tooltip {
+  background-color: #1da1f2;
+}
+
+.platform-btn[data-social="tiktok"] .filled,
+.platform-btn[data-social="tiktok"] ~ .tooltip {
+  background-color: #000000;
+}
+
+.platform-btn[data-social="linkedin"] .filled,
+.platform-btn[data-social="linkedin"] ~ .tooltip {
+  background-color: #0077b5;
+}
+
+.platform-btn[data-social="facebook"] .filled,
+.platform-btn[data-social="facebook"] ~ .tooltip {
+  background-color: #3b5998;
+}
+
+.platform-btn[data-social="youtube"] .filled,
+.platform-btn[data-social="youtube"] ~ .tooltip {
+  background-color: #ff0000;
+}
+
+/* Tone selector bar */
+#tone-selector-bar {
+  position: fixed;
+  top: 0;
+  left: 260px; /* Align with main content when sidebar is open */
+  width: calc(100% - 260px); /* Adjust width to account for sidebar */
+  background-color: #1a1a1a;
+  padding: 10px 12px;
+  border-radius: 0;
+  display: flex;
+  justify-content: center; /* Center contents */
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+  border-bottom: 1px solid #2a2a2a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+main.sidebar-collapsed #tone-selector-bar {
+  left: 60px;
+  width: calc(100% - 60px);
+}
+
+/* Adjust for mobile */
+@media (max-width: 768px) {
+  #tone-selector-bar {
+    top: 48px; /* Below mobile top bar */
+    left: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+    justify-content: center; /* Center contents on mobile */
+  }
+  .platform-selector-label {
+    margin-left: 10px;
+  }
+  .platform-selector {
+    gap: 6px;
+  }
+  .platform-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .platform-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Existing platform selector styles (unchanged) */
+.platform-selector-label {
+  font-size: 1rem;
+  color: #eee;
+  font-weight: 500;
+  margin-left: 20px;
+}
+
+.platform-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.platform-icon {
+  position: relative;
+  margin: 0;
+}
+
+.platform-icon .tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+.platform-icon:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -40px;
+}
+
+.platform-btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: #ccc;
+  background-color: #222;
+  border: 1px solid #333;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.platform-btn:hover {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.platform-btn svg {
+  position: relative;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+}
+
+.platform-btn.active {
+  color: white;
+}
+
+.platform-btn .filled {
+  position: absolute;
+  top: auto;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.platform-btn.active .filled {
+  height: 100%;
+}
+
+.platform-btn[data-social="instagram"] .filled,
+.platform-btn[data-social="instagram"] ~ .tooltip {
+  background-color: #e1306c;
+}
+
+.platform-btn[data-social="xtwitter"] .filled,
+.platform-btn[data-social="xtwitter"] ~ .tooltip {
+  background-color: #1da1f2;
+}
+
+.platform-btn[data-social="tiktok"] .filled,
+.platform-btn[data-social="tiktok"] ~ .tooltip {
+  background-color: #000000;
+}
+
+.platform-btn[data-social="linkedin"] .filled,
+.platform-btn[data-social="linkedin"] ~ .tooltip {
+  background-color: #0077b5;
+}
+
+.platform-btn[data-social="facebook"] .filled,
+.platform-btn[data-social="facebook"] ~ .tooltip {
+  background-color: #3b5998;
+}
+
+.platform-btn[data-social="youtube"] .filled,
+.platform-btn[data-social="youtube"] ~ .tooltip {
+  background-color: #ff0000;
+}
+
+/* Existing tone selector styles (unchanged) */
+.tone-selector-label {
+  font-size: 1rem;
+  color: #eee;
+  font-weight: 500;
+}
+
+#tone-selector {
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#tone-selector:hover {
+  background-color: #333;
+  border-color: #555;
+}
+
+#tone-selector:focus {
+  border-color: #00a7bd;
+  box-shadow: 0 0 4px rgba(0, 167, 189, 0.6);
+}
+
+#tone-selector option {
+  background-color: #222;
+  color: #eee;
+}
+
+/* Adjust tone-selector-bar for mobile */
+@media (max-width: 768px) {
+  #tone-selector-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+  .platform-selector-label {
+    margin-left: 10px;
+  }
+  .platform-selector {
+    gap: 6px;
+  }
+  .platform-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .platform-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 /* Media queries */
 @media (min-width: 769px) {
   #mobile-top-bar { display: none !important; }
@@ -1031,7 +1428,7 @@ main.sidebar-collapsed {
     width: calc(100% - 260px);
     margin-left: 260px;
     flex-grow: 1;
-    padding: 32px 24px;
+    padding: 72px 24px 32px 24px; /* Adjusted top padding */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1094,9 +1491,15 @@ main.sidebar-collapsed {
 
 @media (max-width: 768px) {
   #mobile-top-bar { display: flex; }
+  #tone-selector-bar {
+    top: 48px; /* Below mobile top bar */
+    left: 0;
+    width: 100%; /* Full width */
+    border-radius: 0; /* No rounded corners for full-width */
+  }
   main {
     margin-left: 0 !important;
-    padding-top: 56px;
+    padding-top: 104px; /* Adjusted for mobile top bar + tone selector bar */
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -1105,7 +1508,7 @@ main.sidebar-collapsed {
   }
   main.input-sent {
     justify-content: flex-start;
-    padding: 32px 24px;
+    padding: 104px 24px 32px 24px;
   }
   main.chat-started #chat-container {
     margin-top: 20px;

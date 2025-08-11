@@ -4,6 +4,7 @@ const collapseIcon = document.getElementById('collapse-icon');
 const textarea = document.getElementById('user-textInput');
 const fileInput = document.getElementById("attach-button");
 const previewContainer = document.getElementById("attachment-preview-container");
+const toneSelector = document.getElementById('tone-selector');
 
 const newChatDiv = document.getElementById('newchat-div');
 const searchChatDiv = document.getElementById('searchchat-div');
@@ -27,11 +28,17 @@ let abortController = null;
 let isBotTyping = false;       // Flag to track if bot is typing
 const messageQueue = [];       // Queue to hold user messages waiting to send
 let conversationHistory = [];  // Store conversation history
+let selectedTone = 'friendly';  // Default tone
+
+// Update tone when selector changes
+toneSelector.addEventListener('change', () => {
+  selectedTone = toneSelector.value;
+});
 
 // Function to toggle send/stop button icon and tooltip
 function toggleSendStopButton(isTyping) {
   if (isTyping) {
-    sendIcon.src = 'images/stop-icon.png';   // <-- Add your stop icon image to images folder
+    sendIcon.src = 'images/stop.png';   // <-- Add your stop icon image to images folder
     sendIcon.alt = 'Stop';
     sendButton.title = 'Stop generating response';
   } else {
@@ -372,8 +379,9 @@ async function sendMessage(userInput) {
   tempBotMsg.appendChild(botText);
 
   try {
-    // Format the prompt with conversation history
-    const promptWithHistory = conversationHistory
+    // Format the prompt with conversation history and selected tone
+    const toneInstruction = `Respond in a ${selectedTone} tone.`;
+    const promptWithHistory = `${toneInstruction}\n\n` + conversationHistory
       .map(msg => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
       .join("\n\n") + `\n\nUser: ${userInput}`;
     const response = await fetch("http://localhost:8000/api/gemini/ask", {
@@ -413,7 +421,7 @@ async function sendMessage(userInput) {
   }
 }
 
-async function typeText(element, text, signal, delay = 10) {
+async function typeText(element, text, signal, normal_delay = 10) {
   element.innerHTML = ""; // Clear existing content
 
   const md = window.markdownit({
@@ -433,7 +441,17 @@ async function typeText(element, text, signal, delay = 10) {
   });
 
   let accumulated = "";
-  for (let i = 0; i < text.length; i++) {
+  const length = text.length;
+  let delay = normal_delay;
+  let switch_point = length; // Default to normal speed
+
+  if (length > 1000) { // Very long reply
+    const fast_delay = 5; // Faster speed
+    switch_point = Math.floor(length * 0.8); // Switch at 80%
+    delay = fast_delay;
+  }
+
+  for (let i = 0; i < length; i++) {
     if (signal.aborted) {
       const parent = element.closest(".bot-message");
       if (parent && parent.classList.contains("temp")) {
@@ -443,6 +461,10 @@ async function typeText(element, text, signal, delay = 10) {
         }
       }
       return;
+    }
+
+    if (i === switch_point) {
+      delay = normal_delay; // Switch to normal speed for the last part
     }
 
     accumulated += text.charAt(i);
@@ -516,3 +538,137 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// Platform selector logic
+const platformButtons = document.querySelectorAll('.platform-btn');
+let selectedPlatforms = new Set();
+
+platformButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const platform = button.getAttribute('data-social');
+    if (selectedPlatforms.has(platform)) {
+      selectedPlatforms.delete(platform);
+      button.classList.remove('active');
+    } else {
+      selectedPlatforms.add(platform);
+      button.classList.add('active');
+    }
+  });
+});
+
+// Update sendMessage to include selected platforms in the prompt
+async function sendMessage(userInput) {
+  if (!userInput) return;
+
+  // Abort ongoing bot reply if any
+  if (abortController) {
+    abortController.abort();
+    const chatContainer = document.getElementById("chat-container");
+    const existingThinking = chatContainer.querySelector(".thinking-message");
+    if (existingThinking) existingThinking.remove();
+    const oldTempMsg = chatContainer.querySelector(".bot-message.temp");
+    if (oldTempMsg) {
+      const oldButtons = oldTempMsg.querySelectorAll(".message-buttons");
+      oldButtons.forEach(btns => btns.remove());
+    }
+    const partialBotMsg = chatContainer.querySelector(".message.bot-message.temp");
+    if (partialBotMsg) partialBotMsg.classList.remove("temp");
+    if (partialBotMsg) {
+      const botTextDiv = partialBotMsg.querySelector(".message-text");
+      if (botTextDiv && !partialBotMsg.querySelector(".message-buttons")) {
+        addButtonsToBotMessage(botTextDiv);
+      }
+    }
+  }
+  abortController = new AbortController();
+
+  isBotTyping = true;
+  toggleSendStopButton(true);
+  textarea.disabled = true;
+
+  const mainSection = document.getElementById("main-section");
+  const chatContainer = document.getElementById("chat-container");
+
+  if (mainSection && !mainSection.classList.contains("input-sent")) {
+    mainSection.classList.add("input-sent");
+  }
+
+  const mainElement = document.querySelector('main');
+  if (!mainElement.classList.contains('chat-started')) {
+    mainElement.classList.add('chat-started');
+  }
+
+  document.getElementById("front-section").style.display = "none";
+
+  const userMsg = document.createElement("div");
+  userMsg.className = "message user-message";
+  const userText = document.createElement("div");
+  userText.className = "message-text selectable";
+  userText.textContent = userInput;
+  userMsg.appendChild(userText);
+  chatContainer.appendChild(userMsg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  conversationHistory.push({ role: "user", content: userInput });
+
+  const maxHistoryLength = 10;
+  if (conversationHistory.length > maxHistoryLength) {
+    conversationHistory = conversationHistory.slice(-maxHistoryLength);
+  }
+
+  const thinkingMsg = document.createElement("div");
+  thinkingMsg.className = "message thinking-message";
+  thinkingMsg.innerHTML = `Thinking<span class="thinking-dots"><span></span><span></span><span></span></span>`;
+  chatContainer.appendChild(thinkingMsg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  const tempBotMsg = document.createElement("div");
+  tempBotMsg.className = "message bot-message temp";
+  chatContainer.appendChild(tempBotMsg);
+
+  const botText = document.createElement("div");
+  botText.className = "message-text selectable";
+  tempBotMsg.appendChild(botText);
+
+  try {
+    // Strengthened platforms instruction to ignore previous and adapt content
+    const platformsInstruction = selectedPlatforms.size > 0 
+      ? `Ignore all previous platform selections mentioned in the conversation history and tailor the response exclusively for the following platforms: ${Array.from(selectedPlatforms).join(', ')}. Adapt any references to previous content in the conversation to fit these current platforms, ensuring relevance to the ongoing discussion.` 
+      : 'Ignore all previous platform selections mentioned in the conversation history and provide a general response suitable for any social media platform. Adapt any references to previous content to maintain relevance to the ongoing discussion.';
+    const toneInstruction = `Respond in a ${selectedTone} tone.`;
+    const promptWithHistory = `${toneInstruction}\n${platformsInstruction}\n\n` + conversationHistory
+      .map(msg => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
+      .join("\n\n") + `\n\nUser: ${userInput}`;
+    const response = await fetch("http://localhost:8000/api/gemini/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: promptWithHistory }),
+      signal: abortController.signal,
+    });
+
+    const data = await response.json();
+    const geminiResponse = data.response || "No response.";
+
+    thinkingMsg.remove();
+
+    await typeText(botText, geminiResponse, abortController.signal);
+
+    conversationHistory.push({ role: "bot", content: geminiResponse });
+
+  } catch (err) {
+    thinkingMsg.remove();
+    if (err.name === "AbortError") {
+      return;
+    }
+    console.error("API error:", err);
+    const errorMsg = document.createElement("div");
+    errorMsg.className = "message bot-message";
+    errorMsg.textContent = "Error. Please try again.";
+    chatContainer.appendChild(errorMsg);
+  } finally {
+    isBotTyping = false;
+    toggleSendStopButton(false);
+    textarea.disabled = false;
+    processNextMessage();
+  }
+}

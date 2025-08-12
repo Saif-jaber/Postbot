@@ -196,8 +196,8 @@ function resetLayout() {
 function addButtonsToBotMessage(botTextDiv) {
   const buttonsContainer = document.createElement("div");
   buttonsContainer.className = "message-buttons";
-  buttonsContainer.style.marginTop = "0"; // Add this line
-  
+  buttonsContainer.style.marginTop = "0";
+
   // Remove any existing buttons first to avoid duplicates
   const existingButtons = botTextDiv.parentElement.querySelector(".message-buttons");
   if (existingButtons) existingButtons.remove();
@@ -272,14 +272,32 @@ function addButtonsToBotMessage(botTextDiv) {
     const utterance = new SpeechSynthesisUtterance(botTextDiv.textContent);
     utterance.lang = "en-US";
     speechSynthesis.speak(utterance);
-
     speakBtn.blur();
   };
 
+  // Save button (placeholder without functionality)
+  const saveBtn = document.createElement("label");
+  saveBtn.className = "ui-bookmark";
+  saveBtn.setAttribute("aria-label", "Bookmark");
+
+  const saveInput = document.createElement("input");
+  saveInput.type = "checkbox";
+
+  const bookmarkSvg = document.createElement("div");
+  bookmarkSvg.className = "bookmark";
+  bookmarkSvg.innerHTML = `
+    <svg viewBox="0 0 32 32" height="20" width="20">
+      <path d="M6 2h20v28L16 20 6 30V2z"/>
+    </svg>
+  `;
+
+  saveBtn.appendChild(saveInput);
+  saveBtn.appendChild(bookmarkSvg);
+
   buttonsContainer.appendChild(copyBtn);
   buttonsContainer.appendChild(speakBtn);
+  buttonsContainer.appendChild(saveBtn);
 
-  // Append buttons right after the message text
   botTextDiv.parentElement.appendChild(buttonsContainer);
 }
 

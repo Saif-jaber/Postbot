@@ -3,116 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Postbot — Smarter Social Content</title>
-
-  <!-- SEO Meta Tags -->
   <meta name="description" content="Postbot helps creators craft better captions and smarter posts using AI-powered insights like sentiment analysis, engagement prediction, and relevance scoring." />
   <meta name="keywords" content="Postbot, AI captions, social media assistant, content analyzer, caption improvement, engagement prediction, sentiment analysis" />
   <meta name="author" content="Postbot Team" />
   <meta name="robots" content="index, follow" />
-
-  <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="Postbot — Smarter Captions. Better Posts." />
   <meta property="og:description" content="Create engaging social media content with Postbot — analyze sentiment, relevance, and more using AI." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://yourwebsite.com/" />
   <meta property="og:image" content="https://yourwebsite.com/images/og-image.png" />
-
-  <!-- Twitter Card Meta Tags -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Postbot — Smarter Captions. Better Posts." />
   <meta name="twitter:description" content="Postbot helps you improve captions, predict engagement, and optimize posts using AI." />
   <meta name="twitter:image" content="https://yourwebsite.com/images/og-image.png" />
   <meta name="twitter:site" content="@YourTwitterHandle" />
-
-  <!-- Favicon -->
   <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-
-  <!-- Fonts and CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="CSS/index.css" />
-
-  <!-- Google Sign-In script -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-
 <body>
-
-  <!-- Animated background dots -->
   <div class="background">
-    <!-- 34 spans (match nth‑child selectors) -->
     <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
     <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
     <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
     <span></span><span></span><span></span><span></span>
   </div>
-
-  <!-- Glassy nav bar | logo left • links centered • buttons right -->
   <header class="navbar" id="Top">
-    <!-- logo -->
     <img src="images/logo.svg" alt="Postbot logo" class="logo" />
-
-    <!-- mobile hamburger -->
     <input id="nav-toggle" type="checkbox" class="nav-toggle" />
     <label for="nav-toggle" class="hamburger" aria-label="Toggle navigation">
       <span></span><span></span><span></span>
     </label>
-
-    <!-- links -->
     <nav class="nav">
       <ul>
         <li><a href="#hero">Home</a></li>
         <li><a href="#features">Features</a></li>
-        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
         <li><a href="mailto:saif.jaber.abed@gmail.com">Contact</a></li>
       </ul>
     </nav>
-
-    <!-- account buttons -->
     <div id="Account-buttons-container">
       <button type="button" class="ghost" onclick="showLoginPopup()">Login</button>
       <button type="button" onclick="showSignupPopup()">Signup</button>
     </div>
-
   </header>
-
   <main>
     <section id="hero">
       <h1>Better captions. Smarter posts. Less second-guessing</h1>
       <h2>Built for creators, Postbot reviews your drafts and helps you sharpen your content with fast, honest feedback</h2>
       <button type="button" onclick="showSignupPopup()">Get started</button>
     </section>
-
-    <!-- List your features here -->
     <section id="features"> 
-      <div>
-        <h1>AI-Powered Sentiment Analysis</h1>
-        <p>Understand the emotions behind your posts — positive, neutral, or negative.</p>
+      <h1 style="color:white;">Available Features</h1>
+      <div class="feature-card group relative overflow-hidden rounded-2xl bg-neutral-900 p-6 font-sans shadow-2xl">
+        <div class="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"></div>
+        <div class="relative flex flex-col gap-4">
+          <div class="border-b border-neutral-700 pb-4">
+            <h1 class="font-bold text-xl text-neutral-100">AI-Powered Sentiment Analysis</h1>
+            <p class="text-neutral-300 text-sm mt-1">Understand the emotions behind your posts — positive, neutral, or negative</p>
+          </div>
+          <div class="border-t border-neutral-700 pt-4">
+            <button class="w-full rounded-lg border border-blue-500/60 bg-blue-500/10 px-4 py-2.5 text-sm font-semibold text-blue-400 transition-colors duration-300 hover:bg-blue-500 hover:text-neutral-950">
+              Show Demos
+            </button>
+          </div>
+        </div>
       </div>
-      <div>
-        <h1>Relevance Scoring</h1>
-        <p>See how well your content matches your audience’s interests and trending topics.</p>
+      <div class="feature-card group relative overflow-hidden rounded-2xl bg-neutral-900 p-6 font-sans shadow-2xl">
+        <div class="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"></div>
+        <div class="relative flex flex-col gap-4">
+          <div class="border-b border-neutral-700 pb-4">
+            <h1 class="font-bold text-xl text-neutral-100">Relevance Scoring</h1>
+            <p class="text-neutral-300 text-sm mt-1">See how well your content matches your audience’s interests and trending topics.</p>
+          </div>
+          <div class="border-t border-neutral-700 pt-4">
+            <button class="w-full rounded-lg border border-blue-500/60 bg-blue-500/10 px-4 py-2.5 text-sm font-semibold text-blue-400 transition-colors duration-300 hover:bg-blue-500 hover:text-neutral-950">
+              Show Demos
+            </button>
+          </div>
+        </div>
       </div>
-      <div>
-        <h1>Engagement Prediction</h1>
-        <p>Get insights on the likelihood of likes, comments, and shares before posting.</p>
+      <div class="feature-card group relative overflow-hidden rounded-2xl bg-neutral-900 p-6 font-sans shadow-2xl">
+        <div class="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"></div>
+        <div class="relative flex flex-col gap-4">
+          <div class="border-b border-neutral-700 pb-4">
+            <h1 class="font-bold text-xl text-neutral-100">Engagement Prediction</h1>
+            <p class="text-neutral-300 text-sm mt-1">Get insights on the likelihood of likes, comments, and shares before posting.</p>
+          </div>
+          <div class="border-t border-neutral-700 pt-4">
+            <button class="w-full rounded-lg border border-blue-500/60 bg-blue-500/10 px-4 py-2.5 text-sm font-semibold text-blue-400 transition-colors duration-300 hover:bg-blue-500 hover:text-neutral-950">
+              Show Demos
+            </button>
+          </div>
+        </div>
       </div>
-      <div>
-        <h1>Personalized Improvement Tips</h1>
-        <p>Receive smart suggestions tailored to sharpen your captions and boost impact.</p>
+      <div class="feature-card group relative overflow-hidden rounded-2xl bg-neutral-900 p-6 font-sans shadow-2xl">
+        <div class="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"></div>
+        <div class="relative flex flex-col gap-4">
+          <div class="border-b border-neutral-700 pb-4">
+            <h1 class="font-bold text-xl text-neutral-100">Personalized Improvement Tips</h1>
+            <p class="text-neutral-300 text-sm mt-1">Receive smart suggestions tailored to sharpen your captions and boost impact.</p>
+          </div>
+          <div class="border-t border-neutral-700 pt-4">
+            <button class="w-full rounded-lg border border-blue-500/60 bg-blue-500/10 px-4 py-2.5 text-sm font-semibold text-blue-400 transition-colors duration-300 hover:bg-blue-500 hover:text-neutral-950">
+              Show Demos
+            </button>
+          </div>
+        </div>
       </div>
-      <div>
-        <h1>Simple & Fast</h1>
-        <p>Just paste your draft and get instant, actionable feedback — no hassle, no wait.</p>
+      <div class="feature-card group relative overflow-hidden rounded-2xl bg-neutral-900 p-6 font-sans shadow-2xl">
+        <div class="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"></div>
+        <div class="relative flex flex-col gap-4">
+          <div class="border-b border-neutral-700 pb-4">
+            <h1 class="font-bold text-xl text-neutral-100">Simple & Fast</h1>
+            <p class="text-neutral-300 text-sm mt-1">Just paste your draft and get instant, actionable feedback — no hassle, no wait.</p>
+          </div>
+          <div class="border-t border-neutral-700 pt-4">
+            <button class="w-full rounded-lg border border-blue-500/60 bg-blue-500/10 px-4 py-2.5 text-sm font-semibold text-blue-400 transition-colors duration-300 hover:bg-blue-500 hover:text-neutral-950">
+              Show Demos
+            </button>
+          </div>
+        </div>
       </div>
-      <div>
-        <h1>Cross-Platform Support</h1>
-        <p>Access Postbot anywhere — on desktop, tablet, or mobile devices with a seamless experience.</p>
+      <div class="feature-card group relative overflow-hidden rounded-2xl bg-neutral-900 p-6 font-sans shadow-2xl">
+        <div class="absolute -top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-blue-600/20 blur-3xl"></div>
+        <div class="relative flex flex-col gap-4">
+          <div class="border-b border-neutral-700 pb-4">
+            <h1 class="font-bold text-xl text-neutral-100">Cross-Platform Support</h1>
+            <p class="text-neutral-300 text-sm mt-1">Access Postbot anywhere — on desktop, tablet, or mobile devices with a seamless experience.</p>
+          </div>
+          <div class="border-t border-neutral-700 pt-4">
+            <button class="w-full rounded-lg border border-blue-500/60 bg-blue-500/10 px-4 py-2.5 text-sm font-semibold text-blue-400 transition-colors duration-300 hover:bg-blue-500 hover:text-neutral-950">
+              Show Demos
+            </button>
+          </div>
+        </div>
       </div>
     </section>
-
-    <!-- Explain how Postbot works -->
     <section id="how-it-works">
       <h1>How It Works</h1>
       <p>Make Your Posts Work Harder</p>
@@ -137,70 +166,47 @@
         <p>Share content that connects and performs.</p>
       </div>
     </section>
-
-    <!-- Call to action -->
     <section id="cta">
       <h1>Ready to Make Your Posts Shine?</h1>
-      <p>
-        Join thousands of creators who trust Postbot to boost their social media impact.
-        Get started now — sharpen your captions, predict engagement, and post with confidence.
-      </p>
+      <p>Join thousands of creators who trust Postbot to boost their social media impact. Get started now — sharpen your captions, predict engagement, and post with confidence.</p>
       <button onclick="showSignupPopup()">Try Postbot Free</button>
     </section>
-
-
-    <!-- sign-up popup form-->
     <dialog id="sign-up">
       <form id="signup-form" autocomplete="off"> 
         <button type="button" value="cancel" onclick="closeSignupPopup()">X</button>
         <h1>Create Your Free Postbot Account</h1>
         <p>Join creators improving their content with AI-powered insights</p>
-        <!-- username-->
-        <label for="username">full Name</label>
+        <label for="username">Full Name</label>
         <input type="text" name="name" id="username" required>
-         <!-- user email-->
         <label for="email">Email Address</label>
         <input type="email" name="email" id="email" required>
-        <!-- user Password-->
         <label for="userPassword">Password</label>
         <input type="password" name="password" id="userPassword" required>
-        <!-- user Password-->
         <label for="confirmPassword">Confirm Password</label>
         <input type="password" name="confirmPassword" id="confirmPassword" required>
-        <p>already have an account  >  <button type="button" onclick="goToLogin()">Login</button></p>
-        <!-- Action buttons-->
-        <button type="submit" value="Confirm">create account</button>
+        <p>Already have an account? <button type="button" onclick="goToLogin()">Login</button></p>
+        <button type="submit" value="Confirm">Create Account</button>
       </form>
     </dialog>
-
-
-    <!-- Login popup form-->
     <dialog id="Login">
       <form id="Login-form" method="POST" autocomplete="off">
         <button type="button" value="cancel" onclick="closeLoginPopup()">X</button>
         <h1>Welcome Back</h1>
         <p>Log in to continue using Postbot and improve your social media content with AI-powered feedback</p>
-      
         <label for="LoginEmail">Email</label>
         <input type="email" name="email" id="LoginEmail" required>
-      
         <label for="LoginPassword">Password</label>
         <input type="password" name="password" id="LoginPassword" required>
-      
         <p>Don’t have an account? <button type="button" onclick="goToSignup()">Signup</button></p>
-
         <button type="submit" value="Confirm">Login</button>
-
         <button type="button" id="googleLogin-btn">
           <img src="images/google.png" alt="Google icon" />
           <span>Continue with Google</span>
         </button>
       </form>
     </dialog>
-
     <script src="JS/indexPage.js"></script>
   </main>
-
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-section about">
@@ -209,7 +215,6 @@
         </div>
         <p>Smarter posts, stronger engagement. Try Postbot to improve tone, relevance, and impact instantly.</p>
       </div>
-  
       <div class="footer-section links">
         <h3>Quick Links</h3>
         <ul>
@@ -218,7 +223,6 @@
           <li><a href="#how-it-works">How it works</a></li>
         </ul>
       </div>
-  
       <div class="footer-section legal">
         <h3>Support & Legal</h3>
         <ul>
@@ -227,16 +231,14 @@
           <li><a href="#">Code of conduct</a></li>
         </ul>
       </div>
-  
       <div class="footer-section contact">
         <h3>Contacts</h3>
-  
         <a class="brutalist-button" href="https://github.com/Saif-jaber/Postbot.git" target="_blank">
           <div class="github-logo">
             <svg viewBox="0 0 16 16" fill="currentColor" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
               <path d="M8 0C3.58 0 0 3.58 0 8a8.01 8.01 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 
               0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
-              -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2
+              -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.50-1.07-1.78-.20
               -3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.13 0 0 .67-.22
               2.2.82a7.65 7.65 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.93.08 2.13.51.56.82
               1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01
@@ -247,7 +249,6 @@
             <span>GitHub</span>
           </div>
         </a>
-  
         <a class="brutalist-button email-button" href="mailto:saif.jaber.abed@gmail.com" target="_blank">
           <div class="email-logo">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" width="26" height="26">
@@ -261,11 +262,8 @@
       </div>
     </div>
   </footer>
-
-    <div class="footer-bottom">
-      <p>© 2025 Postbot. All rights reserved.</p>
-    </div>
-
-
+  <div class="footer-bottom">
+    <p>© 2025 Postbot. All rights reserved.</p>
+  </div>
 </body>
 </html>

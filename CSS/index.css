@@ -397,41 +397,57 @@ body {
 #how-it-works > h1 {
   font-size: clamp(2rem, 4vw + 1rem, 3rem);
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  margin-bottom: 2rem;
   color: #00c2db;
 }
-#how-it-works > p {
-  font-size: 1.25rem;
-  font-weight: 500;
-  margin-bottom: 3rem;
+#how-it-works .card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.video-card {
+  width: 100%;
+  background: #1a1a1a;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 194, 219, 0.2);
+  transition: all 0.4s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+.video-card .video-container {
+  width: 100%;
+  height: 200px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  overflow: hidden;
+}
+.video-card .video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.video-card .text {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.video-card .text .h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
   color: #ccefff;
+  margin-bottom: 10px;
 }
-#how-it-works > div {
-  background: rgba(0, 194, 219, 0.1);
-  border-radius: 12px;
-  padding: 1.75rem 2rem;
-  margin-bottom: 1.75rem;
-  box-shadow: 0 0 20px rgba(0, 194, 219, 0.25);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: default;
+.video-card .text .p {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #d0d0d0;
 }
-#how-it-works > div:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 24px rgba(0, 194, 219, 0.5);
-}
-#how-it-works > div > h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #00c2db;
-  text-align: left;
-}
-#how-it-works > div > p {
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.5;
-  color: #ccefff;
-  text-align: left;
+.video-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 20px rgba(0, 194, 219, 0.3);
 }
 
 /* ========== CTA SECTION ========== */
@@ -908,7 +924,7 @@ dialog#Login button[value="cancel"]:hover {
 }
 @media (max-width: 600px) {
   #features { grid-template-columns: 1fr; padding: 0 1rem; gap: 1.8rem; }
-  #how-it-works > div { padding: 1.25rem 1.5rem; }
+  #how-it-works { padding: 0 1rem; gap: 1.6rem; }
   #cta { padding: 3rem 1rem; }
   dialog#sign-up, dialog#Login { padding: 1.75rem 1.5rem 2.1rem; }
 }

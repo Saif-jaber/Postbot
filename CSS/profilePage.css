@@ -1,0 +1,452 @@
+/* ===== RESET & GLOBALS ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+/* Disable caret and text selection globally */
+* {
+  caret-color: transparent;
+  user-select: none;
+}
+
+/* Enable caret and selection for inputs and textareas */
+input,
+textarea {
+  caret-color: auto;
+  user-select: text;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== PROFESSIONAL TOP-ALIGNED SIDEBAR ===== */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+  background: linear-gradient(180deg, #121212 0%, #1c1c1c 100%);
+  border-right: 1px solid #222;
+  box-shadow: 3px 0 15px rgba(0, 0, 0, 0.75);
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  padding: 40px 0 20px 0;
+  box-sizing: border-box;
+  font-weight: 600;
+  font-size: 17px;
+  color: #ccc;
+  user-select: none;
+}
+
+header aside {
+  width: 100%;
+  height: 100%;
+}
+
+aside nav ul {
+  list-style: none;
+  padding: 0 30px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+aside nav ul li {
+  width: 100%;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+}
+
+aside nav ul li:hover,
+aside nav ul li:focus-within {
+  background-color: #2a2a2a;
+  color: #fff;
+  outline: none;
+}
+
+aside nav ul li a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 8px;
+  transition: color 0.3s;
+}
+
+aside nav ul li a:hover,
+aside nav ul li a:focus {
+  color: #fff;
+  outline: none;
+}
+
+/* Active tab - no red border, subtle background */
+#Account-tabLink a {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background-color: #333;
+}
+
+/* Main Content */
+main {
+  margin-left: 260px;
+  padding: 40px 20px 40px 40px;
+  min-height: 100vh;
+  background-color: #000;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  /* Scrollbar styles */
+  scrollbar-width: thin;
+  scrollbar-color: #555 #111;
+}
+
+main::-webkit-scrollbar {
+  width: 10px;
+}
+
+main::-webkit-scrollbar-track {
+  background: #111;
+  border-radius: 6px;
+}
+
+main::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 6px;
+  border: 2px solid #111;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+  background-color: #777;
+}
+
+#Account-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Profile Pic Section */
+#profilePic-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#profilePic-section img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #555;
+}
+
+#Display-name h1,
+#user-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #eee;
+}
+
+#edit-pfp {
+  margin-top: 8px;
+  padding: 6px 12px;
+  background-color: #222;
+  border-radius: 6px;
+  color: #ccc;
+  font-size: 14px;
+  transition: background 0.3s;
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+#edit-pfp:hover,
+#edit-pfp:focus {
+  background-color: #333;
+  border-color: #555;
+  outline: none;
+}
+
+/* Personal Info */
+#personal-info {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Side-by-side name and userID containers */
+#nameAndID-container {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+#name-container,
+#userID-container {
+  flex: 1 1 0;
+  min-width: 200px;
+  box-sizing: border-box;
+}
+
+/* Labels */
+#personal-info h1 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  display: block;
+  color: #ddd;
+}
+
+/* Input Row Layout */
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background-color: #111;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-row input:focus {
+  border-color: #555;
+  outline: none;
+  box-shadow: 0 0 5px #555;
+}
+
+.input-row button {
+  width: 36px;
+  height: 36px;
+  background-color: #1a1a1a;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+}
+
+.input-row button:hover,
+.input-row button:focus {
+  background-color: #333;
+  border-color: #555;
+  outline: none;
+}
+
+.input-row button img {
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+/* Divider */
+hr {
+  border: none;
+  height: 1px;
+  background-color: #222;
+  margin: 20px 0;
+}
+
+/* Account Deletion */
+#AccountDeletion-section {
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid #550000;
+  background-color: #1a0000;
+  border-radius: 8px;
+}
+
+#warning-display h1 {
+  color: #ff4d4d;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+#warning-display p {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#deleteAccount-btn {
+  margin-top: 20px;
+  padding: 10px 16px;
+  background-color: #ff1a1a;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+#deleteAccount-btn:hover,
+#deleteAccount-btn:focus {
+  background-color: #cc0000;
+  outline: none;
+}
+
+/* From Uiverse.io by sihamjardi */ 
+.button {
+  position: relative;
+  border-radius: 6px;
+  width: 150px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 1px solid #cc0000;
+  background-color: #e50000;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.button,
+.button__icon,
+.button__text {
+  transition: all 0.3s;
+}
+
+.button .button__text {
+  transform: translateX(35px);
+  color: #fff;
+  font-weight: 600;
+}
+
+.button .button__icon {
+  position: absolute;
+  transform: translateX(109px);
+  height: 100%;
+  width: 39px;
+  background-color: #cc0000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button .svg {
+  width: 20px;
+}
+
+.button:hover {
+  background: #cc0000;
+}
+
+.button:hover .button__text {
+  color: transparent;
+}
+
+.button:hover .button__icon {
+  width: 148px;
+  transform: translateX(0);
+}
+
+.button:active .button__icon {
+  background-color: #b20000;
+}
+
+.button:active {
+  border: 1px solid #b20000;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  header {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 20px 0;
+  }
+
+  header aside {
+    height: auto;
+    position: relative;
+    width: 100%;
+  }
+
+  main {
+    margin-left: 0;
+    width: 100%;
+    padding: 20px;
+  }
+
+  #Account-section {
+    max-width: 100%;
+  }
+
+  #profilePic-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-row button {
+    width: 100%;
+    height: 40px;
+    margin-top: 8px;
+  }
+
+  #nameAndID-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  #name-container,
+  #userID-container {
+    min-width: 100%;
+  }
+
+  aside nav ul {
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0 10px;
+    gap: 0;
+  }
+
+  aside nav ul li {
+    width: auto;
+  }
+
+  aside nav ul li a {
+    padding: 8px 12px;
+  }
+}

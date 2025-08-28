@@ -355,7 +355,6 @@
       <form id="signup-form" autocomplete="off"> 
         <button type="button" value="cancel" onclick="closeSignupPopup()">X</button>
         <h1>Create Your Free Postbot Account</h1>
-        <p>Join creators improving their content with AI-powered insights</p>
         <label for="username">Full Name</label>
         <input type="text" name="name" id="username" required>
         <label for="email">Email Address</label>
@@ -366,6 +365,7 @@
         <input type="password" name="confirmPassword" id="confirmPassword" required>
         <p>Already have an account? <button type="button" onclick="goToLogin()">Login</button></p>
         <button type="submit" value="Confirm">Create Account</button>
+        <div id="googleSignUpButton"></div>
       </form>
     </dialog>
     <dialog id="Login">
@@ -379,10 +379,7 @@
         <input type="password" name="password" id="LoginPassword" required>
         <p>Don’t have an account? <button type="button" onclick="goToSignup()">Signup</button></p>
         <button type="submit" value="Confirm">Login</button>
-        <button type="button" id="googleLogin-btn">
-          <img src="images/google.png" alt="Google icon" />
-          <span>Continue with Google</span>
-        </button>
+        <div id="googleSignInButton"></div>
       </form>
     </dialog>
     <script src="JS/indexPage.js"></script>

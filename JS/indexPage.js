@@ -1,5 +1,5 @@
-const signUpModal = document.querySelector("#sign-up")
-const loginModal = document.querySelector("#Login")
+const signUpModal = document.querySelector("#sign-up");
+const loginModal = document.querySelector("#Login");
 
 const signupForm = document.querySelector("#signup-form");
 const loginForm = document.querySelector("#Login-form");
@@ -25,19 +25,18 @@ function closeLoginPopup() {
   document.body.classList.remove("body-lock");
 }
 
-
 // functions for the links for forms going over other
-function goToLogin(){
-    signUpModal.close();
-    loginModal.showModal();
+function goToLogin() {
+  signUpModal.close();
+  loginModal.showModal();
 }
 
-function goToSignup(){
-    loginModal.close();
-    signUpModal.showModal();
+function goToSignup() {
+  loginModal.close();
+  signUpModal.showModal();
 }
 
-signupForm.addEventListener('submit', async function(event){
+signupForm.addEventListener('submit', async function(event) {
   event.preventDefault();  // Prevent default form submission
 
   const userName = this.name.value;
@@ -91,7 +90,6 @@ signupForm.addEventListener('submit', async function(event){
   }
 });
 
-// 🔽 Add login handler below it:
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -108,9 +106,9 @@ loginForm.addEventListener('submit', async (event) => {
     const data = await response.json();
 
     if (response.ok) {
-      localStorage.setItem('userName', data.userName);  // <-- save it here
+      localStorage.setItem('userName', data.userName);
       alert(data.message);
-      window.location.href = "main.html";  // Redirect to main page
+      window.location.href = "main.html";
     } else {
       alert(data.error || "Login failed");
     }
@@ -121,21 +119,44 @@ loginForm.addEventListener('submit', async (event) => {
 });
 
 window.onload = () => {
+  if (!window.google || !window.google.accounts) {
+    console.error("Google Identity Services library not loaded.");
+    alert("❌ Google Sign-In is unavailable. Please try again later.");
+    return;
+  }
+
   google.accounts.id.initialize({
-    client_id: "YOUR_CLIENT_ID_HERE",
+    client_id: "23953043075-tai3f4k8rlkc8edbkc57ot26ajnb15b7.apps.googleusercontent.com", // Replace with your actual Google Client ID
     callback: handleGoogleResponse
   });
 
-  // Render a hidden Google button (real one)
-  google.accounts.id.renderButton(
-    document.getElementById("hiddenGoogleButton"),
-    { theme: "outline", size: "large" }
-  );
+  const googleSignInButton = document.getElementById("googleSignInButton");
+  if (googleSignInButton) {
+    google.accounts.id.renderButton(googleSignInButton, {
+      theme: "outline",
+      size: "large",
+      text: "continue_with",
+      shape: "pill",
+      logo_alignment: "left"
+    });
+  } else {
+    console.error("Google Sign-In button element not found.");
+  }
 
-  // When user clicks your custom button, trigger Google's hidden button
-  document.getElementById("googleLogin-btn").addEventListener("click", () => {
-    document.querySelector("#hiddenGoogleButton div").click();
-  });
+  const googleSignUpButton = document.getElementById("googleSignUpButton");
+  if (googleSignUpButton) {
+    google.accounts.id.renderButton(googleSignUpButton, {
+      theme: "outline",
+      size: "large",
+      text: "signup_with", // Use "signup_with" to indicate sign-up
+      shape: "pill",
+      logo_alignment: "left"
+    });
+  } else {
+    console.error("Google Sign-Up button element not found.");
+  }
+
+  google.accounts.id.prompt();
 };
 
 function handleGoogleResponse(response) {
@@ -149,7 +170,7 @@ function handleGoogleResponse(response) {
       if (data.userName) {
         localStorage.setItem("userName", data.userName);
         alert("✅ Google login successful!");
-        window.location.href = "/";
+        window.location.href = "/main.html";
       } else {
         alert("Google login failed: " + (data.error || "Unknown error"));
       }
@@ -184,4 +205,3 @@ document.addEventListener('DOMContentLoaded', function () {
     adjustAnimation();
   }
 });
-

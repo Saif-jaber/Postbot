@@ -166,23 +166,38 @@
   
     <div id="chat-container"></div>
   
-    <div id="attachment-preview-container" style="background-color: rgba(240, 248, 255, 0);"></div>
+    <div id="attachment-preview-container"></div>
+    <div id="trending-topics-container" style="display: none;"></div>
+    <div id="hashtag-buttons-container" style="display: none;"></div>
   
-    <div id="text-input-container" >
+    <div id="text-input-container">
       <textarea id="user-textInput" placeholder="Ask me anything..." rows="1"></textarea>
-  
       <div id="buttons-container">
-        <label for="attach-button" id="attach-label">
-          <img src="images/attachment white.png" alt="attachment icon" />
-          <span>Attach</span>
+        <label class="key key-hoverable">
+          <input type="file" id="attach-button" hidden multiple />
+          <div class="key-top">
+            <img src="images/attach-2-outline-svgrepo-com (1).svg" alt="Attach icon" class="key-icon" />
+            <span class="status-dot attach-dot"></span>
+          </div>
+          <div class="key-tip attach-tooltip">Attach</div>
         </label>
-        <input type="file" id="attach-button" hidden />
-  
-        <button id="send-button">
-          <img src="images/send white.png" alt="send icon" />
+        <button class="key trending-key key-hoverable" id="trending-button">
+          <div class="key-top">
+            <img src="images/trending-svgrepo-com (1).svg" alt="Trending icon" class="key-icon" />
+            <span class="status-dot trending-dot"></span>
+          </div>
+          <div class="key-tip trending-tooltip">Trending Topics</div>
         </button>
-
-        <button id="stop-button" style="display:none;">
+        <label class="key key-hoverable">
+          <input type="checkbox" class="key-checkbox" id="hashtag-button" />
+          <div class="key-top">
+            <img src="images/hashtag-svgrepo-com (1).svg" alt="Hashtag icon" class="key-icon" />
+            <span class="status-dot hashtag-dot"></span>
+          </div>
+          <div class="key-tip hashtag-tooltip">Toggle Hashtags</div>
+        </label>
+        <button id="send-button" title="Send message">
+          <img src="images/send white.png" alt="Send" />
         </button>
       </div>
     </div>

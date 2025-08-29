@@ -25,7 +25,10 @@ textarea,
 /* Ensure buttons remain non-selectable */
 .message-buttons,
 .message-buttons button,
-.message-buttons label {
+.message-buttons label,
+.key,
+.key-top,
+.key-checkbox {
   user-select: none;
 }
 
@@ -39,7 +42,7 @@ textarea,
   box-sizing: border-box;
   padding: 0 8px;
   line-height: 1.6;
-  touch-action: auto; /* Improve mobile selection */
+  touch-action: auto;
 }
 
 /* Headers */
@@ -193,21 +196,11 @@ textarea,
   height: auto;
   fill: var(--icon-secondary-color);
   cursor: pointer;
-  -webkit-transition: 0.2s;
-  -o-transition: 0.2s;
   transition: 0.2s;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
   justify-content: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
   align-items: center;
   position: relative;
-  -webkit-transform-origin: top;
-  -ms-transform-origin: top;
   transform-origin: top;
 }
 
@@ -216,14 +209,6 @@ textarea,
   position: absolute;
   width: 10px;
   height: 10px;
-  -webkit-box-shadow: 0 30px 0 -4px var(--icon-primary-color),
-    30px 0 0 -4px var(--icon-primary-color),
-    0 -30px 0 -4px var(--icon-primary-color),
-    -30px 0 0 -4px var(--icon-primary-color),
-    -22px 22px 0 -4px var(--icon-primary-color),
-    -22px -22px 0 -4px var(--icon-primary-color),
-    22px -22px 0 -4px var(--icon-primary-color),
-    22px 22px 0 -4px var(--icon-primary-color);
   box-shadow: 0 30px 0 -4px var(--icon-primary-color),
     30px 0 0 -4px var(--icon-primary-color),
     0 -30px 0 -4px var(--icon-primary-color),
@@ -233,8 +218,6 @@ textarea,
     22px -22px 0 -4px var(--icon-primary-color),
     22px 22px 0 -4px var(--icon-primary-color);
   border-radius: 50%;
-  -webkit-transform: scale(0);
-  -ms-transform: scale(0);
   transform: scale(0);
 }
 
@@ -252,158 +235,73 @@ textarea,
 }
 
 .ui-bookmark input:checked + .bookmark::after {
-  -webkit-animation: circles var(--icon-anmt-duration)
-    cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   animation: circles var(--icon-anmt-duration)
     cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  -webkit-animation-delay: var(--icon-anmt-duration);
   animation-delay: var(--icon-anmt-duration);
 }
 
 .ui-bookmark input:checked + .bookmark {
   fill: var(--icon-primary-color);
-  -webkit-animation: bookmark var(--icon-anmt-duration) forwards;
   animation: bookmark var(--icon-anmt-duration) forwards;
-  -webkit-transition-delay: 0.3s;
-  -o-transition-delay: 0.3s;
   transition-delay: 0.3s;
 }
 
 .ui-bookmark input:checked + .bookmark::before {
-  -webkit-animation: circle var(--icon-anmt-duration)
-    cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   animation: circle var(--icon-anmt-duration)
     cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  -webkit-animation-delay: var(--icon-anmt-duration);
   animation-delay: var(--icon-anmt-duration);
 }
 
-@-webkit-keyframes bookmark {
-  50% {
-    -webkit-transform: scaleY(0.6);
-    transform: scaleY(0.6);
-  }
-
-  100% {
-    -webkit-transform: scaleY(1);
-    transform: scaleY(1);
-  }
-}
-
 @keyframes bookmark {
-  50% {
-    -webkit-transform: scaleY(0.6);
-    transform: scaleY(0.6);
-  }
-
-  100% {
-    -webkit-transform: scaleY(1);
-    transform: scaleY(1);
-  }
-}
-
-@-webkit-keyframes circle {
-  from {
-    width: 0;
-    height: 0;
-    opacity: 0;
-  }
-
-  90% {
-    width: var(--icon-circle-size);
-    height: var(--icon-circle-size);
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
+  50% { transform: scaleY(0.6); }
+  100% { transform: scaleY(1); }
 }
 
 @keyframes circle {
-  from {
-    width: 0;
-    height: 0;
-    opacity: 0;
-  }
-
-  90% {
-    width: var(--icon-circle-size);
-    height: var(--icon-circle-size);
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
-
-@-webkit-keyframes circles {
-  from {
-    -webkit-transform: scale(0);
-    transform: scale(0);
-  }
-
-  40% {
-    opacity: 1;
-  }
-
-  to {
-    -webkit-transform: scale(0.8);
-    transform: scale(0.8);
-    opacity: 0;
-  }
+  from { width: 0; height: 0; opacity: 0; }
+  90% { width: var(--icon-circle-size); height: var(--icon-circle-size); opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes circles {
-  from {
-    -webkit-transform: scale(0);
-    transform: scale(0);
-  }
-
-  40% {
-    opacity: 1;
-  }
-
-  to {
-    -webkit-transform: scale(0.8);
-    transform: scale(0.8);
-    opacity: 0;
-  }
+  from { transform: scale(0); }
+  40% { opacity: 1; }
+  to { transform: scale(0.8); opacity: 0; }
 }
 
 /* Tone selector bar */
 #tone-selector-bar {
   position: fixed;
   top: 0;
-  left: 260px; /* Align with main content when sidebar is open */
-  width: 100%; /* Full width of main section */
-  background-color: #1a1a1a; /* Darker to match chat area */
+  left: 260px;
+  width: calc(100% - 260px);
+  background-color: #1a1a1a;
   padding: 10px 12px;
-  border-radius: 0; /* Remove border radius for full-width */
+  border-radius: 0;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 10px;
   z-index: 1000;
-  border-bottom: 1px solid #2a2a2a; /* Darker border */
+  border-bottom: 1px solid #2a2a2a;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 main.sidebar-collapsed #tone-selector-bar {
   left: 60px;
-  width: 100%;
+  width: calc(100% - 60px);
 }
 
 .tone-selector-label {
   font-size: 1rem;
-  color: #eee; /* Lighter text for contrast */
+  color: #eee;
   font-weight: 500;
 }
 
 #tone-selector {
-  background-color: #222; /* Match chat container */
-  color: #eee; /* Lighter text for readability */
-  border: 1px solid #333; /* Darker border */
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #333;
   border-radius: 6px;
   padding: 6px 10px;
   font-size: 0.95rem;
@@ -419,7 +317,7 @@ main.sidebar-collapsed #tone-selector-bar {
 }
 
 #tone-selector:focus {
-  border-color: #00a7bd; /* Match chat area's gradient */
+  border-color: #00a7bd;
   box-shadow: 0 0 4px rgba(0, 167, 189, 0.6);
 }
 
@@ -686,7 +584,7 @@ main {
   height: 100vh;
   width: calc(100% - 260px);
   margin-left: 260px;
-  padding: 72px 24px 32px 24px; /* Increased top padding for tone selector bar */
+  padding: 72px 24px 32px 24px;
   box-sizing: border-box;
   background-color: transparent;
 }
@@ -794,37 +692,186 @@ main.sidebar-collapsed {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  background: #ffffff00;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Attach label */
-#attach-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* Key buttons (Attach, Trending, Hashtag) */
+.key {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  perspective: 200px;
   cursor: pointer;
-  font-size: 0.95rem;
-  color: #bbb;
+  margin-right: 12px;
+}
+
+/* Ensure the last key button doesn't have extra margin */
+.key:last-of-type {
+  margin-right: 0;
+}
+
+/* Key checkbox */
+.key-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Key top */
+.key-top {
+  width: 100%;
+  height: 100%;
+  background: #2a2a2a;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow:
+    0 3px 0 #1f1f1f,
+    0 5px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover effect */
+.key-hoverable:hover .key-top {
+  transform: translateY(-2px) translateZ(8px);
+  box-shadow:
+    0 5px 0 #1f1f1f,
+    0 7px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Checked/Pressed state for checkbox buttons */
+.key-checkbox:checked + .key-top {
+  transform: translateY(3px) translateZ(0);
+  box-shadow:
+    0 1px 0 #1f1f1f,
+    0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Pressed effect for non-checkbox buttons (e.g., Trending) */
+.key-top:active {
+  transform: translateY(3px) translateZ(0);
+  box-shadow:
+    0 1px 0 #1f1f1f,
+    0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Key icon (for images) */
+.key-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+
+/* Image opacity for hover */
+.key-hoverable:hover .key-icon {
+  opacity: 0.8;
+}
+
+/* Image opacity for checked state */
+.key-checkbox:checked + .key-top .key-icon {
+  opacity: 1;
+}
+
+/* Status dot */
+.status-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+/* Flash animation for Trending button dot */
+.status-dot.flash {
+  opacity: 1;
+  animation: flash 0.5s ease-in-out;
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Unique colors for each button's status dot */
+.attach-dot {
+  background: #ff7043;
+}
+
+.trending-dot {
+  background: #42a5f5;
+}
+
+.hashtag-dot {
+  background: #66bb6a;
+}
+
+.key-checkbox:checked + .key-top .status-dot {
+  opacity: 1;
+}
+
+/* Key tooltip */
+.key-tooltip {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
   font-weight: 500;
-  user-select: none;
-  transition: color 0.2s ease, text-shadow 0.2s ease;
-  margin-left: 6px;
+  font-family: 'Inter', sans-serif;
+  color: rgb(255, 255, 255);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  z-index: 100;
 }
 
-#attach-label:hover {
-  color: #fff;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+/* Unique tooltip colors for each button */
+.attach-tooltip {
+  background: #ff7043;
 }
 
-#attach-label img {
-  width: 20px;
-  height: 20px;
-  filter: brightness(0.7) saturate(0.3);
-  transition: filter 0.2s ease;
+.trending-tooltip {
+  background: #42a5f5 !important;
 }
 
-#attach-label:hover img {
-  filter: brightness(0.85) saturate(0.7);
+.hashtag-tooltip {
+  background: #66bb6a;
+}
+
+.key-hoverable:hover .key-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Ensure generic tooltip is hidden for trending button */
+#buttons-container .key.trending-key .tooltip {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Reinforce trending-tooltip styles */
+#buttons-container .key.trending-key .key-tooltip.trending-tooltip {
+  background: #42a5f5 !important;
+  color: white;
+  z-index: 100;
 }
 
 /* Send button */
@@ -837,6 +884,7 @@ main.sidebar-collapsed {
   display: flex;
   align-items: center;
   transition: background-color 0.2s ease;
+  margin-left: auto;
 }
 
 #send-button:hover {
@@ -850,6 +898,23 @@ main.sidebar-collapsed {
   user-select: none;
 }
 
+/* Stop button */
+#stop-button {
+  background-color: #ff4d4d;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+  margin-left: auto;
+}
+
+#stop-button:hover {
+  background-color: #cc0000;
+}
+
 /* Attachment preview */
 #attachment-preview-container {
   width: 100%;
@@ -859,6 +924,7 @@ main.sidebar-collapsed {
   gap: 12px;
   flex-wrap: wrap;
   justify-content: flex-start;
+  background: transparent;
 }
 
 .attachment-widget {
@@ -900,6 +966,100 @@ main.sidebar-collapsed {
   color: #fff;
 }
 
+/* Trending topics container */
+#trending-topics-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 12px auto;
+  display: none;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  background: transparent;
+}
+
+.trending-topic {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  color: #eee;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  height: 36px;
+  overflow: hidden;
+  gap: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.trending-topic:hover {
+  background-color: #2a2a2a;
+}
+
+.trending-topic span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  max-width: 180px;
+}
+
+/* Hashtag buttons container */
+#hashtag-buttons-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 12px auto;
+  display: none;
+  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  background: transparent;
+  overflow-x: auto;
+}
+
+#hashtag-buttons-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+#hashtag-buttons-container::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 5px;
+}
+
+.hashtag-button {
+  background: transparent;
+  border: 1px solid #333;
+  color: #00c2db;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  overflow: hidden;
+  gap: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hashtag-button:hover {
+  border-color: #00c2db;
+  background: rgba(0, 194, 219, 0.1);
+}
+
+.hashtag-button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  max-width: 180px;
+}
+
 /* Chat container */
 #chat-container {
   display: flex;
@@ -907,7 +1067,7 @@ main.sidebar-collapsed {
   gap: 8px;
   padding-bottom: 12px;
   overflow-y: auto;
-  max-height: calc(100vh - 260px); /* Adjusted for tone selector bar */
+  max-height: calc(100vh - 260px);
   width: 900px;
   margin: 0 auto;
   background: transparent;
@@ -1239,7 +1399,7 @@ main.sidebar-collapsed {
   white-space: nowrap;
   font: 12px Menlo, Roboto Mono, monospace;
   color: rgb(50, 50, 50);
-  background: #f4f3f3;
+  background: #f4f3f300;
   padding: 7px;
   border-radius: 4px;
   pointer-events: none;
@@ -1385,79 +1545,58 @@ main.sidebar-collapsed {
   background-color: #ff0000;
 }
 
-/* Tone selector bar */
-#tone-selector-bar {
-  position: fixed;
-  top: 0;
-  left: 260px; /* Align with main content when sidebar is open */
-  width: calc(100% - 260px); /* Adjust width to account for sidebar */
-  background-color: #1a1a1a;
-  padding: 10px 12px;
-  border-radius: 0;
-  display: flex;
-  justify-content: center; /* Center contents */
-  align-items: center;
-  gap: 10px;
-  z-index: 1000;
-  border-bottom: 1px solid #2a2a2a;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-main.sidebar-collapsed #tone-selector-bar {
-  left: 60px;
-  width: calc(100% - 60px);
-}
-
-/* Adjust for mobile */
-@media (max-width: 768px) {
-  #tone-selector-bar {
-    top: 48px; /* Below mobile top bar */
-    left: 0;
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 12px;
-    justify-content: center; /* Center contents on mobile */
-  }
-  .platform-selector-label {
-    margin-left: 10px;
-  }
-  .platform-selector {
-    gap: 6px;
-  }
-  .platform-btn {
-    width: 32px;
-    height: 32px;
-  }
-  .platform-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-/* Existing platform selector styles (unchanged) */
-.platform-selector-label {
-  font-size: 1rem;
-  color: #eee;
+/* Key tooltip */
+.key-tip {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
   font-weight: 500;
-  margin-left: 20px;
+  font-family: 'Inter', sans-serif;
+  color: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  z-index: 100;
 }
 
-.platform-selector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* Unique tooltip colors for each button */
+.attach-tooltip {
+  background: #ff7043;
 }
 
-.platform-icon {
-  position: relative;
-  margin: 0;
+.trending-tooltip {
+  background: #42a5f5 !important;
 }
 
-.platform-icon .tooltip {
+.hashtag-tooltip {
+  background: #66bb6a;
+}
+
+.key-hoverable:hover .key-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Ensure generic tooltip is hidden for all key buttons */
+#buttons-container .key .tooltip {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Reinforce trending-tooltip styles */
+#buttons-container .key.trending-key .key-tip.trending-tooltip {
+  background: #42a5f5 !important;
+  color: white;
+  z-index: 100;
+}
+
+/* Platform selector tooltips */
+.platform-icon .platform-tooltip {
   position: absolute;
   top: -30px;
   left: 50%;
@@ -1473,144 +1612,62 @@ main.sidebar-collapsed #tone-selector-bar {
   z-index: 1001;
 }
 
-.platform-icon:hover .tooltip {
+.platform-icon:hover .platform-tooltip {
   opacity: 1;
   visibility: visible;
   top: -40px;
 }
 
-.platform-btn {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  color: #ccc;
-  background-color: #222;
-  border: 1px solid #333;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.platform-btn:hover {
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-}
-
-.platform-btn svg {
-  position: relative;
-  z-index: 1;
-  width: 20px;
-  height: 20px;
-}
-
-.platform-btn.active {
-  color: white;
-}
-
-.platform-btn .filled {
+/* Copy button tooltip */
+.copy .copy-tooltip {
   position: absolute;
-  top: auto;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 0;
-  transition: all 0.3s ease-in-out;
+  opacity: 0;
+  visibility: hidden;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: 12px Menlo, Roboto Mono, monospace;
+  color: rgb(50, 50, 50);
+  background: #f4f3f3;
+  padding: 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.platform-btn.active .filled {
-  height: 100%;
+.copy:hover .copy-tooltip,
+.copy:focus .copy-tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -30px;
 }
 
-.platform-btn[data-social="instagram"] .filled,
-.platform-btn[data-social="instagram"] ~ .tooltip {
-  background-color: #e1306c;
+/* Read button tooltip */
+.read-button .read-tooltip {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: 12px Menlo, Roboto Mono, monospace;
+  color: rgb(50, 50, 50);
+  background: #f4f3f3;
+  padding: 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.platform-btn[data-social="xtwitter"] .filled,
-.platform-btn[data-social="xtwitter"] ~ .tooltip {
-  background-color: #1da1f2;
+.read-button:hover .read-tooltip,
+.read-button:focus .read-tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -30px;
 }
 
-.platform-btn[data-social="tiktok"] .filled,
-.platform-btn[data-social="tiktok"] ~ .tooltip {
-  background-color: #000000;
-}
-
-.platform-btn[data-social="linkedin"] .filled,
-.platform-btn[data-social="linkedin"] ~ .tooltip {
-  background-color: #0077b5;
-}
-
-.platform-btn[data-social="facebook"] .filled,
-.platform-btn[data-social="facebook"] ~ .tooltip {
-  background-color: #3b5998;
-}
-
-.platform-btn[data-social="youtube"] .filled,
-.platform-btn[data-social="youtube"] ~ .tooltip {
-  background-color: #ff0000;
-}
-
-/* Existing tone selector styles (unchanged) */
-.tone-selector-label {
-  font-size: 1rem;
-  color: #eee;
-  font-weight: 500;
-}
-
-#tone-selector {
-  background-color: #222;
-  color: #eee;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 0.95rem;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-#tone-selector:hover {
-  background-color: #333;
-  border-color: #555;
-}
-
-#tone-selector:focus {
-  border-color: #00a7bd;
-  box-shadow: 0 0 4px rgba(0, 167, 189, 0.6);
-}
-
-#tone-selector option {
-  background-color: #222;
-  color: #eee;
-}
-
-/* Adjust tone-selector-bar for mobile */
-@media (max-width: 768px) {
-  #tone-selector-bar {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px 12px;
-  }
-  .platform-selector-label {
-    margin-left: 10px;
-  }
-  .platform-selector {
-    gap: 6px;
-  }
-  .platform-btn {
-    width: 32px;
-    height: 32px;
-  }
-  .platform-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-}
 
 /* Media queries */
 @media (min-width: 769px) {
@@ -1632,7 +1689,7 @@ main.sidebar-collapsed #tone-selector-bar {
     width: calc(100% - 260px);
     margin-left: 260px;
     flex-grow: 1;
-    padding: 72px 24px 32px 24px; /* Adjusted top padding */
+    padding: 72px 24px 32px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1696,14 +1753,16 @@ main.sidebar-collapsed #tone-selector-bar {
 @media (max-width: 768px) {
   #mobile-top-bar { display: flex; }
   #tone-selector-bar {
-    top: 48px; /* Below mobile top bar */
+    top: 48px;
     left: 0;
-    width: 100%; /* Full width */
-    border-radius: 0; /* No rounded corners for full-width */
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
   }
   main {
     margin-left: 0 !important;
-    padding-top: 104px; /* Adjusted for mobile top bar + tone selector bar */
+    padding-top: 104px;
     display: flex;
     flex-direction: column;
     height: 100vh;

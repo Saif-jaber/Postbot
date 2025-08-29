@@ -5,6 +5,8 @@ const textarea = document.getElementById('user-textInput');
 const fileInput = document.getElementById("attach-button");
 const previewContainer = document.getElementById("attachment-preview-container");
 const toneSelector = document.getElementById('tone-selector');
+const trendingButton = document.getElementById('trending-button');
+const hashtagButton = document.getElementById('hashtag-button');
 
 const newChatDiv = document.getElementById('newchat-div');
 const searchChatDiv = document.getElementById('searchchat-div');
@@ -29,20 +31,35 @@ let isBotTyping = false;       // Flag to track if bot is typing
 const messageQueue = [];       // Queue to hold user messages waiting to send
 let conversationHistory = [];  // Store conversation history
 let selectedTone = 'friendly';  // Default tone
+let includeHashtags = false;    // Track hashtag button state
 
 // Update tone when selector changes
 toneSelector.addEventListener('change', () => {
   selectedTone = toneSelector.value;
 });
 
+// Trending button: Fetch trending topics on click
+trendingButton.addEventListener('click', () => {
+  const statusDot = trendingButton.querySelector('.trending-dot');
+  statusDot.classList.add('flash');
+  setTimeout(() => statusDot.classList.remove('flash'), 500);
+  messageQueue.push('List the top trending topics on social media right now.');
+  processNextMessage();
+});
+
+// Hashtag button: Toggle hashtag inclusion
+hashtagButton.addEventListener('change', () => {
+  includeHashtags = hashtagButton.checked;
+});
+
 // Function to toggle send/stop button icon and tooltip
 function toggleSendStopButton(isTyping) {
   if (isTyping) {
-    sendIcon.src = 'images/stop.png';   // <-- Add your stop icon image to images folder
+    sendIcon.src = 'images/stop.png';
     sendIcon.alt = 'Stop';
     sendButton.title = 'Stop generating response';
   } else {
-    sendIcon.src = 'images/send white.png';  // original send icon
+    sendIcon.src = 'images/send white.png';
     sendIcon.alt = 'Send';
     sendButton.title = 'Send message';
   }
@@ -310,271 +327,7 @@ async function processNextMessage() {
   await sendMessage(nextMsg);
 }
 
-// Modified sendMessage accepts userInput as parameter (so it can be queued)
-async function sendMessage(userInput) {
-  if (!userInput) return;
-
-  // Abort ongoing bot reply if any, remove temp UI elements except partial message stays
-  if (abortController) {
-    abortController.abort();
-
-    const chatContainer = document.getElementById("chat-container");
-    const existingThinking = chatContainer.querySelector(".thinking-message");
-    if (existingThinking) existingThinking.remove();
-
-    // Only remove buttons inside the last temp bot message (not all previous replies)
-    const oldTempMsg = chatContainer.querySelector(".bot-message.temp");
-    if (oldTempMsg) {
-      const oldButtons = oldTempMsg.querySelectorAll(".message-buttons");
-      oldButtons.forEach(btns => btns.remove());
-    }
-
-    // Remove 'temp' class from any partial bot message to keep it permanent
-    const partialBotMsg = chatContainer.querySelector(".message.bot-message.temp");
-    if (partialBotMsg) partialBotMsg.classList.remove("temp");
-
-    // Add buttons immediately after stopping typing
-    if (partialBotMsg) {
-      const botTextDiv = partialBotMsg.querySelector(".message-text");
-      if (botTextDiv && !partialBotMsg.querySelector(".message-buttons")) {
-        addButtonsToBotMessage(botTextDiv);
-      }
-    }
-  }
-  abortController = new AbortController();
-
-  isBotTyping = true;
-  toggleSendStopButton(true); // show stop button
-  textarea.disabled = true;   // disable textarea while bot typing
-
-  const mainSection = document.getElementById("main-section");
-  const chatContainer = document.getElementById("chat-container");
-
-  if (mainSection && !mainSection.classList.contains("input-sent")) {
-    mainSection.classList.add("input-sent");
-  }
-
-  const mainElement = document.querySelector('main');
-  if (!mainElement.classList.contains('chat-started')) {
-    mainElement.classList.add('chat-started');
-  }
-
-  document.getElementById("front-section").style.display = "none";
-
-  // Append new user message
-  const userMsg = document.createElement("div");
-  userMsg.className = "message user-message";
-  const userText = document.createElement("div");
-  userText.className = "message-text selectable"; // add selectable here
-  userText.textContent = userInput;
-  userMsg.appendChild(userText);
-  chatContainer.appendChild(userMsg);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  // Add user message to history
-  conversationHistory.push({ role: "user", content: userInput });
-
-  // Limit history to last 10 messages to avoid token limits
-  const maxHistoryLength = 10;
-  if (conversationHistory.length > maxHistoryLength) {
-    conversationHistory = conversationHistory.slice(-maxHistoryLength);
-  }
-
-  // Add thinking message for new bot reply
-  const thinkingMsg = document.createElement("div");
-  thinkingMsg.className = "message thinking-message";
-  thinkingMsg.innerHTML = `Thinking<span class="thinking-dots"><span></span><span></span><span></span></span>`;
-  chatContainer.appendChild(thinkingMsg);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  // Create temp bot message container and bubble
-  const tempBotMsg = document.createElement("div");
-  tempBotMsg.className = "message bot-message temp";
-  chatContainer.appendChild(tempBotMsg);
-
-  const botText = document.createElement("div");
-  botText.className = "message-text selectable";
-  tempBotMsg.appendChild(botText);
-
-  try {
-    // Format the prompt with conversation history and selected tone
-    const toneInstruction = `Respond in a ${selectedTone} tone.`;
-    const promptWithHistory = `${toneInstruction}\n\n` + conversationHistory
-      .map(msg => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
-      .join("\n\n") + `\n\nUser: ${userInput}`;
-    const response = await fetch("http://localhost:8000/api/gemini/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: promptWithHistory }),
-      signal: abortController.signal,
-    });
-
-    const data = await response.json();
-    const geminiResponse = data.response || "No response.";
-
-    thinkingMsg.remove();
-
-    // Typing effect that respects abort
-    await typeText(botText, geminiResponse, abortController.signal);
-
-    // Add bot response to history
-    conversationHistory.push({ role: "bot", content: geminiResponse });
-
-  } catch (err) {
-    thinkingMsg.remove();
-    if (err.name === "AbortError") {
-      // Fetch aborted, no error message needed
-      return;
-    }
-    console.error("API error:", err);
-    const errorMsg = document.createElement("div");
-    errorMsg.className = "message bot-message";
-    errorMsg.textContent = "Error. Please try again.";
-    chatContainer.appendChild(errorMsg);
-  } finally {
-    isBotTyping = false;
-    toggleSendStopButton(false);  // back to send button
-    textarea.disabled = false;     // enable textarea after bot finished
-    processNextMessage();  // Trigger next message in queue after bot reply done
-  }
-}
-
-async function typeText(element, text, signal, normal_delay = 10) {
-  element.innerHTML = ""; // Clear existing content
-
-  const md = window.markdownit({
-    html: false, // Disable raw HTML for safety
-    breaks: true, // Convert newlines to <br> for better text flow
-    linkify: true, // Autoconvert URLs to links
-    typographer: true, // Enable smart quotes and other typographic enhancements
-    highlight: function (str, lang) {
-      // Optional: Add syntax highlighting for code blocks
-      if (lang && window.hljs) {
-        try {
-          return `<pre class="code-block"><code class="language-${lang}">${hljs.highlight(str, { language: lang }).value}</code></pre>`;
-        } catch (__) {}
-      }
-      return `<pre class="code-block"><code>${md.utils.escapeHtml(str)}</code></pre>`;
-    },
-  });
-
-  let accumulated = "";
-  const length = text.length;
-  let delay = normal_delay;
-  let switch_point = length; // Default to normal speed
-
-  if (length > 1000) { // Very long reply
-    const fast_delay = 5; // Faster speed
-    switch_point = Math.floor(length * 0.8); // Switch at 80%
-    delay = fast_delay;
-  }
-
-  for (let i = 0; i < length; i++) {
-    if (signal.aborted) {
-      const parent = element.closest(".bot-message");
-      if (parent && parent.classList.contains("temp")) {
-        parent.classList.remove("temp");
-        if (!parent.querySelector(".message-buttons")) {
-          addButtonsToBotMessage(element);
-        }
-      }
-      return;
-    }
-
-    if (i === switch_point) {
-      delay = normal_delay; // Switch to normal speed for the last part
-    }
-
-    accumulated += text.charAt(i);
-    const dirtyHTML = md.render(accumulated);
-    const cleanHTML = DOMPurify.sanitize(dirtyHTML);
-    element.innerHTML = `<div class="markdown-content" style="margin-bottom:0;padding-bottom:0;">${cleanHTML}</div>`;
-    element.parentElement.scrollIntoView({ behavior: "smooth", block: "end" });
-    await new Promise((r) => setTimeout(r, delay));
-  }
-
-  const parent = element.closest(".bot-message");
-  if (parent && parent.classList.contains("temp")) {
-    parent.classList.remove("temp");
-    if (!parent.querySelector(".message-buttons")) {
-      addButtonsToBotMessage(element);
-    }
-  }
-}
-
-// Modified event handlers to queue messages instead of directly calling sendMessage
-textarea.addEventListener("keydown", (e) => {
-  if (isBotTyping) {
-    // If bot is typing, ignore Enter key for new message
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-    }
-    return;
-  }
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    const userInput = textarea.value.trim();
-    if (userInput) {
-      messageQueue.push(userInput);
-      processNextMessage();
-      textarea.value = "";
-      textarea.style.height = "auto";
-    }
-  }
-});
-
-sendButton.addEventListener("click", () => {
-  if (isBotTyping) {
-    // Stop the bot reply on stop button click
-    if (abortController) abortController.abort();
-  } else {
-    const userInput = textarea.value.trim();
-    if (userInput) {
-      messageQueue.push(userInput);
-      processNextMessage();
-      textarea.value = "";
-      textarea.style.height = "auto";
-    }
-  }
-});
-
-// Profile navigation
-function GoToProfilePage() {
-  window.location.href = "profilePage.html";
-}
-
-// On load: set username greeting and ensure text selection
-document.addEventListener("DOMContentLoaded", () => {
-  const userName = localStorage.getItem("userName") || "User";
-  document.getElementById("header-text").textContent = `Hello ${userName}`;
-  const profileName = document.querySelector(".profile-section h1");
-  if (profileName) profileName.textContent = userName;
-  // Ensure text selection is not blocked for bot messages
-  document.addEventListener('selectstart', (e) => {
-    if (e.target.closest('.markdown-content') || e.target.closest('.message-text')) {
-      e.stopPropagation();
-    }
-  });
-});
-
-// Platform selector logic
-const platformButtons = document.querySelectorAll('.platform-btn');
-let selectedPlatforms = new Set();
-
-platformButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    const platform = button.getAttribute('data-social');
-    if (selectedPlatforms.has(platform)) {
-      selectedPlatforms.delete(platform);
-      button.classList.remove('active');
-    } else {
-      selectedPlatforms.add(platform);
-      button.classList.add('active');
-    }
-  });
-});
-
-// Update sendMessage to include selected platforms in the prompt
+// Modified sendMessage to include hashtags when toggled
 async function sendMessage(userInput) {
   if (!userInput) return;
 
@@ -649,12 +402,15 @@ async function sendMessage(userInput) {
   tempBotMsg.appendChild(botText);
 
   try {
-    // Strengthened platforms instruction to ignore previous and adapt content
+    // Construct the prompt with tone, platforms, and optional hashtag instruction
     const platformsInstruction = selectedPlatforms.size > 0 
       ? `Ignore all previous platform selections mentioned in the conversation history and tailor the response exclusively for the following platforms: ${Array.from(selectedPlatforms).join(', ')}. Adapt any references to previous content in the conversation to fit these current platforms, ensuring relevance to the ongoing discussion.` 
       : 'Ignore all previous platform selections mentioned in the conversation history and provide a general response suitable for any social media platform. Adapt any references to previous content to maintain relevance to the ongoing discussion.';
     const toneInstruction = `Respond in a ${selectedTone} tone.`;
-    const promptWithHistory = `${toneInstruction}\n${platformsInstruction}\n\n` + conversationHistory
+    const hashtagInstruction = includeHashtags 
+      ? 'Include relevant hashtags in the response to enhance social media engagement.' 
+      : '';
+    const promptWithHistory = `${toneInstruction}\n${platformsInstruction}\n${hashtagInstruction}\n\n` + conversationHistory
       .map(msg => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
       .join("\n\n") + `\n\nUser: ${userInput}`;
     const response = await fetch("http://localhost:8000/api/gemini/ask", {
@@ -690,3 +446,136 @@ async function sendMessage(userInput) {
     processNextMessage();
   }
 }
+
+async function typeText(element, text, signal, normal_delay = 10) {
+  element.innerHTML = ""; // Clear existing content
+
+  const md = window.markdownit({
+    html: false, // Disable raw HTML for safety
+    breaks: true, // Convert newlines to <br> for better text flow
+    linkify: true, // Autoconvert URLs to links
+    typographer: true, // Enable smart quotes and other typographic enhancements
+    highlight: function (str, lang) {
+      // Optional: Add syntax highlighting for code blocks
+      if (lang && window.hljs) {
+        try {
+          return `<pre class="code-block"><code class="language-${lang}">${hljs.highlight(str, { language: lang }).value}</code></pre>`;
+        } catch (__) {}
+      }
+      return `<pre class="code-block"><code>${md.utils.escapeHtml(str)}</code></pre>`;
+    },
+  });
+
+  let accumulated = "";
+  const length = text.length;
+  let delay = normal_delay;
+  let switch_point = length; // Default to normal speed
+
+  if (length > 1000) { // Very long reply
+    const fast_delay = 5; // Faster speed
+    switch_point = Math.floor(length * 0.8); // Switch at 80%
+    delay = fast_delay;
+  }
+
+  for (let i = 0; i < length; i++) {
+    if (signal.aborted) {
+      const parent = element.closest(".bot-message");
+      if (parent && parent.classList.contains("temp")) {
+        parent.classList.remove("temp");
+        if (!parent.querySelector(".message-buttons")) {
+          addButtonsToBotMessage(element);
+        }
+      }
+      return;
+    }
+
+    if (i === switch_point) {
+      delay = normal_delay; // Switch to normal speed for the last part
+    }
+
+    accumulated += text.charAt(i);
+    const dirtyHTML = md.render(accumulated);
+    const cleanHTML = DOMPurify.sanitize(dirtyHTML);
+    element.innerHTML = `<div class="markdown-content" style="margin-bottom:0;padding-bottom:0;">${cleanHTML}</div>`;
+    element.parentElement.scrollIntoView({ behavior: "smooth", block: "end" });
+    await new Promise((r) => setTimeout(r, delay));
+  }
+
+  const parent = element.closest(".bot-message");
+  if (parent && parent.classList.contains("temp")) {
+    parent.classList.remove("temp");
+    if (!parent.querySelector(".message-buttons")) {
+      addButtonsToBotMessage(element);
+    }
+  }
+}
+
+// Textarea keydown handler
+textarea.addEventListener("keydown", (e) => {
+  if (isBotTyping) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+    }
+    return;
+  }
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    const userInput = textarea.value.trim();
+    if (userInput) {
+      messageQueue.push(userInput);
+      processNextMessage();
+      textarea.value = "";
+      textarea.style.height = "auto";
+    }
+  }
+});
+
+// Send/Stop button handler
+sendButton.addEventListener("click", () => {
+  if (isBotTyping) {
+    if (abortController) abortController.abort();
+  } else {
+    const userInput = textarea.value.trim();
+    if (userInput) {
+      messageQueue.push(userInput);
+      processNextMessage();
+      textarea.value = "";
+      textarea.style.height = "auto";
+    }
+  }
+});
+
+// Profile navigation
+function GoToProfilePage() {
+  window.location.href = "profilePage.html";
+}
+
+// On load: set username greeting and ensure text selection
+document.addEventListener("DOMContentLoaded", () => {
+  const userName = localStorage.getItem("userName") || "User";
+  document.getElementById("header-text").textContent = `Hello ${userName}`;
+  const profileName = document.querySelector(".profile-section h1");
+  if (profileName) profileName.textContent = userName;
+  document.addEventListener('selectstart', (e) => {
+    if (e.target.closest('.markdown-content') || e.target.closest('.message-text')) {
+      e.stopPropagation();
+    }
+  });
+});
+
+// Platform selector logic
+const platformButtons = document.querySelectorAll('.platform-btn');
+let selectedPlatforms = new Set();
+
+platformButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const platform = button.getAttribute('data-social');
+    if (selectedPlatforms.has(platform)) {
+      selectedPlatforms.delete(platform);
+      button.classList.remove('active');
+    } else {
+      selectedPlatforms.add(platform);
+      button.classList.add('active');
+    }
+  });
+});

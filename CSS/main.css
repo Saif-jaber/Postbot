@@ -559,9 +559,9 @@ nav ul li h1 {
 .profile-section button {
   width: 100%;
   padding: 10px 0;
-  background-color: transparent;
+  background-color: rgb(14, 14, 14);
   color: #fff;
-  border: 1px solid #494949;
+  border: 1px solid #414141;
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
@@ -721,6 +721,12 @@ main.sidebar-collapsed {
   height: 0;
 }
 
+/* Ensure consistent styling for trending-key */
+.trending-key {
+  background: none;
+  border: none;
+}
+
 /* Key top */
 .key-top {
   width: 100%;
@@ -825,7 +831,7 @@ main.sidebar-collapsed {
 }
 
 /* Key tooltip */
-.key-tooltip {
+.key-tip {
   position: absolute;
   bottom: -36px;
   left: 50%;
@@ -835,7 +841,7 @@ main.sidebar-collapsed {
   font-size: 13px;
   font-weight: 500;
   font-family: 'Inter', sans-serif;
-  color: rgb(255, 255, 255);
+  color: white;
   opacity: 0;
   pointer-events: none;
   transition: all 0.3s ease;
@@ -849,29 +855,22 @@ main.sidebar-collapsed {
 }
 
 .trending-tooltip {
-  background: #42a5f5 !important;
+  background: #42a5f5;
 }
 
 .hashtag-tooltip {
   background: #66bb6a;
 }
 
-.key-hoverable:hover .key-tooltip {
+.key-hoverable:hover .key-tip {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-/* Ensure generic tooltip is hidden for trending button */
-#buttons-container .key.trending-key .tooltip {
+/* Ensure generic tooltip is hidden for ALL key buttons */
+#buttons-container .key .tooltip {
   display: none !important;
   background: transparent !important;
-}
-
-/* Reinforce trending-tooltip styles */
-#buttons-container .key.trending-key .key-tooltip.trending-tooltip {
-  background: #42a5f5 !important;
-  color: white;
-  z-index: 100;
 }
 
 /* Send button */
@@ -1544,130 +1543,6 @@ main.sidebar-collapsed {
 .platform-btn[data-social="youtube"] ~ .tooltip {
   background-color: #ff0000;
 }
-
-/* Key tooltip */
-.key-tip {
-  position: absolute;
-  bottom: -36px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: 'Inter', sans-serif;
-  color: white;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  z-index: 100;
-}
-
-/* Unique tooltip colors for each button */
-.attach-tooltip {
-  background: #ff7043;
-}
-
-.trending-tooltip {
-  background: #42a5f5 !important;
-}
-
-.hashtag-tooltip {
-  background: #66bb6a;
-}
-
-.key-hoverable:hover .key-tip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* Ensure generic tooltip is hidden for all key buttons */
-#buttons-container .key .tooltip {
-  display: none !important;
-  background: transparent !important;
-}
-
-/* Reinforce trending-tooltip styles */
-#buttons-container .key.trending-key .key-tip.trending-tooltip {
-  background: #42a5f5 !important;
-  color: white;
-  z-index: 100;
-}
-
-/* Platform selector tooltips */
-.platform-icon .platform-tooltip {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 8px;
-  opacity: 0;
-  visibility: hidden;
-  font-size: 12px;
-  font-family: 'Inter', sans-serif;
-  transition: all 0.3s ease;
-  z-index: 1001;
-}
-
-.platform-icon:hover .platform-tooltip {
-  opacity: 1;
-  visibility: visible;
-  top: -40px;
-}
-
-/* Copy button tooltip */
-.copy .copy-tooltip {
-  position: absolute;
-  opacity: 0;
-  visibility: hidden;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font: 12px Menlo, Roboto Mono, monospace;
-  color: rgb(50, 50, 50);
-  background: #f4f3f3;
-  padding: 7px;
-  border-radius: 4px;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.copy:hover .copy-tooltip,
-.copy:focus .copy-tooltip {
-  opacity: 1;
-  visibility: visible;
-  top: -30px;
-}
-
-/* Read button tooltip */
-.read-button .read-tooltip {
-  position: absolute;
-  opacity: 0;
-  visibility: hidden;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font: 12px Menlo, Roboto Mono, monospace;
-  color: rgb(50, 50, 50);
-  background: #f4f3f3;
-  padding: 7px;
-  border-radius: 4px;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.read-button:hover .read-tooltip,
-.read-button:focus .read-tooltip {
-  opacity: 1;
-  visibility: visible;
-  top: -30px;
-}
-
 
 /* Media queries */
 @media (min-width: 769px) {

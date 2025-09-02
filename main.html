@@ -86,7 +86,7 @@
                  <img src="images/profile-user.png" alt="profile picture" />
                  <h1>Guest</h1>
                </div>
-               <button type="button" id="account-Goto-btn" class="button" onclick="GoToProfilePage()">
+               <button type="button" id="account-Goto-btn" class="button" onclick="openSettings()">
                  <div class="button-overlay"></div>
                  <span>Manage <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 53 58" height="58" width="53">
                    <path stroke-width="9" stroke="currentColor" d="M44.25 36.3612L17.25 51.9497C11.5833 55.2213 4.5 51.1318 4.50001 44.5885L4.50001 13.4115C4.50001 6.86824 11.5833 2.77868 17.25 6.05033L44.25 21.6388C49.9167 24.9104 49.9167 33.0896 44.25 36.3612Z"></path>
@@ -209,15 +209,61 @@
   </main>
 
   <!-- management popup/modal -->
-  <div id="management-modal" class="modal">
-    <div id="management-navbar">
+   <dialog id="management-modal-container">
+     <div id="management-modal" class="modal">
+       <div id="management-navbar">
+         <!-- exit button -->
+         <button type="button" onclick="closeSettings()">X</button>
+         <div class="input">
+           <button class="value">
+             <img src="images/account-avatar-person-svgrepo-com.svg" alt="Account Icon" class="menu-icon">
+             Account
+           </button>
+           <button class="value">
+             <img src="images/business-goal-profit-svgrepo-com.svg" alt="General Icon" class="menu-icon">
+             General
+           </button>
+           <button class="value">
+             <img src="images/alert-bell-notification-svgrepo-com.svg" alt="Notifications Icon" class="menu-icon">
+             Notifications
+           </button>
+           <button class="value">
+             <img src="images/backup-cloud-server-svgrepo-com.svg" alt="Connected Apps Icon" class="menu-icon">
+             Connected Apps
+           </button>
+           <button class="value">
+             <img src="images/data-center-database-hosting-svgrepo-com.svg" alt="Data & Privacy Icon" class="menu-icon">
+             Data & Privacy
+           </button>
+           <button class="value">
+             <img src="images/lock-padlock-privacy-svgrepo-com.svg" alt="Security Icon" class="menu-icon">
+             Security
+           </button>
+           <button class="value logout-btn">
+             <img src="images/access-enter-input-svgrepo-com.svg" alt="Logout Icon" class="menu-icon">
+             Log Out
+           </button>
+         </div>
+       </div>
 
-    </div>
-    <div id="management-content">
-     
-    </div>
-  </div>
-
+       <!-- settings/content area-->
+       <div id="management-content">
+        <!-- Account settings-->
+         <section id="Account-section">
+           <div id="profile-container">
+             <img src="images/profile-user.png" alt="profile picture" id="profile-picture-large">
+             <div id="user-info">
+               <h1 id="user-name-large">Guest</h1>
+               <button type="button" id="edit-profilePicture-btn">Edit Picture</button>
+             </div>
+           </div>
+           <hr>
+           <div id="name-userID-container">
+           </div>
+         </section>
+       </div>
+     </div>
+   </dialog>
   
   <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>

@@ -26,6 +26,8 @@ const body = document.body;
 const sendButton = document.getElementById("send-button");
 const sendIcon = sendButton.querySelector("img");
 
+const managementModal = document.getElementById("management-modal-container");
+
 let abortController = null;
 let isBotTyping = false;       // Flag to track if bot is typing
 const messageQueue = [];       // Queue to hold user messages waiting to send
@@ -545,9 +547,14 @@ sendButton.addEventListener("click", () => {
   }
 });
 
-// Profile navigation
-function GoToProfilePage() {
-  window.location.href = "profilePage.html";
+// open settings/management menu
+function openSettings() {
+  managementModal.showModal();
+}
+
+// function to close settings/management menu
+function closeSettings() {
+  managementModal.close();
 }
 
 // On load: set username greeting and ensure text selection

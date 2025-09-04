@@ -1,4 +1,3 @@
-/* ===== RESET DEFAULT ===== */
 * {
   margin: 0;
   padding: 0;
@@ -1664,20 +1663,15 @@ main.sidebar-collapsed {
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
-  transition: background-color 0.2s ease, color 0.2s ease;
   z-index: 3100;
   position: relative;
 }
 
-#management-navbar > button[type="button"]:first-child:hover {
-  background-color: #222;
-  color: #fff;
-}
-
+#management-navbar > button[type="button"]:first-child:hover,
 #management-navbar > button[type="button"]:first-child:focus,
 #management-navbar > button[type="button"]:first-child:active {
-  background-color: #222;
-  color: #fff;
+  background-color: transparent;
+  color: #ccc;
   outline: none;
 }
 
@@ -1814,8 +1808,13 @@ main.sidebar-collapsed {
   background: linear-gradient(180deg, rgb(46, 46, 46) 0%, rgb(36, 36, 36) 66%, rgb(41, 41, 41) 100%);
 }
 
-#name-userID-container {
-  margin-top: 20px;
+#name-userID-container,
+#email-password-container {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 #Account-section hr {
@@ -1823,15 +1822,6 @@ main.sidebar-collapsed {
   border: none;
   border-top: 1px solid #333;
   margin: 12px 0 0 0;
-}
-
-/* Styling for name-userID-container */
-#name-userID-container {
-  display: flex;
-  gap: 24px;
-  width: 100%;
-  align-items: flex-start;
-  flex-wrap: wrap;
 }
 
 /* Input box styling */
@@ -1888,7 +1878,7 @@ main.sidebar-collapsed {
   box-shadow: 0 1.5px 0 0 #00c2db;
 }
 
-/* Username container to hold input and edit button */
+/* Username container to hold input */
 .username-container {
   display: flex;
   align-items: center;
@@ -1898,36 +1888,11 @@ main.sidebar-collapsed {
 }
 
 .username-input,
-.userID-box .input {
+.userID-box .input,
+#email-password-container .input {
   flex: 1;
   min-width: 0;
   width: 100%;
-}
-
-/* Edit button styling */
-.edit-username-btn {
-  background: linear-gradient(180deg, #383838 0%, #242424 66%, #292929 100%);
-  border: none;
-  border-radius: 6px;
-  padding: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  transition: background-color 0.2s ease;
-}
-
-.edit-username-btn:hover {
-  background: linear-gradient(180deg, #424242 0%, #2e2e2e 66%, #333333 100%);
-}
-
-.edit-icon {
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
 }
 
 /* Mobile-specific adjustments for management modal */
@@ -1960,14 +1925,11 @@ main.sidebar-collapsed {
     z-index: 3100;
     background-color: transparent;
   }
-  #management-navbar > button[type="button"]:first-child:hover {
-    background-color: #222;
-    color: #fff;
-  }
+  #management-navbar > button[type="button"]:first-child:hover,
   #management-navbar > button[type="button"]:first-child:focus,
   #management-navbar > button[type="button"]:first-child:active {
-    background-color: #222;
-    color: #fff;
+    background-color: transparent;
+    color: #ccc;
     outline: none;
   }
   #management-navbar .input {
@@ -2024,7 +1986,8 @@ main.sidebar-collapsed {
   #Account-section hr {
     margin: 10px 0 0 0;
   }
-  #name-userID-container {
+  #name-userID-container,
+  #email-password-container {
     flex-direction: column;
     gap: 16px;
   }
@@ -2038,15 +2001,6 @@ main.sidebar-collapsed {
     width: 100%;
     margin-top: 0;
   }
-  .edit-username-btn {
-    width: 28px;
-    height: 28px;
-    padding: 5px;
-  }
-  .edit-icon {
-    width: 14px;
-    height: 14px;
-  }
   .input:not(#management-navbar .input) {
     font-size: 0.85rem;
     padding: 6px 10px;
@@ -2059,7 +2013,8 @@ main.sidebar-collapsed {
     align-self: flex-start;
   }
   .username-input,
-  .userID-box .input {
+  .userID-box .input,
+  #email-password-container .input {
     width: 100%;
   }
 }

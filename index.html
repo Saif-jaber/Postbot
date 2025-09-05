@@ -351,12 +351,13 @@
       <p>Join thousands of creators who trust Postbot to boost their social media impact. Get started now — sharpen your captions, predict engagement, and post with confidence.</p>
       <button onclick="showSignupPopup()">Try Postbot Free</button>
     </section>
+
     <dialog id="sign-up">
-      <form id="signup-form" autocomplete="off"> 
+      <form id="signup-form" autocomplete="off">
         <button type="button" value="cancel" onclick="closeSignupPopup()">X</button>
         <h1>Create Your Free Postbot Account</h1>
-        <label for="username">Full Name</label>
-        <input type="text" name="name" id="username" required>
+        <label for="userName">Username</label>
+        <input type="text" name="userName" id="userName" required>
         <label for="email">Email Address</label>
         <input type="email" name="email" id="email" required>
         <label for="userPassword">Password</label>
@@ -368,6 +369,7 @@
         <div id="googleSignUpButton"></div>
       </form>
     </dialog>
+    
     <dialog id="Login">
       <form id="Login-form" method="POST" autocomplete="off">
         <button type="button" value="cancel" onclick="closeLoginPopup()">X</button>

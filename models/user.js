@@ -1,11 +1,12 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  userID: { type: String, required: true },  // no unique here
-  userName: { type: String, required: true },
-  email:    { type: String, required: true, unique: true },
+  userID: { type: String, required: true, unique: true },
+  userName: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  userType: { type: String, default: "user" }
+  userType: { type: String, default: 'user' },
+  profilePicture: { type: String, default: 'images/profile-user.png' },
 });
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model('User', userSchema);

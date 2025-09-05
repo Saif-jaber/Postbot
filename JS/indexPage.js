@@ -1,10 +1,8 @@
 const signUpModal = document.querySelector("#sign-up");
 const loginModal = document.querySelector("#Login");
-
 const signupForm = document.querySelector("#signup-form");
 const loginForm = document.querySelector("#Login-form");
 
-// the functions of the signup forms popups opening and closing
 function showSignupPopup() {
   signUpModal.showModal();
   document.body.classList.add("body-lock");
@@ -25,7 +23,6 @@ function closeLoginPopup() {
   document.body.classList.remove("body-lock");
 }
 
-// functions for the links for forms going over other
 function goToLogin() {
   signUpModal.close();
   loginModal.showModal();
@@ -36,15 +33,14 @@ function goToSignup() {
   signUpModal.showModal();
 }
 
-signupForm.addEventListener('submit', async function(event) {
-  event.preventDefault();  // Prevent default form submission
+signupForm.addEventListener('submit', async function (event) {
+  event.preventDefault();
 
-  const userName = this.name.value;
+  const userName = this.userName.value;
   const email = this.email.value;
   const password = this.password.value;
   const confirmPassword = this.confirmPassword.value;
 
-  // Validation
   if (password !== confirmPassword) {
     alert('❌ Passwords do not match!');
     return;
@@ -60,27 +56,28 @@ signupForm.addEventListener('submit', async function(event) {
     return;
   }
 
-  // Send data to backend
   try {
     const response = await fetch("http://localhost:8000/api/users/register", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         userName,
         email,
-        password
-      })
+        password,
+      }),
     });
 
     const result = await response.json();
 
     if (response.ok) {
-      alert("✅ Account created successfully! Now go to login");
+      localStorage.setItem('token', result.token);
+      localStorage.setItem('userName', result.user.userName);
+      alert(result.message);
       signupForm.reset();
       closeSignupPopup();
-      // Optionally: window.location.href = "main.html";
+      window.location.href = "main.html";
     } else {
       alert(`❌ ${result.error || "Something went wrong."}`);
     }
@@ -100,21 +97,22 @@ loginForm.addEventListener('submit', async (event) => {
     const response = await fetch("http://localhost:8000/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
     const data = await response.json();
 
     if (response.ok) {
-      localStorage.setItem('userName', data.userName);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userName', data.user.userName);
       alert(data.message);
       window.location.href = "main.html";
     } else {
-      alert(data.error || "Login failed");
+      alert(`❌ ${data.error || "Login failed"}`);
     }
   } catch (error) {
-    alert("Server error");
-    console.error(error);
+    alert("❌ Server error. Please try again later.");
+    console.error("Login error:", error);
   }
 });
 
@@ -126,8 +124,8 @@ window.onload = () => {
   }
 
   google.accounts.id.initialize({
-    client_id: "23953043075-tai3f4k8rlkc8edbkc57ot26ajnb15b7.apps.googleusercontent.com", // Replace with your actual Google Client ID
-    callback: handleGoogleResponse
+    client_id: "366121832585-eh7pnpbjpb1gcfrad2j1aa79r0oq7srv.apps.googleusercontent.com",
+    callback: handleGoogleResponse,
   });
 
   const googleSignInButton = document.getElementById("googleSignInButton");
@@ -137,7 +135,7 @@ window.onload = () => {
       size: "large",
       text: "continue_with",
       shape: "pill",
-      logo_alignment: "left"
+      logo_alignment: "left",
     });
   } else {
     console.error("Google Sign-In button element not found.");
@@ -148,9 +146,9 @@ window.onload = () => {
     google.accounts.id.renderButton(googleSignUpButton, {
       theme: "outline",
       size: "large",
-      text: "signup_with", // Use "signup_with" to indicate sign-up
+      text: "signup_with",
       shape: "pill",
-      logo_alignment: "left"
+      logo_alignment: "left",
     });
   } else {
     console.error("Google Sign-Up button element not found.");
@@ -159,26 +157,28 @@ window.onload = () => {
   google.accounts.id.prompt();
 };
 
-function handleGoogleResponse(response) {
-  fetch("http://localhost:8000/api/users/google-login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ credential: response.credential })
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.userName) {
-        localStorage.setItem("userName", data.userName);
-        alert("✅ Google login successful!");
-        window.location.href = "/main.html";
-      } else {
-        alert("Google login failed: " + (data.error || "Unknown error"));
-      }
-    })
-    .catch((err) => {
-      alert("❌ Network/server error.");
-      console.error(err);
+async function handleGoogleResponse(response) {
+  try {
+    const res = await fetch("http://localhost:8000/api/users/google-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential: response.credential }),
     });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.user.userName);
+      alert("✅ Google login successful!");
+      window.location.href = "main.html";
+    } else {
+      alert(`❌ Google login failed: ${data.error || "Unknown error"}`);
+    }
+  } catch (err) {
+    alert("❌ Network/server error.");
+    console.error("Google login error:", err);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -188,7 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (scrollContainer && scrollContent) {
     const items = Array.from(scrollContent.children);
 
-    // clone until wide enough
     while (scrollContent.scrollWidth < scrollContainer.offsetWidth * 2) {
       items.forEach(item => {
         scrollContent.appendChild(item.cloneNode(true));
@@ -197,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function adjustAnimation() {
       const contentWidth = scrollContent.scrollWidth / 2;
-      const duration = contentWidth / 50; // adjust speed
+      const duration = contentWidth / 50;
       scrollContent.style.animationDuration = `${duration}s`;
     }
 

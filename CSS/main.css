@@ -1766,8 +1766,8 @@ main.sidebar-collapsed {
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #00c2db;
-  box-shadow: 0 0 8px rgba(0, 194, 219, 0.3);
+  border: 2px solid #1b1b1b;
+  box-shadow: 0 0 8px rgba(195, 208, 210, 0.311);
   background-color: transparent;
 }
 

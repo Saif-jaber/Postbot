@@ -1,11 +1,37 @@
 import express from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import multer from "multer";
+import path from "path";
 import User from "../models/user.js";
 import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 const router = express.Router();
+
+// Configure multer for profile picture uploads
+const storage = multer.diskStorage({
+  destination: './uploads/profile-pictures',
+  filename: (req, file, cb) => {
+    cb(null, `${req.userId}-${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
+const upload = multer({ storage });
+
+// Middleware to verify JWT
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Access denied' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch (err) {
+    res.status(403).json({ error: 'Invalid token' });
+  }
+};
 
 function generateUniqueUserID() {
   return 'U' + Math.floor(Math.random() * 9000000000 + 1000000000);
@@ -41,11 +67,18 @@ router.post("/register", async (req, res) => {
       email,
       password: hashedPassword,
       userType: "user",
+      profilePicture: "images/profile-user.png",
     });
 
     const savedUser = await newUser.save();
 
-    res.status(201).json({ message: "✅ Account created successfully! Now go to login.", user: savedUser });
+    const token = jwt.sign({ userId: savedUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(201).json({
+      message: "✅ Account created successfully!",
+      user: { userID: savedUser.userID, userName: savedUser.userName, email: savedUser.email, profilePicture: savedUser.profilePicture },
+      token,
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -61,7 +94,13 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ error: "Incorrect password" });
 
-    res.status(200).json({ message: "Login successful", userName: user.userName });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({
+      message: "Login successful",
+      user: { userID: user.userID, userName: user.userName, email: user.email, profilePicture: user.profilePicture },
+      token,
+    });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
@@ -83,26 +122,50 @@ router.post("/google-login", async (req, res) => {
 
     if (!user) {
       const userID = await generateNonDuplicateUserID();
-
       user = new User({
         userID,
         userName: name,
         email,
-        password: sub,
-        userType: "user"
+        password: await bcrypt.hash(sub, 10),
+        userType: "user",
+        profilePicture: "images/profile-user.png",
       });
-
       await user.save();
     }
 
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
     res.status(200).json({
       message: "Google login successful",
-      userName: user.userName,
+      user: { userID: user.userID, userName: user.userName, email: user.email, profilePicture: user.profilePicture },
+      token,
     });
-
   } catch (err) {
     console.error("Google login error:", err);
     res.status(400).json({ error: "Google login failed" });
+  }
+});
+
+router.get("/user", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+router.post("/user/profile-picture", authenticateToken, upload.single('profilePicture'), async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.profilePicture = `/uploads/profile-pictures/${req.file.filename}`;
+    await user.save();
+    res.json({ profilePicture: user.profilePicture });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
 });
 

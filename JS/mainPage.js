@@ -34,6 +34,133 @@ const messageQueue = [];       // Queue to hold user messages waiting to send
 let conversationHistory = [];  // Store conversation history
 let selectedTone = 'friendly';  // Default tone
 let includeHashtags = false;    // Track hashtag button state
+let selectedPlatforms = new Set(); // Track selected platforms
+
+// Fetch user data from backend
+async function fetchUserData() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.error('No token found. Please log in.');
+    window.location.href = '/index.html';
+    return null;
+  }
+
+  try {
+    const response = await fetch('http://localhost:8000/api/users/user', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        window.location.href = '/index.html';
+      }
+      throw new Error('Failed to fetch user data');
+    }
+
+    const user = await response.json();
+    return user;
+  } catch (err) {
+    console.error('Error fetching user data:', err);
+    return null;
+  }
+}
+
+// Open settings and populate Account-section
+async function openSettings() {
+  managementModal.showModal();
+
+  const user = await fetchUserData();
+  if (user) {
+    const profileName = document.querySelector('.profile-section h1');
+    const profileImage = document.querySelector('.profile-section img');
+    if (profileName) profileName.textContent = user.userName || 'Guest';
+    if (profileImage) profileImage.src = user.profilePicture || 'images/profile-user.png';
+
+    const userNameLarge = document.getElementById('user-name-large');
+    const profilePictureLarge = document.getElementById('profile-picture-large');
+    const usernameInput = document.getElementById('username-input');
+    const userIDInput = document.getElementById('userID-input');
+    const emailInput = document.getElementById('email-input');
+    const passwordInput = document.getElementById('password-input');
+
+    if (userNameLarge) userNameLarge.textContent = user.userName || 'Guest';
+    if (profilePictureLarge) profilePictureLarge.src = user.profilePicture || 'images/profile-user.png';
+    if (usernameInput) usernameInput.value = user.userName || '';
+    if (userIDInput) userIDInput.value = user.userID || '';
+    if (emailInput) emailInput.value = user.email || '';
+    if (passwordInput) passwordInput.value = '********';
+  } else {
+    const profileName = document.querySelector('.profile-section h1');
+    const profileImage = document.querySelector('.profile-section img');
+    const userNameLarge = document.getElementById('user-name-large');
+    const profilePictureLarge = document.getElementById('profile-picture-large');
+    const usernameInput = document.getElementById('username-input');
+    const userIDInput = document.getElementById('userID-input');
+    const emailInput = document.getElementById('email-input');
+    const passwordInput = document.getElementById('password-input');
+
+    if (profileName) profileName.textContent = 'Guest';
+    if (profileImage) profileImage.src = 'images/profile-user.png';
+    if (userNameLarge) userNameLarge.textContent = 'Guest';
+    if (profilePictureLarge) profilePictureLarge.src = 'images/profile-user.png';
+    if (usernameInput) usernameInput.value = '';
+    if (userIDInput) userIDInput.value = '';
+    if (emailInput) emailInput.value = '';
+    if (passwordInput) passwordInput.value = '';
+  }
+}
+
+// Close settings
+function closeSettings() {
+  managementModal.close();
+}
+
+// Profile picture upload
+document.getElementById('edit-profilePicture-btn')?.addEventListener('click', async () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/api/users/user/profile-picture', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Failed to upload profile picture');
+
+      const data = await response.json();
+      document.getElementById('profile-picture-large').src = data.profilePicture;
+      document.querySelector('.profile-section img').src = data.profilePicture;
+      alert('✅ Profile picture updated!');
+    } catch (err) {
+      console.error('Error uploading profile picture:', err);
+      alert('❌ Failed to upload profile picture.');
+    }
+  };
+  input.click();
+});
+
+// Logout
+document.querySelector('.logout-btn')?.addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userName');
+  window.location.href = '/index.html';
+});
 
 // Update tone when selector changes
 toneSelector.addEventListener('change', () => {
@@ -547,33 +674,8 @@ sendButton.addEventListener("click", () => {
   }
 });
 
-// open settings/management menu
-function openSettings() {
-  managementModal.showModal();
-}
-
-// function to close settings/management menu
-function closeSettings() {
-  managementModal.close();
-}
-
-// On load: set username greeting and ensure text selection
-document.addEventListener("DOMContentLoaded", () => {
-  const userName = localStorage.getItem("userName") || "User";
-  document.getElementById("header-text").textContent = `Hello ${userName}`;
-  const profileName = document.querySelector(".profile-section h1");
-  if (profileName) profileName.textContent = userName;
-  document.addEventListener('selectstart', (e) => {
-    if (e.target.closest('.markdown-content') || e.target.closest('.message-text')) {
-      e.stopPropagation();
-    }
-  });
-});
-
 // Platform selector logic
 const platformButtons = document.querySelectorAll('.platform-btn');
-let selectedPlatforms = new Set();
-
 platformButtons.forEach(button => {
   button.addEventListener('click', () => {
     const platform = button.getAttribute('data-social');
@@ -583,6 +685,26 @@ platformButtons.forEach(button => {
     } else {
       selectedPlatforms.add(platform);
       button.classList.add('active');
+    }
+  });
+});
+
+// On load: set username greeting, check authentication, and ensure text selection
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/index.html';
+    return;
+  }
+
+  const user = await fetchUserData();
+  const userName = user ? user.userName : localStorage.getItem("userName") || "User";
+  document.getElementById("header-text").textContent = `Hello ${userName}`;
+  const profileName = document.querySelector(".profile-section h1");
+  if (profileName) profileName.textContent = userName;
+  document.addEventListener('selectstart', (e) => {
+    if (e.target.closest('.markdown-content') || e.target.closest('.message-text')) {
+      e.stopPropagation();
     }
   });
 });

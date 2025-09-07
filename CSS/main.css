@@ -731,7 +731,7 @@ main.sidebar-collapsed {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Key buttons (Attach, Trending, Hashtag) */
+/* Key buttons (Attach, Trending, Hashtag, Generate Image) */
 .key {
   position: relative;
   width: 54px;
@@ -746,6 +746,11 @@ main.sidebar-collapsed {
   margin-right: 0;
 }
 
+/* Specific rule for generate-image-key to add left margin */
+.generate-image-key {
+  margin-left: 12px !important;
+}
+
 /* Key checkbox */
 .key-checkbox {
   position: absolute;
@@ -754,8 +759,9 @@ main.sidebar-collapsed {
   height: 0;
 }
 
-/* Ensure consistent styling for trending-key */
-.trending-key {
+/* Ensure consistent styling for trending-key and generate-image-key */
+.trending-key,
+.generate-image-key {
   background: none;
   border: none;
 }
@@ -795,7 +801,7 @@ main.sidebar-collapsed {
     0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Pressed effect for non-checkbox buttons (e.g., Trending) */
+/* Pressed effect for non-checkbox buttons (e.g., Trending, Generate Image) */
 .key-top:active {
   transform: translateY(3px) translateZ(0);
   box-shadow:
@@ -859,6 +865,10 @@ main.sidebar-collapsed {
   background: #66bb6a;
 }
 
+.generate-image-dot {
+  background: #ff4081;
+}
+
 .key-checkbox:checked + .key-top .status-dot {
   opacity: 1;
 }
@@ -893,6 +903,10 @@ main.sidebar-collapsed {
 
 .hashtag-tooltip {
   background: #66bb6a;
+}
+
+.generate-image-tooltip {
+  background: #ff4081;
 }
 
 .key-hoverable:hover .key-tip {

@@ -7,6 +7,13 @@ const previewContainer = document.getElementById("attachment-preview-container")
 const toneSelector = document.getElementById('tone-selector');
 const trendingButton = document.getElementById('trending-button');
 const hashtagButton = document.getElementById('hashtag-button');
+const generateImageButton = document.getElementById('generate-image-button');
+const imageGenModal = document.getElementById('image-generation-modal');
+const imagePromptInput = document.getElementById('image-prompt-input');
+const aiModelsDropdown = document.getElementById('AI-models-dropdown');
+const aspectRatioDropdown = document.getElementById('AspectRatio-dropdown');
+const generateImageSubmitBtn = document.getElementById('generate-image-submit-btn');
+const closeImageModalBtn = document.getElementById('close-image-modal-btn');
 
 const newChatDiv = document.getElementById('newchat-div');
 const searchChatDiv = document.getElementById('searchchat-div');
@@ -29,8 +36,8 @@ const sendIcon = sendButton.querySelector("img");
 const managementModal = document.getElementById("management-modal-container");
 
 let abortController = null;
-let isBotTyping = false;       // Flag to track if bot is typing
-const messageQueue = [];       // Queue to hold user messages waiting to send
+let isBotTyping = false;       // Flag to track if bot is typing or generating
+const messageQueue = [];       // Queue to hold user messages or image generation requests
 let conversationHistory = [];  // Store conversation history
 let selectedTone = 'friendly';  // Default tone
 let includeHashtags = false;    // Track hashtag button state
@@ -179,6 +186,30 @@ trendingButton.addEventListener('click', () => {
 // Hashtag button: Toggle hashtag inclusion
 hashtagButton.addEventListener('change', () => {
   includeHashtags = hashtagButton.checked;
+});
+
+// Image generation button: Open modal
+generateImageButton.addEventListener('click', () => {
+  const statusDot = generateImageButton.querySelector('.generate-image-dot');
+  statusDot.classList.add('flash');
+  setTimeout(() => statusDot.classList.remove('flash'), 500);
+  openImageGenModal();
+});
+
+// Image generation modal handlers
+generateImageSubmitBtn.addEventListener('click', () => {
+  const prompt = imagePromptInput.value.trim();
+  if (prompt) {
+    messageQueue.push({ type: 'image', prompt, model: aiModelsDropdown.value, aspectRatio: aspectRatioDropdown.value });
+    processNextMessage();
+    closeImageGenModal();
+    imagePromptInput.value = ''; // Clear input after submission
+  }
+});
+
+closeImageModalBtn.addEventListener('click', () => {
+  closeImageGenModal();
+  imagePromptInput.value = ''; // Clear input on close
 });
 
 // Function to toggle send/stop button icon and tooltip
@@ -348,50 +379,127 @@ function addButtonsToBotMessage(botTextDiv) {
   const existingButtons = botTextDiv.parentElement.querySelector(".message-buttons");
   if (existingButtons) existingButtons.remove();
 
-  // Copy button
-  const copyBtn = document.createElement("button");
-  copyBtn.className = "copy";
-  copyBtn.setAttribute("aria-label", "Copy to clipboard");
+  // Determine if the message contains an image
+  const isImageMessage = !!botTextDiv.querySelector('img');
+
+  // Create either a download button (for images) or copy button (for text)
+  const actionBtn = document.createElement("button");
+  actionBtn.className = isImageMessage ? "download" : "copy";
+  actionBtn.setAttribute("aria-label", isImageMessage ? "Download image" : "Copy to clipboard");
 
   const tooltipSpan = document.createElement("span");
   tooltipSpan.className = "tooltip";
-  tooltipSpan.textContent = "Copy";
+  tooltipSpan.setAttribute("data-text-initial", isImageMessage ? "Download" : "Copy");
+  tooltipSpan.setAttribute("data-text-end", isImageMessage ? "Downloaded!" : "Copied!");
+  tooltipSpan.textContent = isImageMessage ? "Download" : "Copy";
 
   const iconSpan = document.createElement("span");
   iconSpan.className = "icon-span";
-  iconSpan.innerHTML = `
-    <svg xml:space="preserve" viewBox="0 0 6.35 6.35" height="20" width="20" class="clipboard" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <g>
-        <path d="M2.43.265c-.3 0-.548.236-.573.53h-.328a.74.74 0 0 0-.735.734v3.822a.74.74 0 0 0 .735.734H4.82a.74.74 0 0 0 .735-.734V1.529a.74.74 0 0 0-.735-.735h-.328a.58.58 0 0 0-.573-.53zm0 .529h1.49c.032 0 .049.017.049.049v.431c0 .032-.017.049-.049.049H2.43c-.032 0-.05-.017-.05-.049V.843c0-.032.018-.05.05-.05zm-.901.53h.328c.026.292.274.528.573.528h1.49a.58.58 0 0 0 .573-.529h.328a.2.2 0 0 1 .206.206v3.822a.2.2 0 0 1-.206.205H1.53a.2.2 0 0 1-.206-.205V1.529a.2.2 0 0 1 .206-.206z"/>
-      </g>
-    </svg>`;
+  iconSpan.innerHTML = isImageMessage
+    ? `
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M19 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m0 0l-5-5m5 5l5-5"/>
+      </svg>`
+    : `
+      <svg xml:space="preserve" viewBox="0 0 6.35 6.35" height="20" width="20" class="clipboard" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <g>
+          <path d="M2.43.265c-.3 0-.548.236-.573.53h-.328a.74.74 0 0 0-.735.734v3.822a.74.74 0 0 0 .735.734H4.82a.74.74 0 0 0 .735-.734V1.529a.74.74 0 0 0-.735-.735h-.328a.58.58 0 0 0-.573-.53zm0 .529h1.49c.032 0 .049.017.049.049v.431c0 .032-.017.049-.049.049H2.43c-.032 0-.05-.017-.05-.049V.843c0-.032.018-.05.05-.05zm-.901.53h.328c.026.292.274.528.573.528h1.49a.58.58 0 0 0 .573-.529h.328a.2.2 0 0 1 .206.206v3.822a.2.2 0 0 1-.206.205H1.53a.2.2 0 0 1-.206-.205V1.529a.2.2 0 0 1 .206-.206z"/>
+        </g>
+      </svg>
+      <svg viewBox="0 0 24 24" height="20" width="20" fill="currentColor" class="checkmark" style="display: none;">
+        <path d="M20.285 6.709l-11.11 11.11-5.47-5.47 1.414-1.414 4.056 4.056 9.697-9.697z"/>
+      </svg>`;
 
-  copyBtn.appendChild(tooltipSpan);
-  copyBtn.appendChild(iconSpan);
+  actionBtn.appendChild(tooltipSpan);
+  actionBtn.appendChild(iconSpan);
 
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(botTextDiv.textContent)
-      .then(() => {
-        const originalIcon = iconSpan.innerHTML;
-        iconSpan.innerHTML = `
-          <svg viewBox="0 0 24 24" height="20" width="20" fill="currentColor" class="checkmark-icon">
-            <path d="M20.285 6.709l-11.11 11.11-5.47-5.47 1.414-1.414 4.056 4.056 9.697-9.697z"/>
-          </svg>
-        `;
-        copyBtn.style.color = "#4ade80";
-        tooltipSpan.style.display = "none";
-        copyBtn.blur();
-        copyBtn.dispatchEvent(new Event("mouseout"));
+  actionBtn.onclick = async () => {
+    if (isImageMessage) {
+      // Download button logic
+      const img = botTextDiv.querySelector('img');
+      if (!img) {
+        console.error('No image found for download');
+        tooltipSpan.textContent = "Error: No image";
+        actionBtn.style.color = "red";
         setTimeout(() => {
-          iconSpan.innerHTML = originalIcon;
-          copyBtn.style.color = "";
-          tooltipSpan.style.display = "";
+          actionBtn.style.color = "";
+          tooltipSpan.textContent = "Download";
         }, 1500);
-      })
-      .catch(() => {
-        copyBtn.style.color = "red";
-        setTimeout(() => copyBtn.style.color = "", 1500);
-      });
+        return;
+      }
+
+      try {
+        // Fetch image through backend proxy to bypass CORS
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:8000/api/download-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ imageUrl: img.src }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to download image: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `generated-image-${Date.now()}.png`; // Dynamic filename
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        // Visual feedback
+        actionBtn.classList.add('copied');
+        iconSpan.querySelector('.checkmark').style.display = 'block';
+        actionBtn.style.color = "#4ade80";
+        setTimeout(() => {
+          actionBtn.classList.remove('copied');
+          iconSpan.querySelector('.checkmark').style.display = 'none';
+          actionBtn.style.color = "";
+          tooltipSpan.textContent = "Download";
+        }, 1500);
+      } catch (err) {
+        console.error('Download failed:', err);
+        actionBtn.style.color = "red";
+        tooltipSpan.textContent = `Error: ${err.message}`;
+        setTimeout(() => {
+          actionBtn.style.color = "";
+          tooltipSpan.textContent = "Download";
+        }, 1500);
+      }
+    } else {
+      // Copy button logic
+      const content = botTextDiv.textContent;
+      navigator.clipboard.writeText(content)
+        .then(() => {
+          actionBtn.classList.add('copied');
+          iconSpan.querySelector('.checkmark').style.display = 'block';
+          iconSpan.querySelector('.clipboard').style.display = 'none';
+          actionBtn.style.color = "#4ade80";
+          setTimeout(() => {
+            actionBtn.classList.remove('copied');
+            iconSpan.querySelector('.checkmark').style.display = 'none';
+            iconSpan.querySelector('.clipboard').style.display = 'block';
+            actionBtn.style.color = "";
+            tooltipSpan.textContent = "Copy";
+          }, 1500);
+        })
+        .catch((err) => {
+          console.error('Copy failed:', err);
+          actionBtn.style.color = "red";
+          tooltipSpan.textContent = "Error";
+          setTimeout(() => {
+            actionBtn.style.color = "";
+            tooltipSpan.textContent = "Copy";
+          }, 1500);
+        });
+    }
   };
 
   // Read aloud button
@@ -415,7 +523,8 @@ function addButtonsToBotMessage(botTextDiv) {
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
     }
-    const utterance = new SpeechSynthesisUtterance(botTextDiv.textContent);
+    const textContent = isImageMessage ? `Image generated for prompt: ${botTextDiv.getAttribute('data-prompt') || 'unknown'}` : botTextDiv.textContent;
+    const utterance = new SpeechSynthesisUtterance(textContent);
     utterance.lang = "en-US";
     speechSynthesis.speak(utterance);
     speakBtn.blur();
@@ -440,20 +549,182 @@ function addButtonsToBotMessage(botTextDiv) {
   saveBtn.appendChild(saveInput);
   saveBtn.appendChild(bookmarkSvg);
 
-  buttonsContainer.appendChild(copyBtn);
+  buttonsContainer.appendChild(actionBtn);
   buttonsContainer.appendChild(speakBtn);
   buttonsContainer.appendChild(saveBtn);
 
   botTextDiv.parentElement.appendChild(buttonsContainer);
 }
 
-// Process next message in queue if any
+// Process next message or image generation request in queue
 async function processNextMessage() {
-  if (isBotTyping) return;  // Don't start if bot is typing already
+  if (isBotTyping) return; // Don't start if bot is typing or generating
   if (messageQueue.length === 0) return;
 
-  const nextMsg = messageQueue.shift();
-  await sendMessage(nextMsg);
+  const nextItem = messageQueue.shift();
+  if (typeof nextItem === 'string') {
+    await sendMessage(nextItem);
+  } else if (nextItem.type === 'image') {
+    await generateImage(nextItem.prompt, nextItem.model, nextItem.aspectRatio);
+  }
+}
+
+// Function to generate image via Pollinations.ai
+async function generateImage(prompt, model, aspectRatio) {
+  if (!prompt) return;
+
+  // Abort ongoing operation if any
+  if (abortController) {
+    abortController.abort();
+    const chatContainer = document.getElementById("chat-container");
+    const existingThinking = chatContainer.querySelector(".thinking-message");
+    if (existingThinking) existingThinking.remove();
+    const oldTempMsg = chatContainer.querySelector(".bot-message.temp");
+    if (oldTempMsg) {
+      const oldButtons = oldTempMsg.querySelectorAll(".message-buttons");
+      oldButtons.forEach(btns => btns.remove());
+    }
+    const partialBotMsg = chatContainer.querySelector(".message.bot-message.temp");
+    if (partialBotMsg) partialBotMsg.classList.remove("temp");
+    if (partialBotMsg) {
+      const botTextDiv = partialBotMsg.querySelector(".message-text");
+      if (botTextDiv && !partialBotMsg.querySelector(".message-buttons")) {
+        addButtonsToBotMessage(botTextDiv);
+      }
+    }
+  }
+  abortController = new AbortController();
+
+  isBotTyping = true;
+  toggleSendStopButton(true);
+  textarea.disabled = true;
+
+  const mainSection = document.getElementById("main-section");
+  const chatContainer = document.getElementById("chat-container");
+
+  if (mainSection && !mainSection.classList.contains("input-sent")) {
+    mainSection.classList.add("input-sent");
+  }
+
+  const mainElement = document.querySelector('main');
+  if (!mainElement.classList.contains('chat-started')) {
+    mainElement.classList.add('chat-started');
+  }
+
+  document.getElementById("front-section").style.display = "none";
+
+  const userMsg = document.createElement("div");
+  userMsg.className = "message user-message";
+  const userText = document.createElement("div");
+  userText.className = "message-text selectable";
+  userText.textContent = `Generate image: ${prompt}`;
+  userMsg.appendChild(userText);
+  chatContainer.appendChild(userMsg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  conversationHistory.push({ role: "user", content: `Generate image: ${prompt}` });
+
+  const maxHistoryLength = 10;
+  if (conversationHistory.length > maxHistoryLength) {
+    conversationHistory = conversationHistory.slice(-maxHistoryLength);
+  }
+
+  const thinkingMsg = document.createElement("div");
+  thinkingMsg.className = "message thinking-message";
+  thinkingMsg.innerHTML = `Generating image<span class="thinking-dots"><span></span><span></span><span></span></span>`;
+  chatContainer.appendChild(thinkingMsg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  const tempBotMsg = document.createElement("div");
+  tempBotMsg.className = "message bot-message temp";
+  chatContainer.appendChild(tempBotMsg);
+
+  const botText = document.createElement("div");
+  botText.className = "message-text selectable";
+  botText.setAttribute('data-prompt', prompt); // Store prompt for read aloud
+  tempBotMsg.appendChild(botText);
+
+  try {
+    // Calculate dimensions based on aspect ratio
+    let width, height;
+    switch (aspectRatio) {
+      case '1:1':
+        width = 1080;
+        height = 1080;
+        break;
+      case '16:9':
+        width = 1920;
+        height = 1080;
+        break;
+      case '4:3':
+        width = 1440;
+        height = 1080;
+        break;
+      case '3:2':
+        width = 1620;
+        height = 1080;
+        break;
+      case '2:3':
+        width = 720;
+        height = 1080;
+        break;
+      case '9:16':
+        width = 1080;
+        height = 1920;
+        break;
+      default:
+        width = 1080;
+        height = 1080;
+    }
+
+    // Add a unique seed to prevent caching
+    const seed = Date.now();
+    const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=${width}&height=${height}&model=${encodeURIComponent(model)}&seed=${seed}`;
+
+    // Create and append image
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = `Generated image for: ${prompt}`;
+    img.style.maxWidth = '100%';
+    img.style.height = 'auto';
+    img.style.borderRadius = '8px';
+    img.style.margin = '0.5em 0';
+    img.style.display = 'block';
+
+    // Wait for image to load to ensure it's valid
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = () => reject(new Error('Failed to load image'));
+    });
+
+    thinkingMsg.remove();
+    botText.appendChild(img);
+    tempBotMsg.classList.remove('temp');
+    addButtonsToBotMessage(botText);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    conversationHistory.push({ role: "bot", content: `[Image generated for: ${prompt}]` });
+
+  } catch (err) {
+    thinkingMsg.remove();
+    if (err.name === "AbortError") {
+      return;
+    }
+    console.error("Image generation error:", err);
+    const errorMsg = document.createElement("div");
+    errorMsg.className = "message bot-message";
+    const errorText = document.createElement("div");
+    errorText.className = "message-text selectable";
+    errorText.textContent = `Error generating image: ${err.message}. Please try again.`;
+    errorMsg.appendChild(errorText);
+    chatContainer.appendChild(errorMsg);
+    addButtonsToBotMessage(errorText);
+  } finally {
+    isBotTyping = false;
+    toggleSendStopButton(false);
+    textarea.disabled = false;
+    processNextMessage();
+  }
 }
 
 // Modified sendMessage to include hashtags when toggled
@@ -566,8 +837,12 @@ async function sendMessage(userInput) {
     console.error("API error:", err);
     const errorMsg = document.createElement("div");
     errorMsg.className = "message bot-message";
-    errorMsg.textContent = "Error. Please try again.";
+    const errorText = document.createElement("div");
+    errorText.className = "message-text selectable";
+    errorText.textContent = "Error. Please try again.";
+    errorMsg.appendChild(errorText);
     chatContainer.appendChild(errorMsg);
+    addButtonsToBotMessage(errorText);
   } finally {
     isBotTyping = false;
     toggleSendStopButton(false);
@@ -708,3 +983,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+function openImageGenModal() {
+  imageGenModal.showModal();
+}
+
+function closeImageGenModal() {
+  imageGenModal.close();
+}

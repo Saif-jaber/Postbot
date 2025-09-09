@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
+import fetch from "node-fetch";
 import User from "../models/user.js";
 import { OAuth2Client } from "google-auth-library";
 
@@ -11,7 +12,7 @@ const router = express.Router();
 
 // Configure multer for profile picture uploads
 const storage = multer.diskStorage({
-  destination: './uploads/profile-pictures',
+  destination: './Uploads/profile-pictures',
   filename: (req, file, cb) => {
     cb(null, `${req.userId}-${Date.now()}${path.extname(file.originalname)}`);
   },
@@ -161,11 +162,35 @@ router.post("/user/profile-picture", authenticateToken, upload.single('profilePi
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    user.profilePicture = `/uploads/profile-pictures/${req.file.filename}`;
+    user.profilePicture = `/Uploads/profile-pictures/${req.file.filename}`;
     await user.save();
     res.json({ profilePicture: user.profilePicture });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// New route to handle image downloads
+router.post("/download-image", authenticateToken, async (req, res) => {
+  const { imageUrl } = req.body;
+  if (!imageUrl) {
+    return res.status(400).json({ error: 'Image URL is required' });
+  }
+
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    const buffer = await response.buffer();
+    res.set({
+      'Content-Type': response.headers.get('content-type') || 'image/png',
+      'Content-Disposition': `attachment; filename="generated-image-${Date.now()}.png"`,
+    });
+    res.send(buffer);
+  } catch (err) {
+    console.error('Backend download error:', err);
+    res.status(500).json({ error: `Failed to download image: ${err.message}` });
   }
 });
 

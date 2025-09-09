@@ -1,3 +1,4 @@
+/* General Reset */
 * {
   margin: 0;
   padding: 0;
@@ -142,6 +143,16 @@ textarea,
   background-color: #222;
 }
 
+/* Images in markdown and messages */
+.markdown-content img,
+.message-text img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 0.5em 0;
+  display: block;
+}
+
 /* Message buttons */
 .message-buttons {
   display: flex;
@@ -170,6 +181,101 @@ textarea,
 .message-buttons .read-button {
   width: auto;
   padding: 0 12px;
+}
+
+/* Download button */
+.download {
+  --button-bg: #353434;
+  --button-hover-bg: #464646;
+  --button-text-color: #CCCCCC;
+  --button-hover-text-color: #8bb9fe;
+  --button-border-radius: 10px;
+  --button-diameter: 36px;
+  --button-outline-width: 1px;
+  --button-outline-color: rgb(141, 141, 141);
+  --tooltip-bg: #f4f3f3;
+  --toolptip-border-radius: 4px;
+  --tooltip-font-family: Menlo, Roboto Mono, monospace;
+  --tooltip-font-size: 12px;
+  --tootip-text-color: rgb(50, 50, 50);
+  --tooltip-padding-x: 7px;
+  --tooltip-padding-y: 7px;
+  --tooltip-offset: 0px;
+}
+
+.download {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--button-diameter);
+  height: var(--button-diameter);
+  border-radius: var(--button-border-radius);
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+.download .tooltip {
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font: var(--tooltip-font-size) var(--tooltip-font-family);
+  color: var(--tootip-text-color);
+  background: var(--tooltip-bg);
+  padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+  border-radius: var(--toolptip-border-radius);
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.download .tooltip::before {
+  content: attr(data-text-initial);
+}
+
+.download .tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: calc(var(--tooltip-padding-y) / 2 * -1);
+  width: var(--tooltip-padding-y);
+  height: var(--tooltip-padding-y);
+  background: inherit;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  z-index: -999;
+  pointer-events: none;
+}
+
+.download svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: currentColor;
+}
+
+.download:hover .tooltip,
+.download:focus .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -30px;
+}
+
+.download:hover,
+.download:focus {
+  background-color: var(--button-hover-bg);
+}
+
+.download:active {
+  outline: var(--button-outline-width) solid var(--button-outline-color);
+}
+
+.download:hover svg {
+  color: var(--button-hover-text-color);
 }
 
 /* Save button styles */
@@ -1295,7 +1401,7 @@ main.sidebar-collapsed {
   outline: none;
 }
 
-.tooltip {
+.copy .tooltip {
   position: absolute;
   opacity: 0;
   visibility: hidden;
@@ -1312,11 +1418,11 @@ main.sidebar-collapsed {
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.tooltip::before {
+.copy .tooltip::before {
   content: attr(data-text-initial);
 }
 
-.tooltip::after {
+.copy .tooltip::after {
   content: "";
   position: absolute;
   bottom: calc(var(--tooltip-padding-y) / 2 * -1);
@@ -1377,10 +1483,6 @@ main.sidebar-collapsed {
 
 .copy:hover svg {
   color: var(--button-hover-text-color);
-}
-
-.tooltip {
-  pointer-events: none;
 }
 
 /* Read button */
@@ -1909,6 +2011,183 @@ main.sidebar-collapsed {
   width: 100%;
 }
 
+/* Image generation modal */
+#image-generation-modal {
+  background-color: rgba(0, 0, 0, 0.8);
+  border: none;
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3000;
+}
+
+#image-generation-modal:not([open]) {
+  display: none;
+}
+
+#image-generation-content {
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  overflow-y: auto;
+}
+
+/* Title sections with image and text */
+.first-title,
+.sec-title,
+.third-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.first-title img,
+.sec-title img,
+.third-title img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.first-title h2,
+.sec-title h2,
+.third-title h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #eee;
+  margin: 0;
+}
+
+/* Image prompt textarea */
+#image-prompt-input {
+  background-color: #222;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #eee;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  resize: none;
+  width: 100%;
+  height: 150px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+#image-prompt-input:focus {
+  border-color: #00c2db;
+  box-shadow: 0 0 4px rgba(0, 194, 219, 0.6);
+}
+
+#image-prompt-input::placeholder {
+  color: #888;
+}
+
+#image-prompt-input::-webkit-scrollbar {
+  width: 6px;
+}
+
+#image-prompt-input::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 5px;
+}
+
+#image-prompt-input::-webkit-scrollbar-track {
+  background: #222;
+}
+
+/* AI models and aspect ratio dropdowns */
+#AI-models-dropdown,
+#AspectRatio-dropdown {
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  outline: none;
+  width: 100%;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+#AI-models-dropdown:hover,
+#AspectRatio-dropdown:hover {
+  background-color: #333;
+  border-color: #555;
+}
+
+#AI-models-dropdown:focus,
+#AspectRatio-dropdown:focus {
+  border-color: #00c2db;
+  box-shadow: 0 0 4px rgba(0, 194, 219, 0.6);
+}
+
+#AI-models-dropdown option,
+#AspectRatio-dropdown option {
+  background-color: #222;
+  color: #eee;
+}
+
+/* Style for bracketed words in aspect ratio dropdown */
+#AspectRatio-dropdown .aspect-label {
+  color: #00c2db;
+  font-weight: 600;
+}
+
+/* Buttons in the modal */
+#generate-image-submit-btn,
+#close-image-modal-btn {
+  background: linear-gradient(180deg, rgb(56, 56, 56) 0%, rgb(36, 36, 36) 66%, rgb(41, 41, 41) 100%);
+  color: #ccc;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+#generate-image-submit-btn:hover,
+#close-image-modal-btn:hover {
+  background: linear-gradient(180deg, rgb(66, 66, 66) 0%, rgb(46, 46, 46) 66%, rgb(51, 51, 51) 100%);
+  color: #fff;
+}
+
+#generate-image-submit-btn:active,
+#close-image-modal-btn:active {
+  background: linear-gradient(180deg, rgb(46, 46, 46) 0%, rgb(36, 36, 36) 66%, rgb(41, 41, 41) 100%);
+}
+
+#generate-image-submit-btn {
+  background: linear-gradient(135deg, #00a7bd, #0099ff);
+  color: #fff;
+}
+
+#generate-image-submit-btn:hover {
+  background: linear-gradient(135deg, #00c2db, #00b7ff);
+}
+
 /* Mobile-specific adjustments for management modal */
 @media (max-width: 768px) {
   #management-modal {
@@ -2030,6 +2309,45 @@ main.sidebar-collapsed {
   .userID-box .input,
   #email-password-container .input {
     width: 100%;
+  }
+}
+
+/* Mobile-specific adjustments for image generation modal */
+@media (max-width: 768px) {
+  #image-generation-modal {
+    width: 100%;
+    height: 100%;
+  }
+  #image-generation-content {
+    width: 95%;
+    max-height: 90vh;
+    padding: 16px;
+  }
+  #image-prompt-input {
+    height: 120px;
+    font-size: 0.9rem;
+    padding: 8px 10px;
+  }
+  #AI-models-dropdown,
+  #AspectRatio-dropdown {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
+  #generate-image-submit-btn,
+  #close-image-modal-btn {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+  .first-title h2,
+  .sec-title h2,
+  .third-title h2 {
+    font-size: 1.1rem;
+  }
+  .first-title img,
+  .sec-title img,
+  .third-title img {
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -2201,7 +2519,7 @@ main.sidebar-collapsed {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-fill-color: transparent;
+    -webkit-text-fill-color: transparent;
     animation: flowBling 8s linear infinite;
     margin-bottom: 12px;
   }

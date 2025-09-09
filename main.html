@@ -201,7 +201,7 @@
           </div>
           <div class="key-tip hashtag-tooltip">Toggle Hashtags</div>
         </label>
-        <button class="key generate-image-key key-hoverable" id="generate-image-button">
+        <button class="key generate-image-key key-hoverable" id="generate-image-button" onclick="openImageGenModal()">
           <div class="key-top">
             <img src="images/image-plus-svgrepo-com.svg" alt="Generate Image icon" class="key-icon" />
             <span class="status-dot generate-image-dot"></span>
@@ -215,85 +215,118 @@
     </div>
   </main>
 
-  <!-- management popup/modal -->
-   <dialog id="management-modal-container">
-     <div id="management-modal" class="modal">
-       <div id="management-navbar">
-         <!-- exit button -->
-         <button type="button" onclick="closeSettings()">X</button>
-         <div class="input">
-           <button class="value">
-             <img src="images/account-avatar-person-svgrepo-com.svg" alt="Account Icon" class="menu-icon">
-             Account
-           </button>
-           <button class="value">
-             <img src="images/business-goal-profit-svgrepo-com.svg" alt="General Icon" class="menu-icon">
-             General
-           </button>
-           <button class="value">
-             <img src="images/alert-bell-notification-svgrepo-com.svg" alt="Notifications Icon" class="menu-icon">
-             Notifications
-           </button>
-           <button class="value">
-             <img src="images/backup-cloud-server-svgrepo-com.svg" alt="Connected Apps Icon" class="menu-icon">
-             Connected Apps
-           </button>
-           <button class="value">
-             <img src="images/data-center-database-hosting-svgrepo-com.svg" alt="Data & Privacy Icon" class="menu-icon">
-             Data & Privacy
-           </button>
-           <button class="value">
-             <img src="images/lock-padlock-privacy-svgrepo-com.svg" alt="Security Icon" class="menu-icon">
-             Security
-           </button>
-           <button class="value logout-btn">
-             <img src="images/access-enter-input-svgrepo-com.svg" alt="Logout Icon" class="menu-icon">
-             Log Out
-           </button>
-         </div>
-       </div>
+  <!-- Image generation popup for image prompting -->
+  <dialog id="image-generation-modal">
+    <div id="image-generation-content">
+      <div class="first-title">
+        <img src="images/write-svgrepo-com.svg" alt="image prompt icon" id="image-prompt-icon"/>
+        <h2>Image Prompt:</h2>
+      </div>
+      <textarea id="image-prompt-input" placeholder="Describe the image you want to generate..." rows="4"></textarea>
+      <div class="sec-title">
+        <img src="images/gitpod-svgrepo-com.svg" alt="AI models selector" id="AI-models-selector-icon"/>
+        <h2>AI Model:</h2>
+      </div>
+      <!-- AI models dropdown -->
+      <select id="AI-models-dropdown" aria-label="Select AI model">
+        <option value="Pollinations.ai">Pollinations.ai</option>
+      </select>
+      <div class="third-title">
+        <img src="images/aspect-ratio-fill-svgrepo-com.svg" alt="Aspect ratio selector" id="AspectRatio-selector-icon"/>
+        <h2>Aspect Ratio:</h2>
+      </div>
+      <!-- Aspect ratio dropdown -->
+      <select id="AspectRatio-dropdown" aria-label="Select aspect ratio">
+        <option value="default"><span class="aspect-label">[default]</span> 1920 × 1080 (16:9)</option>
+        <option value="square"><span class="aspect-label">[square]</span> 1080 × 1080 (1:1)</option>
+        <option value="landscape"><span class="aspect-label">[landscape]</span> 1920 × 1080 (16:9)</option>
+        <option value="landscape_large"><span class="aspect-label">[landscape_large]</span> 2560 × 1440 (16:9)</option>
+        <option value="portrait"><span class="aspect-label">[portrait]</span> 1080 × 1920 (9:16)</option>
+        <option value="portrait_large"><span class="aspect-label">[portrait_large]</span> 1440 × 2560 (9:16)</option>
+      </select>
+      <button type="button" id="generate-image-submit-btn">Generate</button>
+      <button type="button" id="close-image-modal-btn" onclick="closeImageGenModal()">Close</button>
+    </div>
+  </dialog>
 
-       <!-- settings/content area-->
-       <div id="management-content">
-        <!-- Account settings-->
-         <section id="Account-section">
-           <div id="profile-container">
-             <img src="images/profile-user.png" alt="profile picture" id="profile-picture-large">
-             <div id="user-info">
-               <h1 id="user-name-large">Guest</h1>
-               <button type="button" id="edit-profilePicture-btn">Edit Picture</button>
-             </div>
-           </div>
-           <hr>
-           <div id="name-userID-container">
-             <div class="input-box username-container">
-               <label class="input-label" for="username-input">Username</label>
-               <input type="text" id="username-input" class="input username-input" placeholder="Your username" readonly>
-             </div>
-             <div class="input-box userID-box">
-               <label class="input-label" for="userID-input">User ID</label>
-               <input type="text" id="userID-input" class="input userID-input" placeholder="Your user ID" readonly>
-             </div>
-           </div>
+  <!-- Management popup/modal -->
+  <dialog id="management-modal-container">
+    <div id="management-modal" class="modal">
+      <div id="management-navbar">
+        <!-- Exit button -->
+        <button type="button" onclick="closeSettings()">X</button>
+        <div class="input">
+          <button class="value">
+            <img src="images/account-avatar-person-svgrepo-com.svg" alt="Account Icon" class="menu-icon">
+            Account
+          </button>
+          <button class="value">
+            <img src="images/business-goal-profit-svgrepo-com.svg" alt="General Icon" class="menu-icon">
+            General
+          </button>
+          <button class="value">
+            <img src="images/alert-bell-notification-svgrepo-com.svg" alt="Notifications Icon" class="menu-icon">
+            Notifications
+          </button>
+          <button class="value">
+            <img src="images/backup-cloud-server-svgrepo-com.svg" alt="Connected Apps Icon" class="menu-icon">
+            Connected Apps
+          </button>
+          <button class="value">
+            <img src="images/data-center-database-hosting-svgrepo-com.svg" alt="Data & Privacy Icon" class="menu-icon">
+            Data & Privacy
+          </button>
+          <button class="value">
+            <img src="images/lock-padlock-privacy-svgrepo-com.svg" alt="Security Icon" class="menu-icon">
+            Security
+          </button>
+          <button class="value logout-btn">
+            <img src="images/access-enter-input-svgrepo-com.svg" alt="Logout Icon" class="menu-icon">
+            Log Out
+          </button>
+        </div>
+      </div>
 
-           <hr>
+      <!-- Settings/content area -->
+      <div id="management-content">
+        <!-- Account settings -->
+        <section id="Account-section">
+          <div id="profile-container">
+            <img src="images/profile-user.png" alt="profile picture" id="profile-picture-large">
+            <div id="user-info">
+              <h1 id="user-name-large">Guest</h1>
+              <button type="button" id="edit-profilePicture-btn">Edit Picture</button>
+            </div>
+          </div>
+          <hr>
+          <div id="name-userID-container">
+            <div class="input-box username-container">
+              <label class="input-label" for="username-input">Username</label>
+              <input type="text" id="username-input" class="input username-input" placeholder="Your username" readonly>
+            </div>
+            <div class="input-box userID-box">
+              <label class="input-label" for="userID-input">User ID</label>
+              <input type="text" id="userID-input" class="input userID-input" placeholder="Your user ID" readonly>
+            </div>
+          </div>
 
-           <!-- email & password container-->
-           <div id="email-password-container">
-             <div class="input-box username-container">
-               <label class="input-label" for="email-input">Email</label>
-               <input type="email" id="email-input" class="input username-input" placeholder="Your email" readonly>
-             </div>
-             <div class="input-box userID-box">
-               <label class="input-label" for="password-input">Password</label>
-               <input type="password" id="password-input" class="input userID-input" placeholder="Your password" readonly>
-             </div>
-           </div>
+          <hr>
 
-         </section>
-       </div>
-     </div>
-   </dialog>
+          <!-- Email & password container -->
+          <div id="email-password-container">
+            <div class="input-box username-container">
+              <label class="input-label" for="email-input">Email</label>
+              <input type="email" id="email-input" class="input username-input" placeholder="Your email" readonly>
+            </div>
+            <div class="input-box userID-box">
+              <label class="input-label" for="password-input">Password</label>
+              <input type="password" id="password-input" class="input userID-input" placeholder="Your password" readonly>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </dialog>
   
   <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>

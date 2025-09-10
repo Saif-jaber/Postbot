@@ -3,9 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
-import fetch from "node-fetch";
 import User from "../models/user.js";
 import { OAuth2Client } from "google-auth-library";
+import fetch from 'node-fetch'; // Add node-fetch for compatibility
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const router = express.Router();
@@ -170,27 +170,70 @@ router.post("/user/profile-picture", authenticateToken, upload.single('profilePi
   }
 });
 
-// New route to handle image downloads
 router.post("/download-image", authenticateToken, async (req, res) => {
   const { imageUrl } = req.body;
   if (!imageUrl) {
+    console.error('No imageUrl provided in request body');
     return res.status(400).json({ error: 'Image URL is required' });
   }
 
+  // Validate imageUrl format
+  if (!imageUrl.startsWith('https://pollinations.ai/p/')) {
+    console.error('Invalid image URL:', imageUrl);
+    return res.status(400).json({ error: 'Invalid image URL. Must be a pollinations.ai URL' });
+  }
+
+  console.log('Fetching image from:', imageUrl); // Debug log
+
   try {
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`);
-    }
-    const buffer = await response.buffer();
-    res.set({
-      'Content-Type': response.headers.get('content-type') || 'image/png',
-      'Content-Disposition': `attachment; filename="generated-image-${Date.now()}.png"`,
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
+    const response = await fetch(imageUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Postbot/1.0)',
+        'Accept': 'image/*',
+      },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error('Failed to fetch image from pollinations.ai:', response.status, response.statusText);
+      throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('content-type') || 'image/png';
+    if (!contentType.startsWith('image/')) {
+      console.error('Invalid content type received:', contentType);
+      throw new Error('Response is not an image');
+    }
+
+    // Buffer the entire response instead of streaming
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    if (buffer.length === 0) {
+      console.error('Empty image buffer received');
+      throw new Error('Empty image data received');
+    }
+
+    const extension = contentType.split('/')[1] || 'png';
+    res.set({
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename="generated-image-${Date.now()}.${extension}"`,
+      'Content-Length': buffer.length,
+    });
+
     res.send(buffer);
   } catch (err) {
-    console.error('Backend download error:', err);
-    res.status(500).json({ error: `Failed to download image: ${err.message}` });
+    console.error('Download image error:', err.message, err.stack);
+    if (err.name === 'AbortError') {
+      res.status(504).json({ error: 'Request timed out while fetching image' });
+    } else {
+      res.status(500).json({ error: `Failed to download image: ${err.message}` });
+    }
   }
 });
 

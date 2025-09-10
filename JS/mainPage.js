@@ -36,12 +36,12 @@ const sendIcon = sendButton.querySelector("img");
 const managementModal = document.getElementById("management-modal-container");
 
 let abortController = null;
-let isBotTyping = false;       // Flag to track if bot is typing or generating
-const messageQueue = [];       // Queue to hold user messages or image generation requests
-let conversationHistory = [];  // Store conversation history
-let selectedTone = 'friendly';  // Default tone
-let includeHashtags = false;    // Track hashtag button state
-let selectedPlatforms = new Set(); // Track selected platforms
+let isBotTyping = false;
+const messageQueue = [];
+let conversationHistory = [];
+let selectedTone = 'friendly';
+let includeHashtags = false;
+let selectedPlatforms = new Set();
 
 // Fetch user data from backend
 async function fetchUserData() {
@@ -203,13 +203,13 @@ generateImageSubmitBtn.addEventListener('click', () => {
     messageQueue.push({ type: 'image', prompt, model: aiModelsDropdown.value, aspectRatio: aspectRatioDropdown.value });
     processNextMessage();
     closeImageGenModal();
-    imagePromptInput.value = ''; // Clear input after submission
+    imagePromptInput.value = '';
   }
 });
 
 closeImageModalBtn.addEventListener('click', () => {
   closeImageGenModal();
-  imagePromptInput.value = ''; // Clear input on close
+  imagePromptInput.value = '';
 });
 
 // Function to toggle send/stop button icon and tooltip
@@ -352,7 +352,7 @@ function clearChat() {
   const chatContainer = document.getElementById("chat-container");
   chatContainer.innerHTML = "";
   chatContainer.scrollTop = 0;
-  conversationHistory = []; // Clear history when starting a new chat
+  conversationHistory = [];
 }
 
 function resetLayout() {
@@ -375,14 +375,11 @@ function addButtonsToBotMessage(botTextDiv) {
   buttonsContainer.className = "message-buttons";
   buttonsContainer.style.marginTop = "0";
 
-  // Remove any existing buttons first to avoid duplicates
   const existingButtons = botTextDiv.parentElement.querySelector(".message-buttons");
   if (existingButtons) existingButtons.remove();
 
-  // Determine if the message contains an image
   const isImageMessage = !!botTextDiv.querySelector('img');
 
-  // Create either a download button (for images) or copy button (for text)
   const actionBtn = document.createElement("button");
   actionBtn.className = isImageMessage ? "download" : "copy";
   actionBtn.setAttribute("aria-label", isImageMessage ? "Download image" : "Copy to clipboard");
@@ -398,7 +395,10 @@ function addButtonsToBotMessage(botTextDiv) {
   iconSpan.innerHTML = isImageMessage
     ? `
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M19 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12m0 0l-5-5m5 5l5-5"/>
+        <path stroke="none" d="M12 2a1 1 0 0 1 1 1v10.59l3.3-3.3a1 1 0 0 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V3a1 1 0 0 1 1-1zM3 15a1 1 0 0 1 1 1v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3a1 1 0 0 1 2 0v3a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z"/>
+      </svg>
+      <svg viewBox="0 0 24 24" height="20" width="20" fill="currentColor" class="checkmark" style="display: none;">
+        <path d="M20.285 6.709l-11.11 11.11-5.47-5.47 1.414-1.414 4.056 4.056 9.697-9.697z"/>
       </svg>`
     : `
       <svg xml:space="preserve" viewBox="0 0 6.35 6.35" height="20" width="20" class="clipboard" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -415,12 +415,11 @@ function addButtonsToBotMessage(botTextDiv) {
 
   actionBtn.onclick = async () => {
     if (isImageMessage) {
-      // Download button logic
       const img = botTextDiv.querySelector('img');
       if (!img) {
         console.error('No image found for download');
         tooltipSpan.textContent = "Error: No image";
-        actionBtn.style.color = "red";
+        actionBtn.style.color = "#ff0000";
         setTimeout(() => {
           actionBtn.style.color = "";
           tooltipSpan.textContent = "Download";
@@ -429,9 +428,13 @@ function addButtonsToBotMessage(botTextDiv) {
       }
 
       try {
-        // Fetch image through backend proxy to bypass CORS
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:8000/api/download-image', {
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+        console.log('Sending download request for imageUrl:', img.src);
+
+        const response = await fetch('http://localhost:8000/api/users/download-image', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -441,40 +444,52 @@ function addButtonsToBotMessage(botTextDiv) {
         });
 
         if (!response.ok) {
-          throw new Error(`Failed to download image: ${response.statusText}`);
+          const contentType = response.headers.get('content-type');
+          let errorMessage = 'Failed to download image';
+          if (contentType && contentType.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || response.statusText;
+          } else {
+            errorMessage = `Server returned ${response.status} ${response.statusText}`;
+          }
+          throw new Error(errorMessage);
         }
 
         const blob = await response.blob();
+        console.log('Blob:', blob.type, blob.size);
+        if (blob.size === 0) {
+          throw new Error('Empty image data received');
+        }
+
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `generated-image-${Date.now()}.png`; // Dynamic filename
+        a.download = `generated-image-${Date.now()}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        // Visual feedback
-        actionBtn.classList.add('copied');
-        iconSpan.querySelector('.checkmark').style.display = 'block';
+        actionBtn.classList.add('downloaded');
+        iconSpan.querySelector('.checkmark')?.style.setProperty('display', 'block', 'important');
         actionBtn.style.color = "#4ade80";
+        tooltipSpan.textContent = "Downloaded!";
         setTimeout(() => {
-          actionBtn.classList.remove('copied');
-          iconSpan.querySelector('.checkmark').style.display = 'none';
+          actionBtn.classList.remove('downloaded');
+          iconSpan.querySelector('.checkmark')?.style.setProperty('display', 'none', 'important');
           actionBtn.style.color = "";
           tooltipSpan.textContent = "Download";
         }, 1500);
       } catch (err) {
         console.error('Download failed:', err);
-        actionBtn.style.color = "red";
         tooltipSpan.textContent = `Error: ${err.message}`;
+        actionBtn.style.color = "#ff0000";
         setTimeout(() => {
           actionBtn.style.color = "";
           tooltipSpan.textContent = "Download";
         }, 1500);
       }
     } else {
-      // Copy button logic
       const content = botTextDiv.textContent;
       navigator.clipboard.writeText(content)
         .then(() => {
@@ -482,6 +497,7 @@ function addButtonsToBotMessage(botTextDiv) {
           iconSpan.querySelector('.checkmark').style.display = 'block';
           iconSpan.querySelector('.clipboard').style.display = 'none';
           actionBtn.style.color = "#4ade80";
+          tooltipSpan.textContent = "Copied!";
           setTimeout(() => {
             actionBtn.classList.remove('copied');
             iconSpan.querySelector('.checkmark').style.display = 'none';
@@ -492,8 +508,8 @@ function addButtonsToBotMessage(botTextDiv) {
         })
         .catch((err) => {
           console.error('Copy failed:', err);
-          actionBtn.style.color = "red";
           tooltipSpan.textContent = "Error";
+          actionBtn.style.color = "#ff0000";
           setTimeout(() => {
             actionBtn.style.color = "";
             tooltipSpan.textContent = "Copy";
@@ -502,7 +518,6 @@ function addButtonsToBotMessage(botTextDiv) {
     }
   };
 
-  // Read aloud button
   const speakBtn = document.createElement("button");
   speakBtn.className = "read-button";
   speakBtn.setAttribute("aria-label", "Read aloud");
@@ -530,7 +545,6 @@ function addButtonsToBotMessage(botTextDiv) {
     speakBtn.blur();
   };
 
-  // Save button (placeholder without functionality)
   const saveBtn = document.createElement("label");
   saveBtn.className = "ui-bookmark";
   saveBtn.setAttribute("aria-label", "Bookmark");
@@ -556,9 +570,8 @@ function addButtonsToBotMessage(botTextDiv) {
   botTextDiv.parentElement.appendChild(buttonsContainer);
 }
 
-// Process next message or image generation request in queue
 async function processNextMessage() {
-  if (isBotTyping) return; // Don't start if bot is typing or generating
+  if (isBotTyping) return;
   if (messageQueue.length === 0) return;
 
   const nextItem = messageQueue.shift();
@@ -569,11 +582,9 @@ async function processNextMessage() {
   }
 }
 
-// Function to generate image via Pollinations.ai
 async function generateImage(prompt, model, aspectRatio) {
   if (!prompt) return;
 
-  // Abort ongoing operation if any
   if (abortController) {
     abortController.abort();
     const chatContainer = document.getElementById("chat-container");
@@ -641,47 +652,42 @@ async function generateImage(prompt, model, aspectRatio) {
 
   const botText = document.createElement("div");
   botText.className = "message-text selectable";
-  botText.setAttribute('data-prompt', prompt); // Store prompt for read aloud
+  botText.setAttribute('data-prompt', prompt);
   tempBotMsg.appendChild(botText);
 
   try {
-    // Calculate dimensions based on aspect ratio
     let width, height;
     switch (aspectRatio) {
-      case '1:1':
+      case 'square':
         width = 1080;
         height = 1080;
         break;
-      case '16:9':
+      case 'landscape':
         width = 1920;
         height = 1080;
         break;
-      case '4:3':
-        width = 1440;
-        height = 1080;
+      case 'landscape_large':
+        width = 2560;
+        height = 1440;
         break;
-      case '3:2':
-        width = 1620;
-        height = 1080;
-        break;
-      case '2:3':
-        width = 720;
-        height = 1080;
-        break;
-      case '9:16':
+      case 'portrait':
         width = 1080;
         height = 1920;
         break;
+      case 'portrait_large':
+        width = 1440;
+        height = 2560;
+        break;
+      case 'default':
       default:
-        width = 1080;
+        width = 1920;
         height = 1080;
+        break;
     }
 
-    // Add a unique seed to prevent caching
     const seed = Date.now();
     const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=${width}&height=${height}&model=${encodeURIComponent(model)}&seed=${seed}`;
 
-    // Create and append image
     const img = document.createElement('img');
     img.src = imageUrl;
     img.alt = `Generated image for: ${prompt}`;
@@ -691,7 +697,6 @@ async function generateImage(prompt, model, aspectRatio) {
     img.style.margin = '0.5em 0';
     img.style.display = 'block';
 
-    // Wait for image to load to ensure it's valid
     await new Promise((resolve, reject) => {
       img.onload = resolve;
       img.onerror = () => reject(new Error('Failed to load image'));
@@ -727,11 +732,9 @@ async function generateImage(prompt, model, aspectRatio) {
   }
 }
 
-// Modified sendMessage to include hashtags when toggled
 async function sendMessage(userInput) {
   if (!userInput) return;
 
-  // Abort ongoing bot reply if any
   if (abortController) {
     abortController.abort();
     const chatContainer = document.getElementById("chat-container");
@@ -802,7 +805,6 @@ async function sendMessage(userInput) {
   tempBotMsg.appendChild(botText);
 
   try {
-    // Construct the prompt with tone, platforms, and optional hashtag instruction
     const platformsInstruction = selectedPlatforms.size > 0 
       ? `Ignore all previous platform selections mentioned in the conversation history and tailor the response exclusively for the following platforms: ${Array.from(selectedPlatforms).join(', ')}. Adapt any references to previous content in the conversation to fit these current platforms, ensuring relevance to the ongoing discussion.` 
       : 'Ignore all previous platform selections mentioned in the conversation history and provide a general response suitable for any social media platform. Adapt any references to previous content to maintain relevance to the ongoing discussion.';
@@ -852,15 +854,14 @@ async function sendMessage(userInput) {
 }
 
 async function typeText(element, text, signal, normal_delay = 10) {
-  element.innerHTML = ""; // Clear existing content
+  element.innerHTML = "";
 
   const md = window.markdownit({
-    html: false, // Disable raw HTML for safety
-    breaks: true, // Convert newlines to <br> for better text flow
-    linkify: true, // Autoconvert URLs to links
-    typographer: true, // Enable smart quotes and other typographic enhancements
+    html: false,
+    breaks: true,
+    linkify: true,
+    typographer: true,
     highlight: function (str, lang) {
-      // Optional: Add syntax highlighting for code blocks
       if (lang && window.hljs) {
         try {
           return `<pre class="code-block"><code class="language-${lang}">${hljs.highlight(str, { language: lang }).value}</code></pre>`;
@@ -873,11 +874,11 @@ async function typeText(element, text, signal, normal_delay = 10) {
   let accumulated = "";
   const length = text.length;
   let delay = normal_delay;
-  let switch_point = length; // Default to normal speed
+  let switch_point = length;
 
-  if (length > 1000) { // Very long reply
-    const fast_delay = 5; // Faster speed
-    switch_point = Math.floor(length * 0.8); // Switch at 80%
+  if (length > 1000) {
+    const fast_delay = 5;
+    switch_point = Math.floor(length * 0.8);
     delay = fast_delay;
   }
 
@@ -894,7 +895,7 @@ async function typeText(element, text, signal, normal_delay = 10) {
     }
 
     if (i === switch_point) {
-      delay = normal_delay; // Switch to normal speed for the last part
+      delay = normal_delay;
     }
 
     accumulated += text.charAt(i);
@@ -914,7 +915,6 @@ async function typeText(element, text, signal, normal_delay = 10) {
   }
 }
 
-// Textarea keydown handler
 textarea.addEventListener("keydown", (e) => {
   if (isBotTyping) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -934,7 +934,6 @@ textarea.addEventListener("keydown", (e) => {
   }
 });
 
-// Send/Stop button handler
 sendButton.addEventListener("click", () => {
   if (isBotTyping) {
     if (abortController) abortController.abort();
@@ -949,7 +948,6 @@ sendButton.addEventListener("click", () => {
   }
 });
 
-// Platform selector logic
 const platformButtons = document.querySelectorAll('.platform-btn');
 platformButtons.forEach(button => {
   button.addEventListener('click', () => {
@@ -964,7 +962,6 @@ platformButtons.forEach(button => {
   });
 });
 
-// On load: set username greeting, check authentication, and ensure text selection
 document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem('token');
   if (!token) {

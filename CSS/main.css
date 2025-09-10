@@ -193,11 +193,11 @@ textarea,
   --button-diameter: 36px;
   --button-outline-width: 1px;
   --button-outline-color: rgb(141, 141, 141);
-  --tooltip-bg: #f4f3f3;
+  --tooltip-bg: #333;
   --toolptip-border-radius: 4px;
-  --tooltip-font-family: Menlo, Roboto Mono, monospace;
+  --tooltip-font-family: 'Inter', sans-serif;
   --tooltip-font-size: 12px;
-  --tootip-text-color: rgb(50, 50, 50);
+  --tootip-text-color: #fff;
   --tooltip-padding-x: 7px;
   --tooltip-padding-y: 7px;
   --tooltip-offset: 0px;
@@ -220,7 +220,7 @@ textarea,
   position: absolute;
   opacity: 0;
   visibility: hidden;
-  top: 0;
+  top: calc((100% + var(--tooltip-offset)) * -1);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -231,6 +231,7 @@ textarea,
   border-radius: var(--toolptip-border-radius);
   pointer-events: none;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 10;
 }
 
 .download .tooltip::before {
@@ -243,7 +244,7 @@ textarea,
   bottom: calc(var(--tooltip-padding-y) / 2 * -1);
   width: var(--tooltip-padding-y);
   height: var(--tooltip-padding-y);
-  background: inherit;
+  background: var(--tooltip-bg);
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
   z-index: -999;
@@ -276,6 +277,24 @@ textarea,
 
 .download:hover svg {
   color: var(--button-hover-text-color);
+}
+
+.download.downloaded .tooltip::before {
+  content: attr(data-text-end);
+}
+
+.download.downloaded .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -30px;
+}
+
+.download.downloaded .checkmark {
+  display: block;
+}
+
+.download.downloaded .clipboard {
+  display: none;
 }
 
 /* Save button styles */
@@ -1378,11 +1397,11 @@ main.sidebar-collapsed {
   --button-diameter: 36px;
   --button-outline-width: 1px;
   --button-outline-color: rgb(141, 141, 141);
-  --tooltip-bg: #f4f3f3;
+  --tooltip-bg: #333;
   --toolptip-border-radius: 4px;
-  --tooltip-font-family: Menlo, Roboto Mono, monospace;
+  --tooltip-font-family: 'Inter', sans-serif;
   --tooltip-font-size: 12px;
-  --tootip-text-color: rgb(50, 50, 50);
+  --tootip-text-color: #fff;
   --tooltip-padding-x: 7px;
   --tooltip-padding-y: 7px;
   --tooltip-offset: 0px;
@@ -1405,7 +1424,7 @@ main.sidebar-collapsed {
   position: absolute;
   opacity: 0;
   visibility: hidden;
-  top: 0;
+  top: calc((100% + var(--tooltip-offset)) * -1);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -1416,6 +1435,7 @@ main.sidebar-collapsed {
   border-radius: var(--toolptip-border-radius);
   pointer-events: none;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 10;
 }
 
 .copy .tooltip::before {
@@ -1428,7 +1448,7 @@ main.sidebar-collapsed {
   bottom: calc(var(--tooltip-padding-y) / 2 * -1);
   width: var(--tooltip-padding-y);
   height: var(--tooltip-padding-y);
-  background: inherit;
+  background: var(--tooltip-bg);
   left: 50%;
   transform: translateX(-50%) rotate(45deg);
   z-index: -999;
@@ -1443,10 +1463,6 @@ main.sidebar-collapsed {
   color: currentColor;
 }
 
-.checkmark {
-  display: none;
-}
-
 .copy:hover .tooltip,
 .copy:focus .tooltip {
   opacity: 1;
@@ -1458,18 +1474,18 @@ main.sidebar-collapsed {
   content: attr(data-text-end);
 }
 
+.copy.copied .tooltip {
+  opacity: 1;
+  visibility: visible;
+  top: -30px;
+}
+
 .copy.copied .clipboard {
   display: none;
 }
 
 .copy.copied .checkmark {
   display: block;
-}
-
-.copy.copied .tooltip {
-  opacity: 1;
-  visibility: visible;
-  top: calc((100% + var(--tooltip-offset)) * -1);
 }
 
 .copy:hover,

@@ -1,33 +1,37 @@
-const sidebar = document.querySelector('aside');
-const collapseBtn = document.getElementById('collapse-btn');
-const collapseIcon = document.getElementById('collapse-icon');
-const textarea = document.getElementById('user-textInput');
+const sidebar = document.querySelector("aside");
+const collapseBtn = document.getElementById("collapse-btn");
+const collapseIcon = document.getElementById("collapse-icon");
+const textarea = document.getElementById("user-textInput");
 const fileInput = document.getElementById("attach-button");
-const previewContainer = document.getElementById("attachment-preview-container");
-const toneSelector = document.getElementById('tone-selector');
-const trendingButton = document.getElementById('trending-button');
-const hashtagButton = document.getElementById('hashtag-button');
-const generateImageButton = document.getElementById('generate-image-button');
-const imageGenModal = document.getElementById('image-generation-modal');
-const imagePromptInput = document.getElementById('image-prompt-input');
-const aiModelsDropdown = document.getElementById('AI-models-dropdown');
-const aspectRatioDropdown = document.getElementById('AspectRatio-dropdown');
-const generateImageSubmitBtn = document.getElementById('generate-image-submit-btn');
-const closeImageModalBtn = document.getElementById('close-image-modal-btn');
+const previewContainer = document.getElementById(
+  "attachment-preview-container"
+);
+const toneSelector = document.getElementById("tone-selector");
+const trendingButton = document.getElementById("trending-button");
+const hashtagButton = document.getElementById("hashtag-button");
+const generateImageButton = document.getElementById("generate-image-button");
+const imageGenModal = document.getElementById("image-generation-modal");
+const imagePromptInput = document.getElementById("image-prompt-input");
+const aiModelsDropdown = document.getElementById("AI-models-dropdown");
+const aspectRatioDropdown = document.getElementById("AspectRatio-dropdown");
+const generateImageSubmitBtn = document.getElementById(
+  "generate-image-submit-btn"
+);
+const closeImageModalBtn = document.getElementById("close-image-modal-btn");
 
-const newChatDiv = document.getElementById('newchat-div');
-const searchChatDiv = document.getElementById('searchchat-div');
-const historyDiv = document.getElementById('history-div');
+const newChatDiv = document.getElementById("newchat-div");
+const searchChatDiv = document.getElementById("searchchat-div");
+const historyDiv = document.getElementById("history-div");
 
-const newChatIcon = document.getElementById('newChat-img');
-const searchChatIcon = document.getElementById('searchChat-img');
-const historyIcon = document.getElementById('history-img');
+const newChatIcon = document.getElementById("newChat-img");
+const searchChatIcon = document.getElementById("searchChat-img");
+const historyIcon = document.getElementById("history-img");
 
-const newChatText = document.getElementById('newChat-txt');
-const searchChatText = document.getElementById('searchChat-txt');
-const historyText = document.getElementById('history-txt');
+const newChatText = document.getElementById("newChat-txt");
+const searchChatText = document.getElementById("searchChat-txt");
+const historyText = document.getElementById("history-txt");
 
-const mobileToggleBtn = document.getElementById('mobile-sidebar-toggle');
+const mobileToggleBtn = document.getElementById("mobile-sidebar-toggle");
 const body = document.body;
 
 const sendButton = document.getElementById("send-button");
@@ -39,41 +43,41 @@ let abortController = null;
 let isBotTyping = false;
 const messageQueue = [];
 let conversationHistory = [];
-let selectedTone = 'friendly';
+let selectedTone = "friendly";
 let includeHashtags = false;
 let selectedPlatforms = new Set();
 
 // Fetch user data from backend
 async function fetchUserData() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (!token) {
-    console.error('No token found. Please log in.');
-    window.location.href = '/index.html';
+    console.error("No token found. Please log in.");
+    window.location.href = "/index.html";
     return null;
   }
 
   try {
-    const response = await fetch('http://localhost:8000/api/users/user', {
-      method: 'GET',
+    const response = await fetch("http://localhost:8000/api/users/user", {
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userName');
-        window.location.href = '/index.html';
+        localStorage.removeItem("token");
+        localStorage.removeItem("userName");
+        window.location.href = "/index.html";
       }
-      throw new Error('Failed to fetch user data');
+      throw new Error("Failed to fetch user data");
     }
 
     const user = await response.json();
     return user;
   } catch (err) {
-    console.error('Error fetching user data:', err);
+    console.error("Error fetching user data:", err);
     return null;
   }
 }
@@ -84,42 +88,50 @@ async function openSettings() {
 
   const user = await fetchUserData();
   if (user) {
-    const profileName = document.querySelector('.profile-section h1');
-    const profileImage = document.querySelector('.profile-section img');
-    if (profileName) profileName.textContent = user.userName || 'Guest';
-    if (profileImage) profileImage.src = user.profilePicture || 'images/profile-user.png';
+    const profileName = document.querySelector(".profile-section h1");
+    const profileImage = document.querySelector(".profile-section img");
+    if (profileName) profileName.textContent = user.userName || "Guest";
+    if (profileImage)
+      profileImage.src = user.profilePicture || "images/profile-user.png";
 
-    const userNameLarge = document.getElementById('user-name-large');
-    const profilePictureLarge = document.getElementById('profile-picture-large');
-    const usernameInput = document.getElementById('username-input');
-    const userIDInput = document.getElementById('userID-input');
-    const emailInput = document.getElementById('email-input');
-    const passwordInput = document.getElementById('password-input');
+    const userNameLarge = document.getElementById("user-name-large");
+    const profilePictureLarge = document.getElementById(
+      "profile-picture-large"
+    );
+    const usernameInput = document.getElementById("username-input");
+    const userIDInput = document.getElementById("userID-input");
+    const emailInput = document.getElementById("email-input");
+    const passwordInput = document.getElementById("password-input");
 
-    if (userNameLarge) userNameLarge.textContent = user.userName || 'Guest';
-    if (profilePictureLarge) profilePictureLarge.src = user.profilePicture || 'images/profile-user.png';
-    if (usernameInput) usernameInput.value = user.userName || '';
-    if (userIDInput) userIDInput.value = user.userID || '';
-    if (emailInput) emailInput.value = user.email || '';
-    if (passwordInput) passwordInput.value = '********';
+    if (userNameLarge) userNameLarge.textContent = user.userName || "Guest";
+    if (profilePictureLarge)
+      profilePictureLarge.src =
+        user.profilePicture || "images/profile-user.png";
+    if (usernameInput) usernameInput.value = user.userName || "";
+    if (userIDInput) userIDInput.value = user.userID || "";
+    if (emailInput) emailInput.value = user.email || "";
+    if (passwordInput) passwordInput.value = "********";
   } else {
-    const profileName = document.querySelector('.profile-section h1');
-    const profileImage = document.querySelector('.profile-section img');
-    const userNameLarge = document.getElementById('user-name-large');
-    const profilePictureLarge = document.getElementById('profile-picture-large');
-    const usernameInput = document.getElementById('username-input');
-    const userIDInput = document.getElementById('userID-input');
-    const emailInput = document.getElementById('email-input');
-    const passwordInput = document.getElementById('password-input');
+    const profileName = document.querySelector(".profile-section h1");
+    const profileImage = document.querySelector(".profile-section img");
+    const userNameLarge = document.getElementById("user-name-large");
+    const profilePictureLarge = document.getElementById(
+      "profile-picture-large"
+    );
+    const usernameInput = document.getElementById("username-input");
+    const userIDInput = document.getElementById("userID-input");
+    const emailInput = document.getElementById("email-input");
+    const passwordInput = document.getElementById("password-input");
 
-    if (profileName) profileName.textContent = 'Guest';
-    if (profileImage) profileImage.src = 'images/profile-user.png';
-    if (userNameLarge) userNameLarge.textContent = 'Guest';
-    if (profilePictureLarge) profilePictureLarge.src = 'images/profile-user.png';
-    if (usernameInput) usernameInput.value = '';
-    if (userIDInput) userIDInput.value = '';
-    if (emailInput) emailInput.value = '';
-    if (passwordInput) passwordInput.value = '';
+    if (profileName) profileName.textContent = "Guest";
+    if (profileImage) profileImage.src = "images/profile-user.png";
+    if (userNameLarge) userNameLarge.textContent = "Guest";
+    if (profilePictureLarge)
+      profilePictureLarge.src = "images/profile-user.png";
+    if (usernameInput) usernameInput.value = "";
+    if (userIDInput) userIDInput.value = "";
+    if (emailInput) emailInput.value = "";
+    if (passwordInput) passwordInput.value = "";
   }
 }
 
@@ -129,167 +141,178 @@ function closeSettings() {
 }
 
 // Profile picture upload
-document.getElementById('edit-profilePicture-btn')?.addEventListener('click', async () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.onchange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+document
+  .getElementById("edit-profilePicture-btn")
+  ?.addEventListener("click", async () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
 
-    const formData = new FormData();
-    formData.append('profilePicture', file);
+      const formData = new FormData();
+      formData.append("profilePicture", file);
 
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/users/user/profile-picture', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData,
-      });
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          "http://localhost:8000/api/users/user/profile-picture",
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          }
+        );
 
-      if (!response.ok) throw new Error('Failed to upload profile picture');
+        if (!response.ok) throw new Error("Failed to upload profile picture");
 
-      const data = await response.json();
-      document.getElementById('profile-picture-large').src = data.profilePicture;
-      document.querySelector('.profile-section img').src = data.profilePicture;
-      alert('✅ Profile picture updated!');
-    } catch (err) {
-      console.error('Error uploading profile picture:', err);
-      alert('❌ Failed to upload profile picture.');
-    }
-  };
-  input.click();
-});
+        const data = await response.json();
+        document.getElementById("profile-picture-large").src =
+          data.profilePicture;
+        document.querySelector(".profile-section img").src =
+          data.profilePicture;
+        alert("✅ Profile picture updated!");
+      } catch (err) {
+        console.error("Error uploading profile picture:", err);
+        alert("❌ Failed to upload profile picture.");
+      }
+    };
+    input.click();
+  });
 
 // Logout
-document.querySelector('.logout-btn')?.addEventListener('click', () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('userName');
-  window.location.href = '/index.html';
+document.querySelector(".logout-btn")?.addEventListener("click", () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userName");
+  window.location.href = "/index.html";
 });
 
 // Update tone when selector changes
-toneSelector.addEventListener('change', () => {
+toneSelector.addEventListener("change", () => {
   selectedTone = toneSelector.value;
 });
 
 // Trending button: Fetch trending topics on click
-trendingButton.addEventListener('click', () => {
-  const statusDot = trendingButton.querySelector('.trending-dot');
-  statusDot.classList.add('flash');
-  setTimeout(() => statusDot.classList.remove('flash'), 500);
-  messageQueue.push('List the top trending topics on social media right now.');
+trendingButton.addEventListener("click", () => {
+  const statusDot = trendingButton.querySelector(".trending-dot");
+  statusDot.classList.add("flash");
+  setTimeout(() => statusDot.classList.remove("flash"), 500);
+  messageQueue.push("List the top trending topics on social media right now.");
   processNextMessage();
 });
 
 // Hashtag button: Toggle hashtag inclusion
-hashtagButton.addEventListener('change', () => {
+hashtagButton.addEventListener("change", () => {
   includeHashtags = hashtagButton.checked;
 });
 
 // Image generation button: Open modal
-generateImageButton.addEventListener('click', () => {
-  const statusDot = generateImageButton.querySelector('.generate-image-dot');
-  statusDot.classList.add('flash');
-  setTimeout(() => statusDot.classList.remove('flash'), 500);
+generateImageButton.addEventListener("click", () => {
+  const statusDot = generateImageButton.querySelector(".generate-image-dot");
+  statusDot.classList.add("flash");
+  setTimeout(() => statusDot.classList.remove("flash"), 500);
   openImageGenModal();
 });
 
 // Image generation modal handlers
-generateImageSubmitBtn.addEventListener('click', () => {
+generateImageSubmitBtn.addEventListener("click", () => {
   const prompt = imagePromptInput.value.trim();
   if (prompt) {
-    messageQueue.push({ type: 'image', prompt, model: aiModelsDropdown.value, aspectRatio: aspectRatioDropdown.value });
+    messageQueue.push({
+      type: "image",
+      prompt,
+      model: aiModelsDropdown.value,
+      aspectRatio: aspectRatioDropdown.value,
+    });
     processNextMessage();
     closeImageGenModal();
-    imagePromptInput.value = '';
+    imagePromptInput.value = "";
   }
 });
 
-closeImageModalBtn.addEventListener('click', () => {
+closeImageModalBtn.addEventListener("click", () => {
   closeImageGenModal();
-  imagePromptInput.value = '';
+  imagePromptInput.value = "";
 });
 
 // Function to toggle send/stop button icon and tooltip
 function toggleSendStopButton(isTyping) {
   if (isTyping) {
-    sendIcon.src = 'images/stop.png';
-    sendIcon.alt = 'Stop';
-    sendButton.title = 'Stop generating response';
+    sendIcon.src = "images/stop.png";
+    sendIcon.alt = "Stop";
+    sendButton.title = "Stop generating response";
   } else {
-    sendIcon.src = 'images/send white.png';
-    sendIcon.alt = 'Send';
-    sendButton.title = 'Send message';
+    sendIcon.src = "images/send white.png";
+    sendIcon.alt = "Send";
+    sendButton.title = "Send message";
   }
 }
 
 // Collapse sidebar on desktop
-collapseBtn.addEventListener('click', () => {
-  sidebar.classList.toggle('collapsed');
-  const isCollapsed = sidebar.classList.contains('collapsed');
+collapseBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("collapsed");
+  const isCollapsed = sidebar.classList.contains("collapsed");
   collapseIcon.src = isCollapsed
-    ? 'images/sidebar open gray.png'
-    : 'images/sidebar close gray.png';
+    ? "images/sidebar open gray.png"
+    : "images/sidebar close gray.png";
 
-  document.querySelector('main').classList.toggle('sidebar-collapsed', isCollapsed);
+  document
+    .querySelector("main")
+    .classList.toggle("sidebar-collapsed", isCollapsed);
 });
 
 // Mobile sidebar toggle
 if (mobileToggleBtn) {
-  mobileToggleBtn.setAttribute('aria-expanded', 'false');
-  mobileToggleBtn.addEventListener('click', (e) => {
+  mobileToggleBtn.setAttribute("aria-expanded", "false");
+  mobileToggleBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    const isOpen = sidebar.classList.toggle('open');
-    body.classList.toggle('sidebar-open', isOpen);
-    mobileToggleBtn.setAttribute('aria-expanded', isOpen.toString());
+    const isOpen = sidebar.classList.toggle("open");
+    body.classList.toggle("sidebar-open", isOpen);
+    mobileToggleBtn.setAttribute("aria-expanded", isOpen.toString());
   });
 }
 
 // Close mobile sidebar on clicking outside
-document.body.addEventListener('click', (e) => {
-  if (sidebar.classList.contains('open')) {
-    if (
-      !sidebar.contains(e.target) &&
-      !mobileToggleBtn.contains(e.target)
-    ) {
-      sidebar.classList.remove('open');
-      body.classList.remove('sidebar-open');
-      mobileToggleBtn.setAttribute('aria-expanded', 'false');
+document.body.addEventListener("click", (e) => {
+  if (sidebar.classList.contains("open")) {
+    if (!sidebar.contains(e.target) && !mobileToggleBtn.contains(e.target)) {
+      sidebar.classList.remove("open");
+      body.classList.remove("sidebar-open");
+      mobileToggleBtn.setAttribute("aria-expanded", "false");
     }
   }
 });
 
 // Close sidebar when clicking any nav item (mobile UX)
-document.querySelectorAll('aside nav ul li div').forEach(item => {
-  item.addEventListener('click', () => {
-    if (sidebar.classList.contains('open')) {
-      sidebar.classList.remove('open');
-      body.classList.remove('sidebar-open');
-      mobileToggleBtn.setAttribute('aria-expanded', 'false');
+document.querySelectorAll("aside nav ul li div").forEach((item) => {
+  item.addEventListener("click", () => {
+    if (sidebar.classList.contains("open")) {
+      sidebar.classList.remove("open");
+      body.classList.remove("sidebar-open");
+      mobileToggleBtn.setAttribute("aria-expanded", "false");
     }
   });
 });
 
 // Chat tabs button logic (new chat, search, history)
 function resetTabIcons() {
-  newChatIcon.src = 'images/new chat gray.png';
-  newChatText.style.color = '#ffffff';
-  searchChatIcon.src = 'images/search gray.png';
-  searchChatText.style.color = '#ffffff';
-  historyIcon.src = 'images/history gray.png';
-  historyText.style.color = '#ffffff';
+  newChatIcon.src = "images/new chat gray.png";
+  newChatText.style.color = "#ffffff";
+  searchChatIcon.src = "images/search gray.png";
+  searchChatText.style.color = "#ffffff";
+  historyIcon.src = "images/history gray.png";
+  historyText.style.color = "#ffffff";
 }
 
-newChatDiv.addEventListener('click', () => {
+newChatDiv.addEventListener("click", () => {
   resetTabIcons();
-  newChatIcon.src = 'images/new chat blue.png';
-  newChatText.style.color = '#00c2db';
+  newChatIcon.src = "images/new chat blue.png";
+  newChatText.style.color = "#00c2db";
 
   setTimeout(() => {
-    newChatIcon.src = 'images/new chat gray.png';
-    newChatText.style.color = '#ffffff';
+    newChatIcon.src = "images/new chat gray.png";
+    newChatText.style.color = "#ffffff";
   }, 300);
 
   clearInputAndAttachments();
@@ -297,22 +320,22 @@ newChatDiv.addEventListener('click', () => {
   resetLayout();
 });
 
-searchChatDiv.addEventListener('click', () => {
+searchChatDiv.addEventListener("click", () => {
   resetTabIcons();
-  searchChatIcon.src = 'images/search blue.png';
-  searchChatText.style.color = '#00c2db';
+  searchChatIcon.src = "images/search blue.png";
+  searchChatText.style.color = "#00c2db";
 });
 
-historyDiv.addEventListener('click', () => {
+historyDiv.addEventListener("click", () => {
   resetTabIcons();
-  historyIcon.src = 'images/history blue.png';
-  historyText.style.color = '#00c2db';
+  historyIcon.src = "images/history blue.png";
+  historyText.style.color = "#00c2db";
 });
 
 // Textarea autosize
-textarea.addEventListener('input', () => {
-  textarea.style.height = 'auto';
-  textarea.style.height = textarea.scrollHeight + 'px';
+textarea.addEventListener("input", () => {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px";
 });
 
 // File attachment preview
@@ -375,20 +398,29 @@ function addButtonsToBotMessage(botTextDiv) {
   buttonsContainer.className = "message-buttons";
   buttonsContainer.style.marginTop = "0";
 
-  const existingButtons = botTextDiv.parentElement.querySelector(".message-buttons");
+  const existingButtons =
+    botTextDiv.parentElement.querySelector(".message-buttons");
   if (existingButtons) existingButtons.remove();
 
-  const isImageMessage = !!botTextDiv.querySelector('img');
+  const isImageMessage = !!botTextDiv.querySelector("img");
 
   const actionBtn = document.createElement("button");
   actionBtn.className = isImageMessage ? "download" : "copy";
-  actionBtn.setAttribute("aria-label", isImageMessage ? "Download image" : "Copy to clipboard");
+  actionBtn.setAttribute(
+    "aria-label",
+    isImageMessage ? "Download image" : "Copy to clipboard"
+  );
 
   const tooltipSpan = document.createElement("span");
   tooltipSpan.className = "tooltip";
-  tooltipSpan.setAttribute("data-text-initial", isImageMessage ? "Download" : "Copy");
-  tooltipSpan.setAttribute("data-text-end", isImageMessage ? "Downloaded!" : "Copied!");
-  tooltipSpan.textContent = isImageMessage ? "Download" : "Copy";
+  tooltipSpan.setAttribute(
+    "data-text-initial",
+    isImageMessage ? "Download" : "Copy"
+  );
+  tooltipSpan.setAttribute(
+    "data-text-end",
+    isImageMessage ? "Downloaded!" : "Copied!"
+  );
 
   const iconSpan = document.createElement("span");
   iconSpan.className = "icon-span";
@@ -415,9 +447,9 @@ function addButtonsToBotMessage(botTextDiv) {
 
   actionBtn.onclick = async () => {
     if (isImageMessage) {
-      const img = botTextDiv.querySelector('img');
+      const img = botTextDiv.querySelector("img");
       if (!img) {
-        console.error('No image found for download');
+        console.error("No image found for download");
         tooltipSpan.textContent = "Error: No image";
         actionBtn.style.color = "#ff0000";
         setTimeout(() => {
@@ -428,25 +460,28 @@ function addButtonsToBotMessage(botTextDiv) {
       }
 
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-          throw new Error('No authentication token found');
+          throw new Error("No authentication token found");
         }
-        console.log('Sending download request for imageUrl:', img.src);
+        console.log("Sending download request for imageUrl:", img.src);
 
-        const response = await fetch('http://localhost:8000/api/users/download-image', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ imageUrl: img.src }),
-        });
+        const response = await fetch(
+          "http://localhost:8000/api/users/download-image",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ imageUrl: img.src }),
+          }
+        );
 
         if (!response.ok) {
-          const contentType = response.headers.get('content-type');
-          let errorMessage = 'Failed to download image';
-          if (contentType && contentType.includes('application/json')) {
+          const contentType = response.headers.get("content-type");
+          let errorMessage = "Failed to download image";
+          if (contentType && contentType.includes("application/json")) {
             const errorData = await response.json();
             errorMessage = errorData.error || response.statusText;
           } else {
@@ -456,13 +491,13 @@ function addButtonsToBotMessage(botTextDiv) {
         }
 
         const blob = await response.blob();
-        console.log('Blob:', blob.type, blob.size);
+        console.log("Blob:", blob.type, blob.size);
         if (blob.size === 0) {
-          throw new Error('Empty image data received');
+          throw new Error("Empty image data received");
         }
 
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
         a.download = `generated-image-${Date.now()}.png`;
         document.body.appendChild(a);
@@ -470,44 +505,40 @@ function addButtonsToBotMessage(botTextDiv) {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        actionBtn.classList.add('downloaded');
-        iconSpan.querySelector('.checkmark')?.style.setProperty('display', 'block', 'important');
-        actionBtn.style.color = "#4ade80";
-        tooltipSpan.textContent = "Downloaded!";
+        actionBtn.classList.add("downloaded");
+        // The 'downloaded' class and CSS will handle the visual feedback.
         setTimeout(() => {
-          actionBtn.classList.remove('downloaded');
-          iconSpan.querySelector('.checkmark')?.style.setProperty('display', 'none', 'important');
-          actionBtn.style.color = "";
-          tooltipSpan.textContent = "Download";
+          actionBtn.classList.remove("downloaded");
+          // The tooltip text will revert automatically via CSS.
         }, 1500);
       } catch (err) {
-        console.error('Download failed:', err);
+        console.error("Download failed:", err);
         tooltipSpan.textContent = `Error: ${err.message}`;
         actionBtn.style.color = "#ff0000";
         setTimeout(() => {
           actionBtn.style.color = "";
-          tooltipSpan.textContent = "Download";
         }, 1500);
       }
     } else {
       const content = botTextDiv.textContent;
-      navigator.clipboard.writeText(content)
+      navigator.clipboard
+        .writeText(content)
         .then(() => {
-          actionBtn.classList.add('copied');
-          iconSpan.querySelector('.checkmark').style.display = 'block';
-          iconSpan.querySelector('.clipboard').style.display = 'none';
+          actionBtn.classList.add("copied");
+          iconSpan.querySelector(".checkmark").style.display = "block";
+          iconSpan.querySelector(".clipboard").style.display = "none";
           actionBtn.style.color = "#4ade80";
           tooltipSpan.textContent = "Copied!";
           setTimeout(() => {
-            actionBtn.classList.remove('copied');
-            iconSpan.querySelector('.checkmark').style.display = 'none';
-            iconSpan.querySelector('.clipboard').style.display = 'block';
+            actionBtn.classList.remove("copied");
+            iconSpan.querySelector(".checkmark").style.display = "none";
+            iconSpan.querySelector(".clipboard").style.display = "block";
             actionBtn.style.color = "";
             tooltipSpan.textContent = "Copy";
           }, 1500);
         })
         .catch((err) => {
-          console.error('Copy failed:', err);
+          console.error("Copy failed:", err);
           tooltipSpan.textContent = "Error";
           actionBtn.style.color = "#ff0000";
           setTimeout(() => {
@@ -538,7 +569,9 @@ function addButtonsToBotMessage(botTextDiv) {
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
     }
-    const textContent = isImageMessage ? `Image generated for prompt: ${botTextDiv.getAttribute('data-prompt') || 'unknown'}` : botTextDiv.textContent;
+    const textContent = isImageMessage
+      ? `Image generated for prompt: ${botTextDiv.getAttribute("data-prompt") || "unknown"}`
+      : botTextDiv.textContent;
     const utterance = new SpeechSynthesisUtterance(textContent);
     utterance.lang = "en-US";
     speechSynthesis.speak(utterance);
@@ -575,9 +608,9 @@ async function processNextMessage() {
   if (messageQueue.length === 0) return;
 
   const nextItem = messageQueue.shift();
-  if (typeof nextItem === 'string') {
+  if (typeof nextItem === "string") {
     await sendMessage(nextItem);
-  } else if (nextItem.type === 'image') {
+  } else if (nextItem.type === "image") {
     await generateImage(nextItem.prompt, nextItem.model, nextItem.aspectRatio);
   }
 }
@@ -593,9 +626,11 @@ async function generateImage(prompt, model, aspectRatio) {
     const oldTempMsg = chatContainer.querySelector(".bot-message.temp");
     if (oldTempMsg) {
       const oldButtons = oldTempMsg.querySelectorAll(".message-buttons");
-      oldButtons.forEach(btns => btns.remove());
+      oldButtons.forEach((btns) => btns.remove());
     }
-    const partialBotMsg = chatContainer.querySelector(".message.bot-message.temp");
+    const partialBotMsg = chatContainer.querySelector(
+      ".message.bot-message.temp"
+    );
     if (partialBotMsg) partialBotMsg.classList.remove("temp");
     if (partialBotMsg) {
       const botTextDiv = partialBotMsg.querySelector(".message-text");
@@ -617,9 +652,9 @@ async function generateImage(prompt, model, aspectRatio) {
     mainSection.classList.add("input-sent");
   }
 
-  const mainElement = document.querySelector('main');
-  if (!mainElement.classList.contains('chat-started')) {
-    mainElement.classList.add('chat-started');
+  const mainElement = document.querySelector("main");
+  if (!mainElement.classList.contains("chat-started")) {
+    mainElement.classList.add("chat-started");
   }
 
   document.getElementById("front-section").style.display = "none";
@@ -633,7 +668,10 @@ async function generateImage(prompt, model, aspectRatio) {
   chatContainer.appendChild(userMsg);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  conversationHistory.push({ role: "user", content: `Generate image: ${prompt}` });
+  conversationHistory.push({
+    role: "user",
+    content: `Generate image: ${prompt}`,
+  });
 
   const maxHistoryLength = 10;
   if (conversationHistory.length > maxHistoryLength) {
@@ -652,33 +690,33 @@ async function generateImage(prompt, model, aspectRatio) {
 
   const botText = document.createElement("div");
   botText.className = "message-text selectable";
-  botText.setAttribute('data-prompt', prompt);
+  botText.setAttribute("data-prompt", prompt);
   tempBotMsg.appendChild(botText);
 
   try {
     let width, height;
     switch (aspectRatio) {
-      case 'square':
+      case "square":
         width = 1080;
         height = 1080;
         break;
-      case 'landscape':
+      case "landscape":
         width = 1920;
         height = 1080;
         break;
-      case 'landscape_large':
+      case "landscape_large":
         width = 2560;
         height = 1440;
         break;
-      case 'portrait':
+      case "portrait":
         width = 1080;
         height = 1920;
         break;
-      case 'portrait_large':
+      case "portrait_large":
         width = 1440;
         height = 2560;
         break;
-      case 'default':
+      case "default":
       default:
         width = 1920;
         height = 1080;
@@ -688,28 +726,30 @@ async function generateImage(prompt, model, aspectRatio) {
     const seed = Date.now();
     const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=${width}&height=${height}&model=${encodeURIComponent(model)}&seed=${seed}`;
 
-    const img = document.createElement('img');
+    const img = document.createElement("img");
     img.src = imageUrl;
     img.alt = `Generated image for: ${prompt}`;
-    img.style.maxWidth = '100%';
-    img.style.height = 'auto';
-    img.style.borderRadius = '8px';
-    img.style.margin = '0.5em 0';
-    img.style.display = 'block';
+    img.style.maxWidth = "100%";
+    img.style.height = "auto";
+    img.style.borderRadius = "8px";
+    img.style.margin = "0.5em 0";
+    img.style.display = "block";
 
     await new Promise((resolve, reject) => {
       img.onload = resolve;
-      img.onerror = () => reject(new Error('Failed to load image'));
+      img.onerror = () => reject(new Error("Failed to load image"));
     });
 
     thinkingMsg.remove();
     botText.appendChild(img);
-    tempBotMsg.classList.remove('temp');
+    tempBotMsg.classList.remove("temp");
     addButtonsToBotMessage(botText);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    conversationHistory.push({ role: "bot", content: `[Image generated for: ${prompt}]` });
-
+    conversationHistory.push({
+      role: "bot",
+      content: `[Image generated for: ${prompt}]`,
+    });
   } catch (err) {
     thinkingMsg.remove();
     if (err.name === "AbortError") {
@@ -743,9 +783,11 @@ async function sendMessage(userInput) {
     const oldTempMsg = chatContainer.querySelector(".bot-message.temp");
     if (oldTempMsg) {
       const oldButtons = oldTempMsg.querySelectorAll(".message-buttons");
-      oldButtons.forEach(btns => btns.remove());
+      oldButtons.forEach((btns) => btns.remove());
     }
-    const partialBotMsg = chatContainer.querySelector(".message.bot-message.temp");
+    const partialBotMsg = chatContainer.querySelector(
+      ".message.bot-message.temp"
+    );
     if (partialBotMsg) partialBotMsg.classList.remove("temp");
     if (partialBotMsg) {
       const botTextDiv = partialBotMsg.querySelector(".message-text");
@@ -767,9 +809,9 @@ async function sendMessage(userInput) {
     mainSection.classList.add("input-sent");
   }
 
-  const mainElement = document.querySelector('main');
-  if (!mainElement.classList.contains('chat-started')) {
-    mainElement.classList.add('chat-started');
+  const mainElement = document.querySelector("main");
+  if (!mainElement.classList.contains("chat-started")) {
+    mainElement.classList.add("chat-started");
   }
 
   document.getElementById("front-section").style.display = "none";
@@ -805,16 +847,23 @@ async function sendMessage(userInput) {
   tempBotMsg.appendChild(botText);
 
   try {
-    const platformsInstruction = selectedPlatforms.size > 0 
-      ? `Ignore all previous platform selections mentioned in the conversation history and tailor the response exclusively for the following platforms: ${Array.from(selectedPlatforms).join(', ')}. Adapt any references to previous content in the conversation to fit these current platforms, ensuring relevance to the ongoing discussion.` 
-      : 'Ignore all previous platform selections mentioned in the conversation history and provide a general response suitable for any social media platform. Adapt any references to previous content to maintain relevance to the ongoing discussion.';
+    const platformsInstruction =
+      selectedPlatforms.size > 0
+        ? `Ignore all previous platform selections mentioned in the conversation history and tailor the response exclusively for the following platforms: ${Array.from(selectedPlatforms).join(", ")}. Adapt any references to previous content in the conversation to fit these current platforms, ensuring relevance to the ongoing discussion.`
+        : "Ignore all previous platform selections mentioned in the conversation history and provide a general response suitable for any social media platform. Adapt any references to previous content to maintain relevance to the ongoing discussion.";
     const toneInstruction = `Respond in a ${selectedTone} tone.`;
-    const hashtagInstruction = includeHashtags 
-      ? 'Include relevant hashtags in the response to enhance social media engagement.' 
-      : '';
-    const promptWithHistory = `${toneInstruction}\n${platformsInstruction}\n${hashtagInstruction}\n\n` + conversationHistory
-      .map(msg => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`)
-      .join("\n\n") + `\n\nUser: ${userInput}`;
+    const hashtagInstruction = includeHashtags
+      ? "Include relevant hashtags in the response to enhance social media engagement."
+      : "";
+    const promptWithHistory =
+      `${toneInstruction}\n${platformsInstruction}\n${hashtagInstruction}\n\n` +
+      conversationHistory
+        .map(
+          (msg) =>
+            `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+        )
+        .join("\n\n") +
+      `\n\nUser: ${userInput}`;
     const response = await fetch("http://localhost:8000/api/gemini/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -830,7 +879,6 @@ async function sendMessage(userInput) {
     await typeText(botText, geminiResponse, abortController.signal);
 
     conversationHistory.push({ role: "bot", content: geminiResponse });
-
   } catch (err) {
     thinkingMsg.remove();
     if (err.name === "AbortError") {
@@ -948,34 +996,39 @@ sendButton.addEventListener("click", () => {
   }
 });
 
-const platformButtons = document.querySelectorAll('.platform-btn');
-platformButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    const platform = button.getAttribute('data-social');
+const platformButtons = document.querySelectorAll(".platform-btn");
+platformButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const platform = button.getAttribute("data-social");
     if (selectedPlatforms.has(platform)) {
       selectedPlatforms.delete(platform);
-      button.classList.remove('active');
+      button.classList.remove("active");
     } else {
       selectedPlatforms.add(platform);
-      button.classList.add('active');
+      button.classList.add("active");
     }
   });
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (!token) {
-    window.location.href = '/index.html';
+    window.location.href = "/index.html";
     return;
   }
 
   const user = await fetchUserData();
-  const userName = user ? user.userName : localStorage.getItem("userName") || "User";
+  const userName = user
+    ? user.userName
+    : localStorage.getItem("userName") || "User";
   document.getElementById("header-text").textContent = `Hello ${userName}`;
   const profileName = document.querySelector(".profile-section h1");
   if (profileName) profileName.textContent = userName;
-  document.addEventListener('selectstart', (e) => {
-    if (e.target.closest('.markdown-content') || e.target.closest('.message-text')) {
+  document.addEventListener("selectstart", (e) => {
+    if (
+      e.target.closest(".markdown-content") ||
+      e.target.closest(".message-text")
+    ) {
       e.stopPropagation();
     }
   });

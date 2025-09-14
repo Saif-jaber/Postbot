@@ -783,7 +783,7 @@ main {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   height: 100vh;
   width: calc(100% - 260px);
@@ -791,7 +791,8 @@ main {
   padding: 72px 24px 32px 24px;
   box-sizing: border-box;
   background-color: transparent;
-  position: relative; /* Added to contain absolute children */
+  position: relative;
+  overflow-y: auto;
 }
 
 main.sidebar-collapsed {
@@ -806,11 +807,18 @@ main.sidebar-collapsed {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: fit-content;
+  flex-grow: 1;
   width: 95%;
   max-width: 1200px;
+  margin: 0 auto;
+  transform: translateY(20%); /* Slight downward offset for "way lower" */
+}
+
+main.chat-started #front-section {
+  flex-grow: 0;
   margin-top: 0;
   margin-bottom: 24px;
+  transform: none; /* Reset transform when chat starts */
 }
 
 #header-text {
@@ -852,21 +860,21 @@ main.sidebar-collapsed {
 
 /* Text input */
 #text-input-container {
-  position: absolute; /* Changed to absolute to float above other elements */
-  bottom: 32px; /* Pinned to bottom */
-  left: 50%; /* Center horizontally */
-  transform: translateX(-50%); /* Offset for centering */
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
-  max-width: 900px; /* Matches existing design */
+  max-width: 900px;
   background-color: #111;
   padding: 14px 12px;
   border-radius: 14px;
-  z-index: 1000; /* Ensures it stays above other elements */
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: 12px;
   box-sizing: border-box;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Maintains existing shadow */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #user-textInput {
@@ -876,7 +884,7 @@ main.sidebar-collapsed {
   color: #eee;
   font-size: 1.15rem;
   font-weight: 500;
-  caret-color: #00ffea;
+  caret-color: #ffffff;
   padding: 10px 12px;
   resize: none;
   overflow: hidden;
@@ -1291,14 +1299,20 @@ main.sidebar-collapsed {
 #chat-container {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 8px;
-  padding-bottom: 12px;
+  padding: 12px;
+  padding-bottom: 80px;
   overflow-y: auto;
-  max-height: calc(100vh - 260px); /* Adjusted to prevent overlap with input */
-  width: 1200px;
+  max-height: calc(100vh - 260px);
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   background: transparent;
   box-sizing: border-box;
+  flex-grow: 1;
+  position: static;
 }
 
 /* Message styles */
@@ -2302,7 +2316,7 @@ main.sidebar-collapsed {
   background: linear-gradient(135deg, #00c2db, #00b7ff);
 }
 
-/* Media queries */
+/* Desktop view */
 @media (min-width: 769px) {
   #mobile-top-bar {
     display: none !important;
@@ -2332,12 +2346,13 @@ main.sidebar-collapsed {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     transition:
       margin-left 0.3s ease,
       width 0.3s ease;
     height: 100vh;
-    position: relative; /* Ensure main contains absolute children */
+    position: relative;
+    overflow-y: auto;
   }
   main.sidebar-collapsed {
     width: calc(100% - 60px);
@@ -2350,10 +2365,17 @@ main.sidebar-collapsed {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: auto;
+    flex-grow: 1;
     width: 100%;
     max-width: 900px;
+    transform: translateY(20%); /* Slight downward offset for "way lower" */
+  }
+  main.chat-started #front-section {
+    flex-grow: 0;
     margin-top: 0;
+    margin-bottom: 24px;
+    justify-content: flex-start;
+    transform: none; /* Reset transform when chat starts */
   }
   #header-text {
     font-size: 4rem;
@@ -2383,7 +2405,7 @@ main.sidebar-collapsed {
     margin-bottom: 12px;
   }
   #text-input-container {
-    position: absolute; /* Keep absolute positioning */
+    position: absolute;
     bottom: 32px;
     left: 50%;
     transform: translateX(-50%);
@@ -2400,19 +2422,22 @@ main.sidebar-collapsed {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
   main.input-sent {
-    justify-content: flex-end;
+    justify-content: flex-start;
   }
 }
 
+/* Narrow desktop or tablet view */
 @media (max-width: 900px) {
   #chat-container {
     width: 100%;
     max-width: 100%;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 12px;
+    padding-bottom: 80px;
+    justify-content: flex-start;
   }
 }
 
+/* Mobile view */
 @media (max-width: 768px) {
   #mobile-top-bar {
     display: flex;
@@ -2428,12 +2453,13 @@ main.sidebar-collapsed {
   main {
     margin-left: 0 !important;
     padding-top: 104px;
-    padding-bottom: 80px; /* Add space for input container */
+    padding-bottom: 80px;
     display: flex;
     flex-direction: column;
     height: 100vh;
     justify-content: flex-start;
     position: relative;
+    overflow-y: auto;
   }
   main.input-sent {
     justify-content: flex-start;
@@ -2445,16 +2471,18 @@ main.sidebar-collapsed {
   #chat-container {
     flex-grow: 1;
     overflow-y: auto;
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 12px;
+    padding-bottom: 80px;
     width: 100%;
     max-width: 900px;
-    margin-bottom: 80px; /* Prevent overlap with input */
+    margin-bottom: 80px;
+    justify-content: flex-start;
     transition: margin-top 0.3s ease;
+    position: static;
   }
   #text-input-container {
-    position: absolute; /* Keep absolute positioning */
-    bottom: 12px; /* Closer to edge on mobile */
+    position: absolute;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -2493,10 +2521,16 @@ main.sidebar-collapsed {
     align-items: center;
     width: 100%;
     max-width: 900px;
-    height: 60vh;
+    flex-grow: 1;
     text-align: center;
-    margin-top: 20vh;
-    user-select: none;
+    transform: translateY(20%); /* Slight downward offset for "way lower" */
+  }
+  main.chat-started #front-section {
+    flex-grow: 0;
+    margin-top: 20px;
+    margin-bottom: 12px;
+    justify-content: flex-start;
+    transform: none; /* Reset transform when chat starts */
   }
   #header-text {
     font-size: 1.5rem;
@@ -2514,7 +2548,7 @@ main.sidebar-collapsed {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
     animation: flowBling 8s linear infinite;
     margin-bottom: 12px;
   }
@@ -2624,68 +2658,18 @@ main.sidebar-collapsed {
     gap: 16px;
   }
   .input-box {
+    flex: 1;
     min-width: 100%;
     max-width: 100%;
     align-items: flex-start;
-    gap: 4px;
-  }
-  .username-container {
-    width: 100%;
-    margin-top: 0;
   }
   .input:not(#management-navbar .input) {
+    width: 100%;
     font-size: 0.85rem;
     padding: 6px 10px;
     height: 36px;
-    width: 100%;
   }
   .input-label {
-    font-size: 0.75rem;
-    margin-bottom: 0;
-    align-self: flex-start;
-  }
-  .username-input,
-  .userID-box .input,
-  #email-password-container .input {
-    width: 100%;
-  }
-}
-
-/* Mobile-specific adjustments for image generation modal */
-@media (max-width: 768px) {
-  #image-generation-modal {
-    width: 100%;
-    height: 100%;
-  }
-  #image-generation-content {
-    width: 95%;
-    max-height: 90vh;
-    padding: 16px;
-  }
-  #image-prompt-input {
-    height: 120px;
-    font-size: 0.9rem;
-    padding: 8px 10px;
-  }
-  #AI-models-dropdown,
-  #AspectRatio-dropdown {
-    font-size: 0.9rem;
-    padding: 6px 10px;
-  }
-  #generate-image-submit-btn,
-  #close-image-modal-btn {
-    font-size: 0.9rem;
-    padding: 6px 12px;
-  }
-  .first-title h2,
-  .sec-title h2,
-  .third-title h2 {
-    font-size: 1.1rem;
-  }
-  .first-title img,
-  .sec-title img,
-  .third-title img {
-    width: 20px;
-    height: 20px;
+    font-size: 0.8rem;
   }
 }

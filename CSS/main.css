@@ -974,23 +974,7 @@ main.chat-started #front-section {
   z-index: 1;
 }
 
-/* Hover effect - Modified to remove transform and shadow changes */
-.key-hoverable:hover .key-top {
-  /* Removed: transform: translateY(-2px) translateZ(8px); */
-  /* Removed: box-shadow: 0 5px 0 #1f1f1f, 0 7px 12px rgba(0, 0, 0, 0.4); */
-}
 
-/* Checked/Pressed state for checkbox buttons - Modified to remove transform and shadow */
-.key-checkbox:checked + .key-top {
-  /* Removed: transform: translateY(3px) translateZ(0); */
-  /* Removed: box-shadow: 0 1px 0 #1f1f1f, 0 2px 4px rgba(0, 0, 0, 0.2); */
-}
-
-/* Pressed effect for non-checkbox buttons (e.g., Trending, Generate Image) - Modified to remove transform and shadow */
-.key-top:active {
-  /* Removed: transform: translateY(3px) translateZ(0); */
-  /* Removed: box-shadow: 0 1px 0 #1f1f1f, 0 2px 4px rgba(0, 0, 0, 0.2); */
-}
 
 /* Key icon (for images) */
 .key-icon {
@@ -1352,7 +1336,7 @@ main.chat-started #front-section {
 }
 
 .thinking-message {
-  background-color: #444;
+  background-color: #444444;
   color: #ccc;
   font-style: italic;
   align-self: flex-end;
@@ -2314,6 +2298,132 @@ main.chat-started #front-section {
 
 #generate-image-submit-btn:hover {
   background: linear-gradient(135deg, #00c2db, #00b7ff);
+}
+
+#attachment-preview-container {
+  display: none;
+}
+#attachment-preview-container.active {
+  display: block;
+}
+
+.message.bot-message.temp:empty {
+  display: none;
+}
+
+/* SVG Animation for Image Generation */
+.analyze {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5em 0;
+  padding: 10px;
+}
+
+.analyze svg {
+  width: 54px;
+  height: 54px;
+}
+
+.analyze svg path.stick {
+  transform: translate(0);
+  animation: stick 2s ease infinite;
+}
+
+.analyze svg path.star-1 {
+  fill: #ff4500; /* OrangeRed color */
+  animation: sparkles 2s ease infinite, scaleStars 2s ease infinite, colorChange 2s ease infinite;
+  animation-delay: 150ms;
+}
+
+.analyze svg path.star-2 {
+  fill: #00ff00; /* Lime color */
+  animation: sparkles 2s ease infinite, scaleStars 2s ease infinite, colorChange 2s ease infinite;
+}
+
+.board {
+  animation: bounce 2s ease infinite;
+}
+
+@keyframes sparkles {
+  0% { opacity: 1; }
+  35% { opacity: 1; }
+  55% { opacity: 0; }
+  75% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes stick {
+  0% { transform: translate3d(0, 0, 0) rotate(0); }
+  25% { transform: translate3d(0, 0, 0) rotate(0); }
+  50% { transform: translate3d(3px, -2px, 0) rotate(8deg); }
+  75% { transform: translate3d(0, 0, 0) rotate(0); }
+  100% { transform: translate3d(0, 0, 0) rotate(0); }
+}
+
+@keyframes scaleStars {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(0); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-1px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes colorChange {
+  0% { fill: #ff4500; } /* OrangeRed */
+  25% { fill: #ffd700; } /* Gold */
+  50% { fill: #00ff00; } /* Lime */
+  75% { fill: #1e90ff; } /* DodgerBlue */
+  100% { fill: #ff4500; } /* OrangeRed */
+}
+
+/* Ensure the animation aligns with bot messages */
+.message.thinking-message .analyze {
+  background: #2f2f2f; /* Match .message.bot-message background */
+  border-radius: 12px;
+  padding: 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Narrow desktop or tablet view */
+@media (max-width: 900px) {
+  .analyze {
+    margin: 0.4em 0;
+    padding: 8px;
+  }
+  .analyze svg {
+    width: 48px; /* Slightly smaller for narrower screens */
+    height: 48px;
+  }
+  .message.thinking-message .analyze {
+    border-radius: 10px; /* Match smaller chat bubble radius */
+    padding: 8px;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .analyze {
+    margin: 0.3em 0;
+    padding: 6px;
+  }
+  .analyze svg {
+    width: 40px; /* Smaller size for mobile */
+    height: 40px;
+  }
+  .message.thinking-message .analyze {
+    border-radius: 8px; /* Smaller radius for mobile */
+    padding: 6px;
+    background: #2f2f2f; /* Consistent with bot messages */
+  }
 }
 
 /* Desktop view */

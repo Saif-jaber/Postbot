@@ -47,6 +47,8 @@ let selectedTone = "friendly";
 let includeHashtags = false;
 let selectedPlatforms = new Set();
 
+let isChatReset = false; // Tracks if "New Chat" was clicked
+
 // Fetch user data from backend
 async function fetchUserData() {
   const token = localStorage.getItem("token");
@@ -306,6 +308,7 @@ function resetTabIcons() {
 }
 
 newChatDiv.addEventListener("click", () => {
+  console.log("New Chat clicked, aborting generation, isChatReset:", isChatReset);
   resetTabIcons();
   newChatIcon.src = "images/new chat blue.png";
   newChatText.style.color = "#00c2db";
@@ -315,6 +318,24 @@ newChatDiv.addEventListener("click", () => {
     newChatText.style.color = "#ffffff";
   }, 300);
 
+  // Stop any ongoing generation process
+  if (abortController) {
+    console.log("Aborting fetch request");
+    abortController.abort();
+    abortController = null;
+  }
+  isBotTyping = false;
+  isChatReset = true; // Mark chat as reset
+  messageQueue.length = 0;
+  toggleSendStopButton(false);
+  textarea.disabled = false;
+
+  // Remove thinking message and temporary messages
+  const chatContainer = document.getElementById("chat-container");
+  chatContainer.innerHTML = ""; // Clear all content immediately
+  console.log("Chat container cleared");
+
+  // Clear input, attachments, and chat
   clearInputAndAttachments();
   clearChat();
   resetLayout();
@@ -342,14 +363,11 @@ textarea.addEventListener("input", () => {
 fileInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
   if (!file) return;
-
   const widget = document.createElement("div");
   widget.classList.add("attachment-widget");
-
   const fileName = document.createElement("span");
   fileName.textContent = file.name;
   widget.appendChild(fileName);
-
   const removeBtn = document.createElement("button");
   removeBtn.className = "remove-btn";
   removeBtn.textContent = "✕";
@@ -357,11 +375,12 @@ fileInput.addEventListener("change", (event) => {
     widget.remove();
     if (previewContainer.children.length === 0) {
       fileInput.value = "";
+      previewContainer.classList.remove("active");
     }
   });
-
   widget.appendChild(removeBtn);
   previewContainer.appendChild(widget);
+  previewContainer.classList.add("active");
 });
 
 function clearInputAndAttachments() {
@@ -369,26 +388,49 @@ function clearInputAndAttachments() {
   textarea.style.height = "auto";
   previewContainer.innerHTML = "";
   fileInput.value = "";
+  previewContainer.classList.remove("active");
 }
 
 function clearChat() {
+  console.log("Clearing chat, setting isChatReset to true");
   const chatContainer = document.getElementById("chat-container");
-  chatContainer.innerHTML = "";
+  chatContainer.innerHTML = ""; // Ensure container is cleared
   chatContainer.scrollTop = 0;
   conversationHistory = [];
+  isChatReset = true;
 }
 
 function resetLayout() {
+  console.log("Resetting layout to initial state");
   const frontSection = document.getElementById("front-section");
   if (frontSection) {
-    frontSection.style.display = "flex";
-    frontSection.style.flexDirection = "column";
-    frontSection.style.alignItems = "center";
-    frontSection.style.justifyContent = "center";
+    // Clear inline styles to rely on CSS
+    frontSection.style.cssText = "";
+    frontSection.style.display = "block"; // Use 'block' to match likely initial state, adjust if needed
   }
+
   const mainSection = document.getElementById("main-section");
-  if (mainSection.classList.contains("input-sent")) {
+  if (mainSection) {
     mainSection.classList.remove("input-sent");
+  }
+
+  const mainElement = document.querySelector("main");
+  if (mainElement) {
+    mainElement.classList.remove("chat-started");
+  }
+
+  // Log computed styles for debugging
+  if (frontSection) {
+    const computedStyles = window.getComputedStyle(frontSection);
+    console.log("front-section computed styles after reset:", {
+      display: computedStyles.display,
+      justifyContent: computedStyles.justifyContent,
+      alignItems: computedStyles.alignItems,
+      margin: computedStyles.margin,
+      padding: computedStyles.padding,
+      top: computedStyles.top,
+      transform: computedStyles.transform
+    });
   }
 }
 
@@ -616,27 +658,36 @@ async function processNextMessage() {
 }
 
 async function generateImage(prompt, model, aspectRatio) {
-  if (!prompt) return;
+  if (!prompt) {
+    console.log("No prompt provided, exiting generateImage");
+    return;
+  }
+
+  console.log("Starting image generation for prompt:", prompt);
+  isChatReset = false; // Reset flag at start of generation
+
+  // Clear input and attachments
+  clearInputAndAttachments();
+
+  // Check if chat was reset before proceeding
+  if (isChatReset) {
+    console.log("Chat reset detected, aborting generateImage");
+    return;
+  }
 
   if (abortController) {
+    console.log("Aborting previous request");
     abortController.abort();
     const chatContainer = document.getElementById("chat-container");
     const existingThinking = chatContainer.querySelector(".thinking-message");
-    if (existingThinking) existingThinking.remove();
+    if (existingThinking) {
+      console.log("Removing existing thinking message");
+      existingThinking.remove();
+    }
     const oldTempMsg = chatContainer.querySelector(".bot-message.temp");
     if (oldTempMsg) {
-      const oldButtons = oldTempMsg.querySelectorAll(".message-buttons");
-      oldButtons.forEach((btns) => btns.remove());
-    }
-    const partialBotMsg = chatContainer.querySelector(
-      ".message.bot-message.temp"
-    );
-    if (partialBotMsg) partialBotMsg.classList.remove("temp");
-    if (partialBotMsg) {
-      const botTextDiv = partialBotMsg.querySelector(".message-text");
-      if (botTextDiv && !partialBotMsg.querySelector(".message-buttons")) {
-        addButtonsToBotMessage(botTextDiv);
-      }
+      console.log("Removing existing temp message");
+      oldTempMsg.remove();
     }
   }
   abortController = new AbortController();
@@ -678,20 +729,47 @@ async function generateImage(prompt, model, aspectRatio) {
     conversationHistory = conversationHistory.slice(-maxHistoryLength);
   }
 
+  // Create the thinking message with SVG animation
   const thinkingMsg = document.createElement("div");
   thinkingMsg.className = "message thinking-message";
-  thinkingMsg.innerHTML = `Generating image<span class="thinking-dots"><span></span><span></span><span></span></span>`;
+  thinkingMsg.setAttribute("aria-label", "Generating image in progress");
+  thinkingMsg.innerHTML = `
+    <div class="analyze">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        height="54"
+        width="54"
+      >
+        <rect height="24" width="24"></rect>
+        <path
+          stroke-linecap="round"
+          stroke-width="1.5"
+          stroke="white"
+          d="M19.25 9.25V5.25C19.25 4.42157 18.5784 3.75 17.75 3.75H6.25C5.42157 3.75 4.75 4.42157 4.75 5.25V18.75C4.75 19.5784 5.42157 20.25 6.25 20.25H12.25"
+          class="board"
+        ></path>
+        <path
+          d="M9.18748 11.5066C9.12305 11.3324 8.87677 11.3324 8.81234 11.5066L8.49165 12.3732C8.47139 12.428 8.42823 12.4711 8.37348 12.4914L7.50681 12.8121C7.33269 12.8765 7.33269 13.1228 7.50681 13.1872L8.37348 13.5079C8.42823 13.5282 8.47139 13.5714 8.49165 13.6261L8.81234 14.4928C8.87677 14.6669 9.12305 14.6669 9.18748 14.4928L9.50818 13.6261C9.52844 13.5714 9.5716 13.5282 9.62634 13.5079L10.493 13.1872C10.6671 13.1228 10.6671 12.8765 10.493 12.8121L9.62634 12.4914C9.5716 12.4711 9.52844 12.428 9.50818 12.3732L9.18748 11.5066Z"
+          class="star-2"
+        ></path>
+        <path
+          d="M11.7345 6.63394C11.654 6.41629 11.3461 6.41629 11.2656 6.63394L10.8647 7.71728C10.8394 7.78571 10.7855 7.83966 10.717 7.86498L9.6337 8.26585C9.41605 8.34639 9.41605 8.65424 9.6337 8.73478L10.717 9.13565C10.7855 9.16097 10.8394 9.21493 10.8647 9.28335L11.2656 10.3667C11.3461 10.5843 11.654 10.5843 11.7345 10.3667L12.1354 9.28335C12.1607 9.21493 12.2147 9.16097 12.2831 9.13565L13.3664 8.73478C13.5841 8.65424 13.5841 8.34639 13.3664 8.26585L12.2831 7.86498C12.2147 7.78571 12.1607 7.78571 12.1354 7.71728L11.7345 6.63394Z"
+          class="star-1"
+        ></path>
+        <path
+          class="stick"
+          stroke-linejoin="round"
+          stroke-width="1.5"
+          stroke="white"
+          d="M17 14L21.2929 18.2929C21.6834 18.6834 21.6834 19.3166 21.2929 19.7071L20.7071 20.2929C20.3166 20.6834 19.6834 20.6834 19.2929 20.2929L15 16M17 14L15.7071 12.7071C15.3166 12.3166 14.6834 12.3166 14.2929 12.7071L13.7071 13.2929C13.3166 13.6834 13.3166 14.3166 13.7071 14.7071L15 16M17 14L15 16"
+        ></path>
+      </svg>
+    </div>
+  `;
   chatContainer.appendChild(thinkingMsg);
   chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  const tempBotMsg = document.createElement("div");
-  tempBotMsg.className = "message bot-message temp";
-  chatContainer.appendChild(tempBotMsg);
-
-  const botText = document.createElement("div");
-  botText.className = "message-text selectable";
-  botText.setAttribute("data-prompt", prompt);
-  tempBotMsg.appendChild(botText);
 
   try {
     let width, height;
@@ -725,6 +803,14 @@ async function generateImage(prompt, model, aspectRatio) {
 
     const seed = Date.now();
     const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=${width}&height=${height}&model=${encodeURIComponent(model)}&seed=${seed}`;
+    console.log("Loading image from:", imageUrl);
+
+    // Check if chat was reset before loading image
+    if (isChatReset) {
+      console.log("Chat reset detected, aborting image load");
+      thinkingMsg.remove();
+      return;
+    }
 
     const img = document.createElement("img");
     img.src = imageUrl;
@@ -736,13 +822,41 @@ async function generateImage(prompt, model, aspectRatio) {
     img.style.display = "block";
 
     await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = () => reject(new Error("Failed to load image"));
+      img.onload = () => {
+        console.log("Image loaded successfully");
+        resolve();
+      };
+      img.onerror = () => {
+        console.error("Image load failed");
+        reject(new Error("Failed to load image"));
+      };
+      // Check for abort signal
+      if (abortController.signal.aborted) {
+        reject(new Error("Image load aborted"));
+      }
     });
 
+    // Check if chat was reset before appending image
+    if (isChatReset) {
+      console.log("Chat reset detected, skipping image append");
+      thinkingMsg.remove();
+      return;
+    }
+
+    console.log("Appending image to chat container");
     thinkingMsg.remove();
+
+    const tempBotMsg = document.createElement("div");
+    tempBotMsg.className = "message bot-message temp";
+    chatContainer.appendChild(tempBotMsg);
+
+    const botText = document.createElement("div");
+    botText.className = "message-text selectable";
+    botText.setAttribute("data-prompt", prompt);
+    tempBotMsg.appendChild(botText);
+
     botText.appendChild(img);
-    tempBotMsg.classList.remove("temp");
+    tempBotMsg.className = "message bot-message";
     addButtonsToBotMessage(botText);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -751,11 +865,17 @@ async function generateImage(prompt, model, aspectRatio) {
       content: `[Image generated for: ${prompt}]`,
     });
   } catch (err) {
-    thinkingMsg.remove();
-    if (err.name === "AbortError") {
+    if (err.name === "AbortError" || err.message === "Image load aborted") {
+      console.log("Image generation aborted");
+      thinkingMsg.remove();
       return;
     }
-    console.error("Image generation error:", err);
+    console.error("Image generation error:", err.message);
+    thinkingMsg.remove();
+    if (isChatReset) {
+      console.log("Chat reset detected, skipping error message");
+      return;
+    }
     const errorMsg = document.createElement("div");
     errorMsg.className = "message bot-message";
     const errorText = document.createElement("div");
@@ -764,16 +884,23 @@ async function generateImage(prompt, model, aspectRatio) {
     errorMsg.appendChild(errorText);
     chatContainer.appendChild(errorMsg);
     addButtonsToBotMessage(errorText);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
   } finally {
+    console.log("Cleaning up generateImage, resetting states");
     isBotTyping = false;
     toggleSendStopButton(false);
     textarea.disabled = false;
+    abortController = null;
+    // Do not reset isChatReset here to ensure it persists until next generation
     processNextMessage();
   }
 }
 
 async function sendMessage(userInput) {
   if (!userInput) return;
+
+  // Clear input and attachments to prevent any leftover elements
+  clearInputAndAttachments();
 
   if (abortController) {
     abortController.abort();
@@ -838,13 +965,8 @@ async function sendMessage(userInput) {
   chatContainer.appendChild(thinkingMsg);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  const tempBotMsg = document.createElement("div");
-  tempBotMsg.className = "message bot-message temp";
-  chatContainer.appendChild(tempBotMsg);
-
-  const botText = document.createElement("div");
-  botText.className = "message-text selectable";
-  tempBotMsg.appendChild(botText);
+  // Debug log to check chat-container state before adding bot message
+  console.log("Chat container children before adding bot message:", Array.from(chatContainer.children).map(el => el.outerHTML));
 
   try {
     const platformsInstruction =
@@ -876,7 +998,22 @@ async function sendMessage(userInput) {
 
     thinkingMsg.remove();
 
+    const tempBotMsg = document.createElement("div");
+    tempBotMsg.className = "message bot-message temp";
+    chatContainer.appendChild(tempBotMsg);
+
+    const botText = document.createElement("div");
+    botText.className = "message-text selectable";
+    tempBotMsg.appendChild(botText);
+
+    // Debug log after adding tempBotMsg
+    console.log("Added tempBotMsg:", tempBotMsg.outerHTML);
+
     await typeText(botText, geminiResponse, abortController.signal);
+
+    tempBotMsg.classList.remove("temp");
+    addButtonsToBotMessage(botText);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     conversationHistory.push({ role: "bot", content: geminiResponse });
   } catch (err) {
@@ -919,6 +1056,31 @@ async function typeText(element, text, signal, normal_delay = 10) {
     },
   });
 
+  // Customize link rendering to add target="_blank" and rel="noopener noreferrer"
+  md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
+    const token = tokens[idx];
+    // Add target="_blank"
+    const targetIndex = token.attrIndex("target");
+    if (targetIndex < 0) {
+      token.attrPush(["target", "_blank"]);
+    } else {
+      token.attrs[targetIndex][1] = "_blank";
+    }
+    // Add rel="noopener noreferrer"
+    const relIndex = token.attrIndex("rel");
+    if (relIndex < 0) {
+      token.attrPush(["rel", "noopener noreferrer"]);
+    } else {
+      token.attrs[relIndex][1] = "noopener noreferrer";
+    }
+    return self.renderToken(tokens, idx, options);
+  };
+
+  // Configure DOMPurify to allow target and rel attributes
+  const cleanHTML = DOMPurify.sanitize('', {
+    ADD_ATTR: ['target', 'rel'], // Allow target and rel attributes
+  });
+
   let accumulated = "";
   const length = text.length;
   let delay = normal_delay;
@@ -948,7 +1110,14 @@ async function typeText(element, text, signal, normal_delay = 10) {
 
     accumulated += text.charAt(i);
     const dirtyHTML = md.render(accumulated);
-    const cleanHTML = DOMPurify.sanitize(dirtyHTML);
+    // Sanitize with DOMPurify, ensuring target and rel are preserved
+    const cleanHTML = DOMPurify.sanitize(dirtyHTML, {
+      ADD_ATTR: ['target', 'rel'], // Explicitly allow target and rel
+    });
+    
+    // Debugging: Log the rendered HTML to verify attributes
+    console.log("Rendered HTML:", cleanHTML);
+
     element.innerHTML = `<div class="markdown-content" style="margin-bottom:0;padding-bottom:0;">${cleanHTML}</div>`;
     element.parentElement.scrollIntoView({ behavior: "smooth", block: "end" });
     await new Promise((r) => setTimeout(r, delay));

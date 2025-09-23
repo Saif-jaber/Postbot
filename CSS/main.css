@@ -1301,8 +1301,9 @@ main.chat-started #front-section {
 
 /* Message styles */
 .message {
-  display: inline-block;
-  max-width: 70%;
+  display: block; /* Changed from inline-block to block to span full width */
+  width: 100%; /* Ensure full width of parent container */
+  max-width: 100%; /* Changed from 70% to 100% */
   padding: 12px 18px;
   border-radius: 20px;
   font-size: 1rem;
@@ -1313,39 +1314,43 @@ main.chat-started #front-section {
   position: relative;
   background-clip: padding-box;
   transition: background-color 0.3s ease;
+  box-sizing: border-box; /* Ensure padding is included in width */
 }
 
 .user-message {
+  display: inline-block;
+  width: fit-content;
+  max-width: 70%;
   background: linear-gradient(135deg, #00a7bd, #0099ff);
   color: white;
-  align-self: flex-start;
-  border-bottom-left-radius: 5px;
+  align-self: flex-end;
+  border-bottom-right-radius: 5px;
   box-shadow: 0 4px 12px rgba(0, 194, 219, 0.6);
   text-align: left;
   margin: 10px 0;
 }
 
 .bot-message {
-  background-color: #2a2a2a;
+  background: transparent;
   color: #eee;
-  align-self: flex-end;
-  border-bottom-right-radius: 5px;
-  box-shadow: 0 4px 12px rgba(50, 50, 50, 0.6);
+  align-self: flex-start; /* Retained for left alignment */
+  border-bottom-left-radius: 5px;
+  box-shadow: 0 4px 12px rgba(50, 50, 50, 0);
   text-align: left;
   margin: 10px 0;
 }
 
 .thinking-message {
-  background-color: #444444;
+  background: transparent;
   color: #ccc;
   font-style: italic;
-  align-self: flex-end;
-  border-bottom-right-radius: 5px;
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
   display: flex;
   align-items: center;
   gap: 8px;
   max-width: 45%;
-  box-shadow: 0 4px 12px rgba(68, 68, 68, 0.8);
+  box-shadow: transparent;
   text-align: left;
 }
 
@@ -2385,13 +2390,91 @@ main.chat-started #front-section {
 
 /* Ensure the animation aligns with bot messages */
 .message.thinking-message .analyze {
-  background: #2f2f2f; /* Match .message.bot-message background */
+  background: transparent; /* Match .message.bot-message background */
   border-radius: 12px;
   padding: 10px;
   display: inline-flex;
   justify-content: center;
   align-items: center;
 }
+
+/* Align buttons in bot messages to the left */
+.bot-message .message-buttons {
+  justify-content: flex-start;
+}
+
+/* Added rule to make bot message buttons transparent */
+.bot-message .message-buttons button,
+.bot-message .message-buttons label {
+  background: transparent; /* Added */
+  margin-top: 10px;
+}
+
+.bot-message .message-buttons button:hover,
+.bot-message .message-buttons label:hover {
+  background: #222222; /* Added */
+}
+
+/* Existing .markdown-content styles */
+.markdown-content {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  box-sizing: border-box;
+  padding: 0 8px;
+  line-height: 1.6;
+  touch-action: auto;
+  min-height: 1.6em; /* Added to prevent layout shifts */
+  animation: fadeInWord 0.1s ease-in; /* Optional: smooth word appearance */
+}
+
+@keyframes fadeInWord { /* Optional */
+  from { opacity: 0.5; }
+  to { opacity: 1; }
+}
+
+.markdown-content pre {
+  background-color: #1a1a1a;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  overflow-y: auto;
+  margin: 0.5em 0;
+  border: 1px solid #444;
+}
+
+/* Added rule for hr elements */
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid #444;
+  margin: 1em 0;
+}
+
+/* Existing .bot-message styles */
+.bot-message {
+  background: transparent;
+  color: #eee;
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+  box-shadow: 0 4px 12px rgba(50, 50, 50, 0);
+  text-align: left;
+  margin: 10px 0;
+}
+
+.bot-message.temp {
+  visibility: hidden; /* Retained to hide empty temp messages */
+}
+
+.bot-message.temp:not(:empty) {
+  visibility: visible; /* Retained to show temp messages with content */
+}
+
+.message.bot-message.temp:empty {
+  display: none; /* Retained for compatibility */
+}
+
 
 /* Narrow desktop or tablet view */
 @media (max-width: 900px) {
@@ -2422,7 +2505,7 @@ main.chat-started #front-section {
   .message.thinking-message .analyze {
     border-radius: 8px; /* Smaller radius for mobile */
     padding: 6px;
-    background: #2f2f2f; /* Consistent with bot messages */
+    background: transparent; /* Consistent with bot messages */
   }
 }
 

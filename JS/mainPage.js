@@ -39,6 +39,9 @@ const sendIcon = sendButton.querySelector("img");
 
 const managementModal = document.getElementById("management-modal-container");
 
+const md = window.markdownit();
+const DOMPurify = window.DOMPurify;
+
 let abortController = null;
 let isBotTyping = false;
 const messageQueue = [];
@@ -48,6 +51,7 @@ let includeHashtags = false;
 let selectedPlatforms = new Set();
 
 let isChatReset = false; // Tracks if "New Chat" was clicked
+let currentChatId = null;
 
 // Fetch user data from backend
 async function fetchUserData() {
@@ -307,7 +311,7 @@ function resetTabIcons() {
   historyText.style.color = "#ffffff";
 }
 
-newChatDiv.addEventListener("click", () => {
+newChatDiv.addEventListener("click", async () => {
   console.log("New Chat clicked, aborting generation, isChatReset:", isChatReset);
   resetTabIcons();
   newChatIcon.src = "images/new chat blue.png";
@@ -337,7 +341,7 @@ newChatDiv.addEventListener("click", () => {
 
   // Clear input, attachments, and chat
   clearInputAndAttachments();
-  clearChat();
+  await createNewChat();
   resetLayout();
 });
 
@@ -477,7 +481,7 @@ function addButtonsToBotMessage(botTextDiv) {
     : `
       <svg xml:space="preserve" viewBox="0 0 6.35 6.35" height="20" width="20" class="clipboard" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <g>
-          <path d="M2.43.265c-.3 0-.548.236-.573.53h-.328a.74.74 0 0 0-.735.734v3.822a.74.74 0 0 0 .735.734H4.82a.74.74 0 0 0 .735-.734V1.529a.74.74 0 0 0-.735-.735h-.328a.58.58 0 0 0-.573-.53zm0 .529h1.49c.032 0 .049.017.049.049v.431c0 .032-.017.049-.049.049H2.43c-.032 0-.05-.017-.05-.049V.843c0-.032.018-.05.05-.05zm-.901.53h.328c.026.292.274.528.573.528h1.49a.58.58 0 0 0 .573-.529h.328a.2.2 0 0 1 .206.206v3.822a.2.2 0 0 1-.206.205H1.53a.2.2 0 0 1-.206-.205V1.529a.2.2 0 0 1 .206-.206z"/>
+          <path d="M2.43 .265c-.3 0-.548.236-.573.53h-.328a.74.74 0 0 0-.735.734v3.822a.74.74 0 0 0 .735.734H4.82a.74.74 0 0 0 .735-.734V1.529a.74.74 0 0 0-.735-.735h-.328a.58.58 0 0 0-.573-.53zm0 .529h1.49c.032 0 .049.017.049.049v.431c0 .032-.017.049-.049.049H2.43c-.032 0-.05-.017-.05-.049V.843c0-.032.018-.05.05-.05zm-.901.53h.328c.026.292.274.528.573.528h1.49a.58.58 0 0 0 .573-.529h.328a.2.2 0 0 1 .206.206v3.822a.2.2 0 0 1-.206.205H1.53a.2.2 0 0 1-.206-.205V1.529a.2.2 0 0 1 .206-.206z"/>
         </g>
       </svg>
       <svg viewBox="0 0 24 24" height="20" width="20" fill="currentColor" class="checkmark" style="display: none;">
@@ -724,6 +728,8 @@ async function generateImage(prompt, model, aspectRatio) {
     content: `Generate image: ${prompt}`,
   });
 
+  await saveMessage("user", `Generate image: ${prompt}`);
+
   const maxHistoryLength = 10;
   if (conversationHistory.length > maxHistoryLength) {
     conversationHistory = conversationHistory.slice(-maxHistoryLength);
@@ -864,6 +870,8 @@ async function generateImage(prompt, model, aspectRatio) {
       role: "bot",
       content: `[Image generated for: ${prompt}]`,
     });
+
+    await saveMessage("bot", `[Image generated: ${imageUrl}]`);
   } catch (err) {
     if (err.name === "AbortError" || err.message === "Image load aborted") {
       console.log("Image generation aborted");
@@ -954,6 +962,8 @@ async function sendMessage(userInput) {
 
   conversationHistory.push({ role: "user", content: userInput });
 
+  await saveMessage("user", userInput);
+
   const maxHistoryLength = 10;
   if (conversationHistory.length > maxHistoryLength) {
     conversationHistory = conversationHistory.slice(-maxHistoryLength);
@@ -977,8 +987,9 @@ async function sendMessage(userInput) {
     const hashtagInstruction = includeHashtags
       ? "Include relevant hashtags in the response to enhance social media engagement."
       : "";
+    const formattingInstruction = "Format your response beautifully using markdown for optimal readability, similar to ChatGPT's style. Use headings (e.g., ## Heading), bold (**bold**) and italic (*italic*) text, bulleted or numbered lists, code blocks (```language\ncode\n```), blockquotes (> quote), and horizontal rules (---) where appropriate to structure the content clearly. Ensure paragraphs are separated properly, and avoid clutter. Make the response concise, engaging, and visually appealing.";
     const promptWithHistory =
-      `${toneInstruction}\n${platformsInstruction}\n${hashtagInstruction}\n\n` +
+      `${formattingInstruction}\n${toneInstruction}\n${platformsInstruction}\n${hashtagInstruction}\n\n` +
       conversationHistory
         .map(
           (msg) =>
@@ -1016,6 +1027,13 @@ async function sendMessage(userInput) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     conversationHistory.push({ role: "bot", content: geminiResponse });
+
+    await saveMessage("bot", geminiResponse);
+
+    // Update chat title if this is the first message
+    if (conversationHistory.length === 2 && conversationHistory[0].role === "user") { // First user and first bot
+      await updateChatTitle(userInput.substring(0, 50) + (userInput.length > 50 ? "..." : ""));
+    }
   } catch (err) {
     thinkingMsg.remove();
     if (err.name === "AbortError") {
@@ -1038,9 +1056,15 @@ async function sendMessage(userInput) {
   }
 }
 
-async function typeText(element, text, signal, normal_delay = 10) {
+async function typeText(element, text, signal, line_delay = 200) {
   element.innerHTML = "";
 
+  // Create a container for the typing animation
+  const markdownContent = document.createElement("div");
+  markdownContent.className = "markdown-content";
+  element.appendChild(markdownContent);
+
+  // Initialize markdownit with your existing configuration
   const md = window.markdownit({
     html: false,
     breaks: true,
@@ -1056,17 +1080,15 @@ async function typeText(element, text, signal, normal_delay = 10) {
     },
   });
 
-  // Customize link rendering to add target="_blank" and rel="noopener noreferrer"
+  // Customize link rendering
   md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
     const token = tokens[idx];
-    // Add target="_blank"
     const targetIndex = token.attrIndex("target");
     if (targetIndex < 0) {
       token.attrPush(["target", "_blank"]);
     } else {
       token.attrs[targetIndex][1] = "_blank";
     }
-    // Add rel="noopener noreferrer"
     const relIndex = token.attrIndex("rel");
     if (relIndex < 0) {
       token.attrPush(["rel", "noopener noreferrer"]);
@@ -1076,59 +1098,110 @@ async function typeText(element, text, signal, normal_delay = 10) {
     return self.renderToken(tokens, idx, options);
   };
 
-  // Configure DOMPurify to allow target and rel attributes
-  const cleanHTML = DOMPurify.sanitize('', {
-    ADD_ATTR: ['target', 'rel'], // Allow target and rel attributes
+  // Pre-render the full markdown to HTML
+  const fullHTML = DOMPurify.sanitize(md.render(text), {
+    ADD_ATTR: ["target", "rel"],
+    ALLOWED_TAGS: [
+      "p",
+      "br",
+      "b",
+      "i",
+      "strong",
+      "em",
+      "a",
+      "ul",
+      "ol",
+      "li",
+      "pre",
+      "code",
+      "blockquote",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "table",
+      "thead",
+      "tbody",
+      "tr",
+      "th",
+      "td",
+      "hr",
+    ],
+    ALLOWED_ATTR: ["href", "target", "rel", "class"],
   });
 
-  let accumulated = "";
-  const length = text.length;
-  let delay = normal_delay;
-  let switch_point = length;
+  // Create a temporary container to parse the HTML
+  const tempContainer = document.createElement("div");
+  tempContainer.innerHTML = fullHTML;
 
-  if (length > 1000) {
-    const fast_delay = 5;
-    switch_point = Math.floor(length * 0.8);
-    delay = fast_delay;
+  // Extract block-level elements as "lines"
+  const blockElements = Array.from(tempContainer.children).filter(node =>
+    ["P", "UL", "OL", "PRE", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "TABLE", "HR"].includes(node.tagName)
+  );
+
+  // Handle case where there are no block elements (e.g., empty or malformed input)
+  if (blockElements.length === 0) {
+    markdownContent.innerHTML = fullHTML;
+    return finalizeMessage(element, markdownContent);
   }
 
-  for (let i = 0; i < length; i++) {
+  // Type out each block element (line) with delay
+  let currentLineIndex = 0;
+  const totalLines = blockElements.length;
+  const fast_delay = 100;
+  const switch_point = totalLines > 10 ? Math.floor(totalLines * 0.8) : totalLines;
+
+  while (currentLineIndex < totalLines) {
     if (signal.aborted) {
-      const parent = element.closest(".bot-message");
-      if (parent && parent.classList.contains("temp")) {
-        parent.classList.remove("temp");
-        if (!parent.querySelector(".message-buttons")) {
-          addButtonsToBotMessage(element);
-        }
+      return finalizeMessage(element, markdownContent);
+    }
+
+    // Update delay at switch point
+    const delay = currentLineIndex < switch_point ? fast_delay : line_delay;
+
+    // Append the current block element
+    const block = blockElements[currentLineIndex];
+    markdownContent.appendChild(block.cloneNode(true));
+
+    // Reapply syntax highlighting for code blocks
+    markdownContent.querySelectorAll("pre code").forEach((block) => {
+      if (window.hljs) {
+        hljs.highlightElement(block);
       }
-      return;
-    }
-
-    if (i === switch_point) {
-      delay = normal_delay;
-    }
-
-    accumulated += text.charAt(i);
-    const dirtyHTML = md.render(accumulated);
-    // Sanitize with DOMPurify, ensuring target and rel are preserved
-    const cleanHTML = DOMPurify.sanitize(dirtyHTML, {
-      ADD_ATTR: ['target', 'rel'], // Explicitly allow target and rel
     });
-    
-    // Debugging: Log the rendered HTML to verify attributes
-    console.log("Rendered HTML:", cleanHTML);
 
-    element.innerHTML = `<div class="markdown-content" style="margin-bottom:0;padding-bottom:0;">${cleanHTML}</div>`;
+    // Scroll to the latest content
     element.parentElement.scrollIntoView({ behavior: "smooth", block: "end" });
-    await new Promise((r) => setTimeout(r, delay));
+    currentLineIndex++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  const parent = element.closest(".bot-message");
-  if (parent && parent.classList.contains("temp")) {
-    parent.classList.remove("temp");
-    if (!parent.querySelector(".message-buttons")) {
-      addButtonsToBotMessage(element);
+  // Ensure final content is correct
+  markdownContent.innerHTML = fullHTML;
+  finalizeMessage(element, markdownContent);
+
+  async function finalizeMessage(element, markdownContent) {
+    // Reapply syntax highlighting for final content
+    markdownContent.querySelectorAll("pre code").forEach((block) => {
+      if (window.hljs) {
+        hljs.highlightElement(block);
+      }
+    });
+
+    // Finalize the message
+    const parent = element.closest(".bot-message");
+    if (parent && parent.classList.contains("temp")) {
+      parent.classList.remove("temp");
+      if (!parent.querySelector(".message-buttons")) {
+        addButtonsToBotMessage(element);
+      }
     }
+
+    // Scroll to the end
+    element.parentElement.scrollIntoView({ behavior: "smooth", block: "end" });
   }
 }
 
@@ -1179,6 +1252,171 @@ platformButtons.forEach((button) => {
   });
 });
 
+// New functions for chat saving and loading
+
+async function loadChats() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const response = await fetch("http://localhost:8000/api/chats", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) throw new Error("Failed to load chats");
+
+    const chats = await response.json();
+    const historyScroll = document.querySelector(".chat-history-scroll");
+    historyScroll.innerHTML = "";
+
+    chats.forEach((chat) => {
+      const tab = document.createElement("div");
+      tab.className = "chat-tab";
+      tab.dataset.chatId = chat._id;
+      tab.textContent = chat.title || `Chat ${new Date(chat.createdAt).toLocaleDateString()}`;
+      tab.addEventListener("click", () => loadChat(chat._id));
+      historyScroll.appendChild(tab);
+    });
+
+    // Load the most recent chat by default if exists
+    if (chats.length > 0) {
+      loadChat(chats[0]._id);
+    }
+  } catch (err) {
+    console.error("Error loading chats:", err);
+  }
+}
+
+async function loadChat(chatId) {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const response = await fetch(`http://localhost:8000/api/chats/${chatId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) throw new Error("Failed to load chat");
+
+    const chat = await response.json();
+    currentChatId = chat._id;
+    clearChat();
+
+    chat.messages.forEach((msg) => {
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `message ${msg.role}-message`;
+      const textDiv = document.createElement("div");
+      textDiv.className = "message-text selectable";
+
+      // If it's an image message, parse and display image
+      if (msg.content.startsWith("[Image generated:")) {
+        const imageUrl = msg.content.match(/\[Image generated: (.*)\]/)?.[1];
+        if (imageUrl) {
+          const img = document.createElement("img");
+          img.src = imageUrl;
+          img.alt = "Generated image";
+          img.style.maxWidth = "100%";
+          img.style.height = "auto";
+          img.style.borderRadius = "8px";
+          img.style.margin = "0.5em 0";
+          img.style.display = "block";
+          textDiv.appendChild(img);
+        } else {
+          textDiv.textContent = msg.content;
+        }
+      } else {
+        const md = window.markdownit(); // Assume md is defined
+        textDiv.innerHTML = `<div class="markdown-content">${md.render(msg.content)}</div>`;
+      }
+
+      msgDiv.appendChild(textDiv);
+      if (msg.role === "bot") addButtonsToBotMessage(textDiv);
+      document.getElementById("chat-container").appendChild(msgDiv);
+    });
+
+    document.getElementById("chat-container").scrollTop = document.getElementById("chat-container").scrollHeight;
+
+    // Update conversation history
+    conversationHistory = chat.messages.map((m) => ({ role: m.role, content: m.content }));
+  } catch (err) {
+    console.error("Error loading chat:", err);
+  }
+}
+
+async function createNewChat() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    const response = await fetch("http://localhost:8000/api/chats", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title: "New Chat" }), // Initial title
+    });
+
+    if (!response.ok) throw new Error("Failed to create new chat");
+
+    const data = await response.json();
+    currentChatId = data.chatId || data._id;
+    clearChat();
+    await loadChats(); // Refresh history
+  } catch (err) {
+    console.error("Error creating new chat:", err);
+  }
+}
+
+async function saveMessage(role, content) {
+  const token = localStorage.getItem("token");
+  if (!token || !currentChatId) return;
+
+  try {
+    const response = await fetch(`http://localhost:8000/api/chats/${currentChatId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ role, content }),
+    });
+
+    if (!response.ok) throw new Error("Failed to save message");
+  } catch (err) {
+    console.error("Error saving message:", err);
+  }
+}
+
+async function updateChatTitle(title) {
+  const token = localStorage.getItem("token");
+  if (!token || !currentChatId) return;
+
+  try {
+    const response = await fetch(`http://localhost:8000/api/chats/${currentChatId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title }),
+    });
+
+    if (!response.ok) throw new Error("Failed to update chat title");
+    await loadChats(); // Refresh history to show new title
+  } catch (err) {
+    console.error("Error updating chat title:", err);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -1201,6 +1439,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.stopPropagation();
     }
   });
+
+  // Load chats on startup
+  await loadChats();
 });
 
 function openImageGenModal() {

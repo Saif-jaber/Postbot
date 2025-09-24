@@ -3,9 +3,7 @@ const collapseBtn = document.getElementById("collapse-btn");
 const collapseIcon = document.getElementById("collapse-icon");
 const textarea = document.getElementById("user-textInput");
 const fileInput = document.getElementById("attach-button");
-const previewContainer = document.getElementById(
-  "attachment-preview-container"
-);
+const previewContainer = document.getElementById("attachment-preview-container");
 const toneSelector = document.getElementById("tone-selector");
 const trendingButton = document.getElementById("trending-button");
 const hashtagButton = document.getElementById("hashtag-button");
@@ -14,9 +12,7 @@ const imageGenModal = document.getElementById("image-generation-modal");
 const imagePromptInput = document.getElementById("image-prompt-input");
 const aiModelsDropdown = document.getElementById("AI-models-dropdown");
 const aspectRatioDropdown = document.getElementById("AspectRatio-dropdown");
-const generateImageSubmitBtn = document.getElementById(
-  "generate-image-submit-btn"
-);
+const generateImageSubmitBtn = document.getElementById("generate-image-submit-btn");
 const closeImageModalBtn = document.getElementById("close-image-modal-btn");
 
 const newChatDiv = document.getElementById("newchat-div");
@@ -37,7 +33,10 @@ const body = document.body;
 const sendButton = document.getElementById("send-button");
 const sendIcon = sendButton.querySelector("img");
 
+// modal dialogs
 const managementModal = document.getElementById("management-modal-container");
+const chatSearchModal = document.getElementById("search-chats-modal-container");
+
 
 const md = window.markdownit();
 const DOMPurify = window.DOMPurify;
@@ -349,6 +348,12 @@ searchChatDiv.addEventListener("click", () => {
   resetTabIcons();
   searchChatIcon.src = "images/search blue.png";
   searchChatText.style.color = "#00c2db";
+
+  chatSearchModal.showModal(); // opens the search chat modal
+
+  setTimeout(() => {
+    resetTabIcons();
+  },300);
 });
 
 historyDiv.addEventListener("click", () => {
@@ -1450,4 +1455,9 @@ function openImageGenModal() {
 
 function closeImageGenModal() {
   imageGenModal.close();
+}
+
+
+function closeSearchChatsModal() {
+  chatSearchModal.close();
 }

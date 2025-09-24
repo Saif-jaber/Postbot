@@ -2475,6 +2475,292 @@ main.chat-started #front-section {
   display: none; /* Retained for compatibility */
 }
 
+/* Search Chats Modal */
+dialog#search-chats-modal-container {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 0;
+  border: none;
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3000;
+}
+
+dialog#search-chats-modal-container:not([open]) {
+  display: none;
+}
+
+dialog#search-chats-modal-container #search-chats-modal {
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  overflow-y: auto; /* Enable scrolling for modal content */
+  box-sizing: border-box;
+}
+
+#input-and-exit-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+#chatSearch-input {
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #eee;
+  font-size: 1.2rem;
+  font-family: "Inter", sans-serif;
+  width: 100%;
+  outline: none;
+  transition: none;
+}
+
+#chatSearch-input::placeholder {
+  color: #888;
+  font-size: 1.2rem;
+}
+
+#chatSearch-input:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+#exit-modal-btn {
+  background: none;
+  color: #ccc;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  font-size: 1.2rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+#exit-modal-btn::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  background: #333;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: -1;
+}
+
+#exit-modal-btn:hover::after {
+  width: 40px;
+  height: 40px;
+}
+
+#exit-modal-btn:hover {
+  color: #fff;
+}
+
+#exit-modal-btn:active {
+  color: #eee;
+}
+
+dialog#search-chats-modal-container hr {
+  border: none;
+  border-top: 1px solid #444;
+  margin: 4px 0 2px 0;
+}
+
+#user-chats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 300px;
+  padding: 0;
+  overflow-y: auto; /* Ensure scrolling for user chats container */
+}
+
+#newchat-div-second {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#newchat-div-second:hover {
+  background-color: #2a2a2a;
+}
+
+#newChat-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+#newChat-txt {
+  color: #eee;
+  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Text elements */
+dialog#search-chats-modal-container #search-chats-modal h1#today-txt,
+dialog#search-chats-modal-container #search-chats-modal h1#Yesterday-txt,
+dialog#search-chats-modal-container #search-chats-modal h1#1Week-txt {
+  color: #fff;
+  font-size: 0.85rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  margin: 8px 12px 4px 12px;
+}
+
+/* Containers */
+dialog#search-chats-modal-container #search-chats-modal #today-chats-container,
+dialog#search-chats-modal-container #search-chats-modal #yesterday-chats-container,
+dialog#search-chats-modal-container #search-chats-modal #1week-chats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px;
+  height: 150px;
+  overflow-y: auto; /* Ensure scrolling for chat containers */
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #222;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+#user-chats-container,
+#today-chats-container,
+#yesterday-chats-container,
+#1week-chats-container {
+  overflow-y: auto;
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  dialog#search-chats-modal-container #search-chats-modal {
+    width: 95%;
+    padding: 16px;
+    max-height: 85vh;
+    overflow-y: auto; /* Ensure modal scrolls on mobile */
+  }
+
+  #chatSearch-input {
+    font-size: 1.1rem;
+    padding: 8px 10px;
+  }
+
+  #chatSearch-input::placeholder {
+    font-size: 1.1rem;
+  }
+
+  #exit-modal-btn {
+    font-size: 1.1rem;
+    padding: 6px;
+    width: 40px;
+    height: 40px;
+  }
+
+  #exit-modal-btn::after {
+    width: 0;
+    height: 0;
+  }
+
+  #exit-modal-btn:hover::after {
+    width: 36px;
+    height: 36px;
+  }
+
+  dialog#search-chats-modal-container hr {
+    margin: 3px 0 1px 0;
+  }
+
+  #user-chats-container {
+    height: 250px;
+    overflow-y: auto; /* Ensure scrolling on mobile */
+  }
+
+  #newchat-div-second {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  #newChat-img {
+    width: 20px;
+    height: 20px;
+  }
+
+  #newChat-txt {
+    font-size: 0.9rem;
+  }
+
+  dialog#search-chats-modal-container #search-chats-modal h1#today-txt,
+  dialog#search-chats-modal-container #search-chats-modal h1#Yesterday-txt,
+  dialog#search-chats-modal-container #search-chats-modal h1#1Week-txt {
+    font-size: 0.8rem;
+    margin: 6px 10px 3px 10px;
+  }
+
+  dialog#search-chats-modal-container #search-chats-modal #today-chats-container,
+  dialog#search-chats-modal-container #search-chats-modal #yesterday-chats-container,
+  dialog#search-chats-modal-container #search-chats-modal #1week-chats-container {
+    padding: 0 10px;
+    height: 120px;
+    overflow-y: auto; /* Ensure scrolling on mobile */
+  }
+}
+
+/* Narrow desktop or tablet view */
+@media (max-width: 900px) {
+  dialog#search-chats-modal-container #search-chats-modal {
+    max-width: 500px;
+    overflow-y: auto; /* Ensure modal scrolls on narrow screens */
+  }
+}
+
 
 /* Narrow desktop or tablet view */
 @media (max-width: 900px) {

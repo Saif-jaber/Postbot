@@ -328,6 +328,31 @@
       </div>
     </div>
   </dialog>
+
+  <!-- search chats modal -->
+  <dialog id="search-chats-modal-container">
+    <div id="search-chats-modal" class="custom-scrollbar">
+      <div id="input-and-exit-container">
+        <input type="text" id="chatSearch-input" placeholder="Search chats ..." aria-label="Search chats">
+        <button type="button" id="exit-modal-btn" onclick="closeSearchChatsModal()">X</button>
+      </div>
+      <hr>
+      <div id="user-chats-container" class="custom-scrollbar">
+        <div id="newchat-div-second">
+          <img src="images/new chat gray.png" alt="new chat icon" id="newChat-img"/>
+          <h1 id="newChat-txt">New Chat</h1>
+        </div>
+        <h1 id="today-txt">Today</h1>
+        <div id="today-chats-container" class="custom-scrollbar"></div>
+        <h1 id="Yesterday-txt">Yesterday</h1>
+        <div id="yesterday-chats-container" class="custom-scrollbar"></div>
+        <h1 id="1Week-txt">1 week</h1>
+        <div id="1week-chats-container" class="custom-scrollbar"></div>
+      </div>
+    </div>
+  </dialog>
+
+  
   
   <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>

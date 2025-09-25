@@ -1078,10 +1078,11 @@ async function typeText(element, text, signal, line_delay = 200) {
     highlight: function (str, lang) {
       if (lang && window.hljs) {
         try {
-          return `<pre class="code-block"><code class="language-${lang}">${hljs.highlight(str, { language: lang }).value}</code></pre>`;
+          const highlighted = hljs.highlight(str, { language: lang }).value;
+          return `<pre class="code-block-container"><div class="code-block-header"><span class="code-language">${lang || 'Code'}</span><div class="code-block-controls"><button class="code-copy-btn" aria-label="Copy code"><span>Copy</span></button><button class="code-collapse-btn" aria-label="Collapse code"><span>Collapse</span></button></div></div><code class="language-${lang} code-block-content">${highlighted}</code></pre>`;
         } catch (__) {}
       }
-      return `<pre class="code-block"><code>${md.utils.escapeHtml(str)}</code></pre>`;
+      return `<pre class="code-block-container"><div class="code-block-header"><span class="code-language">Code</span><div class="code-block-controls"><button class="code-copy-btn" aria-label="Copy code"><span>Copy</span></button><button class="code-collapse-btn" aria-label="Collapse code"><span>Collapse</span></button></div></div><code class="code-block-content">${md.utils.escapeHtml(str)}</code></pre>`;
     },
   });
 
@@ -1133,8 +1134,11 @@ async function typeText(element, text, signal, line_delay = 200) {
       "th",
       "td",
       "hr",
+      "div",
+      "span",
+      "button",
     ],
-    ALLOWED_ATTR: ["href", "target", "rel", "class"],
+    ALLOWED_ATTR: ["href", "target", "rel", "class", "aria-label", "style"],
   });
 
   // Create a temporary container to parse the HTML
@@ -1146,13 +1150,13 @@ async function typeText(element, text, signal, line_delay = 200) {
     ["P", "UL", "OL", "PRE", "BLOCKQUOTE", "H1", "H2", "H3", "H4", "H5", "H6", "TABLE", "HR"].includes(node.tagName)
   );
 
-  // Handle case where there are no block elements (e.g., empty or malformed input)
+  // Handle case where there are no block elements
   if (blockElements.length === 0) {
     markdownContent.innerHTML = fullHTML;
     return finalizeMessage(element, markdownContent);
   }
 
-  // Type out each block element (line) with delay
+  // Type out each block element with delay
   let currentLineIndex = 0;
   const totalLines = blockElements.length;
   const fast_delay = 100;
@@ -1168,7 +1172,47 @@ async function typeText(element, text, signal, line_delay = 200) {
 
     // Append the current block element
     const block = blockElements[currentLineIndex];
-    markdownContent.appendChild(block.cloneNode(true));
+    const clonedBlock = block.cloneNode(true);
+    markdownContent.appendChild(clonedBlock);
+
+    // Add event listeners to code block controls
+    if (clonedBlock.classList.contains("code-block-container")) {
+      const copyBtn = clonedBlock.querySelector(".code-copy-btn");
+      const collapseBtn = clonedBlock.querySelector(".code-collapse-btn");
+      const codeContent = clonedBlock.querySelector(".code-block-content");
+
+      if (copyBtn) {
+        copyBtn.addEventListener("click", async () => {
+          const codeText = codeContent.textContent;
+          try {
+            await navigator.clipboard.writeText(codeText);
+            copyBtn.querySelector("span").textContent = "Copied!";
+            copyBtn.style.color = "#4ade80";
+            setTimeout(() => {
+              copyBtn.querySelector("span").textContent = "Copy";
+              copyBtn.style.color = "";
+            }, 1500);
+          } catch (err) {
+            console.error("Copy failed:", err);
+            copyBtn.querySelector("span").textContent = "Error";
+            copyBtn.style.color = "#ff0000";
+            setTimeout(() => {
+              copyBtn.querySelector("span").textContent = "Copy";
+              copyBtn.style.color = "";
+            }, 1500);
+          }
+        });
+      }
+
+      if (collapseBtn && codeContent) {
+        collapseBtn.addEventListener("click", () => {
+          const isCollapsed = codeContent.style.display === "none";
+          codeContent.style.display = isCollapsed ? "block" : "none";
+          collapseBtn.setAttribute("aria-label", isCollapsed ? "Collapse code" : "Expand code");
+          collapseBtn.querySelector("span").textContent = isCollapsed ? "Collapse" : "Expand";
+        });
+      }
+    }
 
     // Reapply syntax highlighting for code blocks
     markdownContent.querySelectorAll("pre code").forEach((block) => {
@@ -1186,16 +1230,56 @@ async function typeText(element, text, signal, line_delay = 200) {
 
   // Ensure final content is correct
   markdownContent.innerHTML = fullHTML;
-  finalizeMessage(element, markdownContent);
+
+  // Reattach event listeners to all code blocks in final content
+  markdownContent.querySelectorAll(".code-block-container").forEach((container) => {
+    const copyBtn = container.querySelector(".code-copy-btn");
+    const collapseBtn = container.querySelector(".code-collapse-btn");
+    const codeContent = container.querySelector(".code-block-content");
+
+    if (copyBtn) {
+      copyBtn.addEventListener("click", async () => {
+        const codeText = codeContent.textContent;
+        try {
+          await navigator.clipboard.writeText(codeText);
+          copyBtn.querySelector("span").textContent = "Copied!";
+          copyBtn.style.color = "#4ade80";
+          setTimeout(() => {
+            copyBtn.querySelector("span").textContent = "Copy";
+            copyBtn.style.color = "";
+          }, 1500);
+        } catch (err) {
+          console.error("Copy failed:", err);
+          copyBtn.querySelector("span").textContent = "Error";
+          copyBtn.style.color = "#ff0000";
+          setTimeout(() => {
+            copyBtn.querySelector("span").textContent = "Copy";
+            copyBtn.style.color = "";
+          }, 1500);
+        }
+      });
+    }
+
+    if (collapseBtn && codeContent) {
+      collapseBtn.addEventListener("click", () => {
+        const isCollapsed = codeContent.style.display === "none";
+        codeContent.style.display = isCollapsed ? "block" : "none";
+        collapseBtn.setAttribute("aria-label", isCollapsed ? "Collapse code" : "Expand code");
+        collapseBtn.querySelector("span").textContent = isCollapsed ? "Collapse" : "Expand";
+      });
+    }
+  });
+
+  // Reapply syntax highlighting for final content
+  markdownContent.querySelectorAll("pre code").forEach((block) => {
+    if (window.hljs) {
+      hljs.highlightElement(block);
+    }
+  });
+
+  await finalizeMessage(element, markdownContent);
 
   async function finalizeMessage(element, markdownContent) {
-    // Reapply syntax highlighting for final content
-    markdownContent.querySelectorAll("pre code").forEach((block) => {
-      if (window.hljs) {
-        hljs.highlightElement(block);
-      }
-    });
-
     // Finalize the message
     const parent = element.closest(".bot-message");
     if (parent && parent.classList.contains("temp")) {

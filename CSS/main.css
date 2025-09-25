@@ -114,7 +114,7 @@ textarea,
 
 /* Inline code */
 .markdown-content code:not(pre code) {
-  background-color: #1a1a1a;
+  background-color: #009dff4a;
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -2679,6 +2679,180 @@ dialog#search-chats-modal-container #search-chats-modal #1week-chats-container {
   overflow-y: auto;
 }
 
+/* Code block container */
+.code-block-container {
+  margin: 0.5em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1a1a1a; /* Matches .markdown-content pre background */
+  border: 1px solid #444; /* Matches .markdown-content pre border */
+}
+
+/* Code block header */
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px; /* Matches previous update for slightly taller bar */
+  background: #222; /* Matches .input background */
+  border-bottom: 1px solid #444; /* Matches .markdown-content pre border */
+}
+
+/* Language label */
+.code-language {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem; /* Compact font */
+  font-weight: 500;
+  color: #eee; /* Matches .markdown-content code color */
+  text-transform: capitalize;
+  outline: none; /* Remove focus outline */
+  user-select: none; /* Prevent text selection */
+  caret-color: transparent !important; /* Override .markdown-content * rule */
+}
+
+.code-language:focus,
+.code-language:active {
+  caret-color: transparent !important; /* Ensure on focus/active */
+}
+
+/* Code block controls (copy and collapse buttons) */
+.code-block-controls {
+  display: flex;
+  gap: 6px; /* Compact spacing */
+}
+
+/* Copy and collapse buttons */
+.code-copy-btn,
+.code-collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px; /* Space between icon and text */
+  width: auto; /* Fit content */
+  height: 28px; /* Matches taller header */
+  padding: 0 8px; /* Compact padding */
+  border-radius: 6px; /* Matches .message-buttons button */
+  background-color: transparent; /* Matches .bot-message .message-buttons button */
+  color: #ccc; /* Matches .message-buttons button color */
+  border: none;
+  cursor: pointer;
+  outline: none; /* Remove focus outline */
+  user-select: none; /* Prevent text selection */
+  caret-color: transparent !important; /* Override .markdown-content * rule */
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem; /* Compact font */
+  font-weight: 500;
+  transition: color 0.2s ease; /* Simple color transition for hover */
+}
+
+.code-copy-btn:focus,
+.code-copy-btn:active,
+.code-collapse-btn:focus,
+.code-collapse-btn:active {
+  caret-color: transparent !important; /* Ensure on focus/active */
+}
+
+/* Button text span */
+.code-copy-btn span,
+.code-collapse-btn span {
+  caret-color: transparent !important; /* Specifically for text inside buttons */
+  user-select: none;
+}
+
+/* Button hover */
+.code-copy-btn:hover,
+.code-collapse-btn:hover {
+  color: #8bb9fe; /* Matches .copy .button-hover-text-color */
+}
+
+/* Button SVG icons */
+.code-copy-btn svg,
+.code-collapse-btn svg {
+  width: 14px; /* Compact icon size */
+  height: 14px;
+  fill: currentColor;
+}
+
+/* Collapse button chevron */
+.code-collapse-btn .chevron {
+  transition: transform 0.3s ease; /* Smooth rotation */
+}
+
+/* Code block content */
+.code-block-content {
+  margin: 0;
+  padding: 12px; /* Matches .markdown-content pre padding */
+  display: block;
+  overflow-x: auto; /* Matches .markdown-content pre overflow-x */
+  overflow-y: auto; /* Matches .markdown-content pre overflow-y */
+}
+
+/* Ensure Highlight.js styles are not overridden */
+pre.code-block-content code {
+  background: transparent; /* Prevent background override */
+  padding: 0; /* Remove default padding */
+  font-family: "Roboto Mono", monospace; /* Matches .markdown-content code */
+  font-size: 0.9rem; /* Matches .markdown-content code */
+  color: #eee; /* Matches .markdown-content code */
+}
+
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .code-block-header {
+    padding: 4px 8px; /* Slightly smaller padding for mobile */
+  }
+
+  .code-language {
+    font-size: 0.8rem; /* Smaller font for mobile */
+    outline: none; /* Remove focus outline */
+    user-select: none; /* Prevent text selection */
+    caret-color: transparent !important; /* Override .markdown-content * rule */
+  }
+
+  .code-language:focus,
+  .code-language:active {
+    caret-color: transparent !important;
+  }
+
+  .code-copy-btn,
+  .code-collapse-btn {
+    height: 24px; /* Slightly smaller for mobile */
+    padding: 0 6px; /* Reduced padding */
+    font-size: 0.75rem; /* Smaller font */
+    outline: none; /* Remove focus outline */
+    user-select: none; /* Prevent text selection */
+    caret-color: transparent !important; /* Override .markdown-content * rule */
+  }
+
+  .code-copy-btn:focus,
+  .code-copy-btn:active,
+  .code-collapse-btn:focus,
+  .code-collapse-btn:active {
+    caret-color: transparent !important;
+  }
+
+  .code-copy-btn span,
+  .code-collapse-btn span {
+    caret-color: transparent !important;
+    user-select: none;
+  }
+
+  .code-copy-btn svg,
+  .code-collapse-btn svg {
+    width: 12px; /* Smaller icon for mobile */
+    height: 12px;
+  }
+
+  .code-block-content {
+    padding: 10px; /* Matches mobile .markdown-content pre */
+  }
+
+  pre.code-block-content code {
+    font-size: 0.85rem; /* Matches mobile .markdown-content code */
+  }
+}
+
 /* Mobile view */
 @media (max-width: 768px) {
   dialog#search-chats-modal-container #search-chats-modal {
@@ -3150,5 +3324,305 @@ dialog#search-chats-modal-container #search-chats-modal #1week-chats-container {
   }
   .input-label {
     font-size: 0.8rem;
+  }
+}
+
+/* Text input */
+#text-input-container {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1200px; /* Match #chat-container */
+  background-color: #111; /* Transparent as requested */
+  padding: 8px 16px; /* Balanced padding for desktop */
+  border-radius: 14px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow for visibility */
+}
+
+/* Buttons container */
+#buttons-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff00;
+  padding: 8px; /* Balanced for desktop */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Key buttons (Attach, Trending, Hashtag, Generate Image) */
+.key {
+  position: relative;
+  width: 44px; /* Slightly larger than 40px */
+  height: 44px;
+  perspective: 200px;
+  cursor: pointer;
+  margin-right: 10px; /* Balanced spacing */
+}
+
+/* Ensure the last key button doesn't have extra margin */
+.key:last-of-type {
+  margin-right: 0;
+}
+
+/* Specific rule for generate-image-key to add left margin */
+.generate-image-key {
+  margin-left: 10px !important;
+}
+
+/* Key checkbox */
+.key-checkbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Ensure consistent styling for trending-key and generate-image-key */
+.trending-key,
+.generate-image-key {
+  background: none;
+  border: none;
+}
+
+/* Key top */
+.key-top {
+  width: 100%;
+  height: 100%;
+  background: #2a2a2a;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow:
+    0 2.5px 0 #1f1f1f,
+    0 4.5px 7px rgba(0, 0, 0, 0.3); /* Adjusted for larger button */
+  transition: all 0.2s ease;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+  position: relative;
+  z-index: 1;
+}
+
+/* Key icon (for images) */
+.key-icon {
+  width: 20px; /* Proportional to 44px button */
+  height: 20px;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+}
+
+/* Image opacity for hover */
+.key-hoverable:hover .key-icon {
+  opacity: 0.8;
+}
+
+/* Image opacity for checked state */
+.key-checkbox:checked + .key-top .key-icon {
+  opacity: 1;
+}
+
+/* Status dot */
+.status-dot {
+  position: absolute;
+  top: 6.5px; /* Adjusted for 44px button */
+  right: 6.5px;
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+/* Flash animation for Trending button dot */
+.status-dot.flash {
+  opacity: 1;
+  animation: flash 0.5s ease-in-out;
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Unique colors for each button's status dot */
+.attach-dot {
+  background: #ff7043;
+}
+
+.trending-dot {
+  background: #42a5f5;
+}
+
+.hashtag-dot {
+  background: #66bb6a;
+}
+
+.generate-image-dot {
+  background: #ff4081;
+}
+
+.key-checkbox:checked + .key-top .status-dot {
+  opacity: 1;
+}
+
+/* Key tooltip */
+.key-tip {
+  position: absolute;
+  bottom: -34px; /* Adjusted for 44px button */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12.5px; /* Proportional to button size */
+  font-weight: 500;
+  font-family: "Inter", sans-serif;
+  color: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+/* Unique tooltip colors for each button */
+.attach-tooltip {
+  background: #ff7043;
+}
+
+.trending-tooltip {
+  background: #42a5f5;
+}
+
+.hashtag-tooltip {
+  background: #66bb6a;
+}
+
+.generate-image-tooltip {
+  background: #ff4081;
+}
+
+.key-hoverable:hover .key-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Ensure generic tooltip is hidden for ALL key buttons */
+#buttons-container .key .tooltip {
+  display: none !important;
+  background: transparent !important;
+}
+
+/* Attachment preview */
+#attachment-preview-container {
+  width: 100%;
+  max-width: 1200px; /* Match #chat-container */
+  margin: 0 auto 12px auto;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  background: transparent;
+}
+
+/* Trending topics container */
+#trending-topics-container {
+  width: 100%;
+  max-width: 1200px; /* Match #chat-container */
+  margin: 0 auto 12px auto;
+  display: none;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  background: transparent;
+}
+
+/* Hashtag buttons container */
+#hashtag-buttons-container {
+  width: 100%;
+  max-width: 1200px; /* Match #chat-container */
+  margin: 0 auto 12px auto;
+  display: none;
+  gap: 8px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  background: transparent;
+  overflow-x: auto;
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  #text-input-container {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1200px; /* Match #chat-container */
+    background-color: #111; /* Transparent as requested */
+    padding: 6px 12px; /* Balanced for mobile */
+    border-radius: 14px;
+    box-sizing: border-box;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+  }
+
+  #buttons-container {
+    padding: 6px; /* Balanced for mobile */
+  }
+
+  .key {
+    width: 40px; /* Slightly larger than 36px */
+    height: 40px;
+    margin-right: 8px;
+  }
+
+  .generate-image-key {
+    margin-left: 8px !important;
+  }
+
+  .key-top {
+    box-shadow:
+      0 2px 0 #1f1f1f,
+      0 3.5px 6px rgba(0, 0, 0, 0.3); /* Adjusted for mobile */
+  }
+
+  .key-icon {
+    width: 18px; /* Proportional to 40px button */
+    height: 18px;
+  }
+
+  .status-dot {
+    top: 5.5px; /* Adjusted for 40px button */
+    right: 5.5px;
+    width: 5.5px;
+    height: 5.5px;
+  }
+
+  .key-tip {
+    font-size: 11.5px; /* Proportional to button size */
+    bottom: -32px;
+    padding: 3px 6px;
+  }
+
+  #attachment-preview-container {
+    max-width: 1200px; /* Match #chat-container */
+  }
+
+  #trending-topics-container {
+    max-width: 1200px; /* Match #chat-container */
+  }
+
+  #hashtag-buttons-container {
+    max-width: 1200px; /* Match #chat-container */
   }
 }
